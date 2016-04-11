@@ -1,0 +1,8 @@
+Fit characteristics :
+EG 20
+Fit Range , EB Coll : [17.5,200]
+Fit Range , EE Coll : [17.5,200]
+----------------------
+<----------------- EB ----------------->
+double res_mean=18.4829; double res_sigma=1.24886; double res_alpha=0.923987; double res_n=5.20551; double res_norm=0.999878; 
+double err_mean=0.0647427; double err_sigma=0.104553; double err_alpha=0.147049; double err_n=0.184465; double err_norm=-5.54398e-05; 

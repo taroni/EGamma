@@ -1,0 +1,135 @@
+2015-11-10 17:47:33,055 [DEBUG] 	/afs/cern.ch/cms/ccs/wm/scripts/Crab/CRAB_2_11_1_patch1/python/crab.py -create -cfg crab_turnOn_change080.cfg
+
+2015-11-10 17:47:33,055 [INFO] 	Version 2.11.1_patch1 running on Tue Nov 10 17:47:33 2015 CET (16:47:33 UTC)
+
+crab. Working options:
+	scheduler           remoteglidein
+	job type            CMSSW
+	server              OFF
+	working directory   /afs/cern.ch/work/t/taroni/private/ECAL/EcalEleStudy/CMSSW_7_4_12/src/EGamma/ECGelec/test/turnOnChanged080/
+
+2015-11-10 17:47:33,055 [DEBUG] 	Downloading file [http://cmsdoc.cern.ch/cms/LCG/crab/config/] to [/afs/cern.ch/user/t/taroni/.cms_crab/allowed_releases.conf].
+2015-11-10 17:47:33,286 [DEBUG] 	Input whitelist: 
+2015-11-10 17:47:33,286 [DEBUG] 	Input blacklist: 
+2015-11-10 17:47:33,287 [DEBUG] 	Converted whitelist: 
+2015-11-10 17:47:33,287 [DEBUG] 	Converted blacklist: 
+2015-11-10 17:47:36,969 [DEBUG] 	Downloading file [http://cmsdoc.cern.ch/cms/LCG/crab/config/] to [/afs/cern.ch/user/t/taroni/.cms_crab/site_black_list.conf].
+2015-11-10 17:47:36,970 [DEBUG] 	Enforced black list: TAPE,srm-cms.cern.ch,cmssrm.fnal.gov,T1_RU,T1_TW,cmseos.fnal.gov,cmsdca2.fnal.gov,T2_PK_NCP,T3_US_Vanderbilt_EC2
+ 
+2015-11-10 17:47:42,212 [DEBUG] 	Linux lxplus0060.cern.ch 2.6.32-573.7.1.el6.x86_64 #1 SMP Wed Sep 23 10:12:03 CEST 2015 x86_64 x86_64 x86_64 GNU/Linux
+ 
+Used properties:
+Linux lxplus0060.cern.ch 2.6.32-573.7.1.el6.x86_64 #1 SMP Wed Sep 23 10:12:03 CEST 2015 x86_64 x86_64 x86_64 GNU/Linux
+ 
+Used properties:
+   CMSSW.datasetpath : /DoubleEG/Run2015D-ZElectron-PromptReco-v4/RAW-RECO
+   CMSSW.lumi_mask : /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-259891_13TeV_PromptReco_Collisions15_25ns_JSON.txt
+   CMSSW.lumis_per_job : 300
+   CMSSW.output_file : tree_change080.root
+   CMSSW.pset : eleTreeProd_turnOn_change080.py
+   CMSSW.split_by_lumi : 1
+   CMSSW.total_number_of_lumis : -1
+   CRAB.cfg : crab_turnOn_change080.cfg
+   CRAB.create : 
+   CRAB.jobtype : cmssw
+   CRAB.scheduler : remoteglidein
+   USER.copy_data : 1
+   USER.publish_data : 0
+   USER.return_data : 0
+   USER.storage_element : T2_CH_CERN
+   USER.ui_working_dir : /afs/cern.ch/work/t/taroni/private/ECAL/EcalEleStudy/CMSSW_7_4_12/src/EGamma/ECGelec/test/turnOnChanged080
+   USER.user_remote_dir : TestTriggerOptimization/ratioScan/ZeroBias/TurnOn2015D
+End of used properties.
+
+2015-11-10 17:47:42,213 [DEBUG] 	Downloading file [http://cmsdoc.cern.ch/cms/LCG/crab/config/] to [/afs/cern.ch/user/t/taroni/.cms_crab/site_black_list.conf].
+2015-11-10 17:47:42,213 [DEBUG] 	Enforced black list: TAPE,srm-cms.cern.ch,cmssrm.fnal.gov,T1_RU,T1_TW,cmseos.fnal.gov,cmsdca2.fnal.gov,T2_PK_NCP,T3_US_Vanderbilt_EC2 
+2015-11-10 17:47:42,213 [INFO] 	PSN black list: TAPE,srm-cms.cern.ch,cmssrm.fnal.gov,T1_RU,T1_TW,cmseos.fnal.gov,cmsdca2.fnal.gov,T2_PK_NCP,T3_US_Vanderbilt_EC2
+2015-11-10 17:47:42,345 [DEBUG] 	CMSSW::__init__
+2015-11-10 17:47:42,346 [DEBUG] 	Scram::Scram() version is 2
+2015-11-10 17:47:42,346 [DEBUG] 	Scram::Scram() arch is slc6_amd64_gcc491
+2015-11-10 17:47:42,346 [DEBUG] 	Downloading file [https://cmssdt.cern.ch/SDT/cgi-bin] to [/afs/cern.ch/user/t/taroni/.cms_crab/ReleasesXML?anytype=1].
+2015-11-10 17:47:42,416 [INFO] 	Contacting Data Discovery Services ...
+2015-11-10 17:47:42,416 [INFO] 	Accessing DBS at: https://cmsweb.cern.ch/dbs/prod/global/DBSReader
+2015-11-10 17:47:45,776 [INFO] 	DBS3 lookup took  3.31 sec
+2015-11-10 17:47:45,783 [INFO] 	Datatype is data
+2015-11-10 17:47:45,868 [DEBUG] 	Retrieve block locations with
+curl -ks --cert $X509_USER_PROXY --key $X509_USER_PROXY "https://cmsweb.cern.ch/phedex/datasvc/json/prod/BlockReplicaSummary?dataset=/DoubleEG/Run2015D-ZElectron-PromptReco-v4/RAW-RECO&complete=y"
+2015-11-10 17:47:46,391 [DEBUG] 	Retrieve PNNs type with
+curl -ks --cert $X509_USER_PROXY --key $X509_USER_PROXY "https://cmsweb.cern.ch/phedex/datasvc/cjson/prod/nodes"
+2015-11-10 17:47:46,919 [INFO] 	Requested (A)DS /DoubleEG/Run2015D-ZElectron-PromptReco-v4/RAW-RECO has 77 block(s).
+2015-11-10 17:47:47,528 [DEBUG] 	Job splitting method: LumiBased
+2015-11-10 17:47:47,531 [DEBUG] 	Splitting by Lumi
+2015-11-10 17:47:48,302 [DEBUG] 	Job 1 will run on 5 files and 312 lumis 
+2015-11-10 17:47:48,303 [DEBUG] 	Job 2 will run on 6 files and 337 lumis 
+2015-11-10 17:47:48,304 [DEBUG] 	Job 3 will run on 6 files and 312 lumis 
+2015-11-10 17:47:48,305 [DEBUG] 	Job 4 will run on 8 files and 339 lumis 
+2015-11-10 17:47:48,305 [DEBUG] 	Job 5 will run on 5 files and 318 lumis 
+2015-11-10 17:47:48,306 [DEBUG] 	Job 6 will run on 5 files and 313 lumis 
+2015-11-10 17:47:48,307 [DEBUG] 	Job 7 will run on 6 files and 369 lumis 
+2015-11-10 17:47:48,307 [DEBUG] 	Job 8 will run on 9 files and 332 lumis 
+2015-11-10 17:47:48,308 [DEBUG] 	Job 9 will run on 11 files and 309 lumis 
+2015-11-10 17:47:48,309 [DEBUG] 	Job 10 will run on 7 files and 310 lumis 
+2015-11-10 17:47:48,309 [DEBUG] 	Job 11 will run on 13 files and 312 lumis 
+2015-11-10 17:47:48,310 [DEBUG] 	Job 12 will run on 17 files and 311 lumis 
+2015-11-10 17:47:48,311 [DEBUG] 	Job 13 will run on 11 files and 305 lumis 
+2015-11-10 17:47:48,311 [DEBUG] 	Job 14 will run on 7 files and 334 lumis 
+2015-11-10 17:47:48,312 [DEBUG] 	Job 15 will run on 6 files and 335 lumis 
+2015-11-10 17:47:48,312 [DEBUG] 	Job 16 will run on 9 files and 303 lumis 
+2015-11-10 17:47:48,313 [DEBUG] 	Job 17 will run on 7 files and 328 lumis 
+2015-11-10 17:47:48,314 [DEBUG] 	Job 18 will run on 4 files and 308 lumis 
+2015-11-10 17:47:48,314 [DEBUG] 	Job 19 will run on 6 files and 333 lumis 
+2015-11-10 17:47:48,315 [DEBUG] 	Job 20 will run on 12 files and 319 lumis 
+2015-11-10 17:47:48,316 [DEBUG] 	Job 21 will run on 13 files and 311 lumis 
+2015-11-10 17:47:48,316 [DEBUG] 	Job 22 will run on 12 files and 321 lumis 
+2015-11-10 17:47:48,317 [DEBUG] 	Job 23 will run on 9 files and 300 lumis 
+2015-11-10 17:47:48,317 [DEBUG] 	Job 24 will run on 10 files and 306 lumis 
+2015-11-10 17:47:48,318 [DEBUG] 	Job 25 will run on 7 files and 305 lumis 
+2015-11-10 17:47:48,319 [DEBUG] 	Job 26 will run on 7 files and 332 lumis 
+2015-11-10 17:47:48,319 [DEBUG] 	Job 27 will run on 7 files and 324 lumis 
+2015-11-10 17:47:48,320 [DEBUG] 	Job 28 will run on 7 files and 317 lumis 
+2015-11-10 17:47:48,321 [DEBUG] 	Job 29 will run on 11 files and 314 lumis 
+2015-11-10 17:47:48,321 [DEBUG] 	Job 30 will run on 10 files and 325 lumis 
+2015-11-10 17:47:48,322 [DEBUG] 	Job 31 will run on 9 files and 304 lumis 
+2015-11-10 17:47:48,323 [DEBUG] 	Job 32 will run on 8 files and 307 lumis 
+2015-11-10 17:47:48,323 [DEBUG] 	Job 33 will run on 7 files and 316 lumis 
+2015-11-10 17:47:48,324 [DEBUG] 	Job 34 will run on 8 files and 367 lumis 
+2015-11-10 17:47:48,324 [DEBUG] 	Job 35 will run on 6 files and 350 lumis 
+2015-11-10 17:47:48,325 [DEBUG] 	Job 36 will run on 10 files and 326 lumis 
+2015-11-10 17:47:48,326 [DEBUG] 	Job 37 will run on 9 files and 326 lumis 
+2015-11-10 17:47:48,326 [DEBUG] 	Job 38 will run on 7 files and 310 lumis 
+2015-11-10 17:47:48,327 [DEBUG] 	Job 39 will run on 8 files and 349 lumis 
+2015-11-10 17:47:48,327 [DEBUG] 	Job 40 will run on 7 files and 311 lumis 
+2015-11-10 17:47:48,328 [DEBUG] 	Job 41 will run on 10 files and 306 lumis 
+2015-11-10 17:47:48,328 [DEBUG] 	Job 42 will run on 8 files and 322 lumis 
+2015-11-10 17:47:48,329 [DEBUG] 	Job 43 will run on 8 files and 336 lumis 
+2015-11-10 17:47:48,330 [DEBUG] 	Job 44 will run on 6 files and 323 lumis 
+2015-11-10 17:47:48,330 [DEBUG] 	Job 45 will run on 10 files and 314 lumis 
+2015-11-10 17:47:48,331 [DEBUG] 	Job 46 will run on 12 files and 322 lumis 
+2015-11-10 17:47:48,331 [DEBUG] 	Job 47 will run on 3 files and 72 lumis 
+2015-11-10 17:47:48,331 [INFO] 	47 jobs created to run on 14855 lumis
+2015-11-10 17:47:48,393 [DEBUG] 	PsetManipulator::__init__: PSet file = eleTreeProd_turnOn_change080.py
+2015-11-10 17:47:57,823 [DEBUG] 	Output from TFileService tree_change080.root already in output files
+2015-11-10 17:47:58,014 [DEBUG] 	lib /afs/cern.ch/work/t/taroni/private/ECAL/EcalEleStudy/CMSSW_7_4_12/lib to be tarred
+2015-11-10 17:48:01,104 [DEBUG] 	data RecoEgamma/PhotonIdentification/data to be tarred
+2015-11-10 17:48:01,133 [DEBUG] 	data RecoEgamma/ElectronIdentification/data to be tarred
+2015-11-10 17:48:02,076 [DEBUG] 	data SimCalorimetry/EcalTrigPrimProducers/data to be tarred
+2015-11-10 17:48:03,785 [DEBUG] 	Creator: JobType CMSSW created
+2015-11-10 17:48:03,785 [DEBUG] 	Creator: total # of jobs = 47
+2015-11-10 17:48:03,785 [DEBUG] 	Creator constructor finished
+2015-11-10 17:48:04,565 [DEBUG] 	Creator::run() called
+2015-11-10 17:48:04,565 [DEBUG] 	Scram::Scram() version is 2
+2015-11-10 17:48:04,565 [DEBUG] 	Scram::Scram() arch is slc6_amd64_gcc491
+2015-11-10 17:48:07,543 [INFO] 	output files will be staged at T2_CH_CERN
+       with LFN's starting with = /store/user/taroni/TestTriggerOptimization/ratioScan/ZeroBias/TurnOn2015D/
+2015-11-10 17:48:07,695 [INFO] 	Checking remote location
+2015-11-10 17:48:07,695 [DEBUG] 	protocol = srm-lcg
+endpoint = srm://srm-eoscms.cern.ch:8443/srm/v2/server?SFN=/eos/cms/store/user/taroni/TestTriggerOptimization/ratioScan/ZeroBias/TurnOn2015D/
+
+2015-11-10 17:48:08,691 [DEBUG] 	Command:	eval `scram unsetenv -sh` ; lcg-ls -d -b -D srmv2 srm://srm-eoscms.cern.ch:8443/srm/v2/server?SFN=/eos/cms/store/user/taroni/TestTriggerOptimization/ratioScan/ZeroBias/TurnOn2015D/
+2015-11-10 17:48:08,692 [DEBUG] 	ExitCode:	1
+2015-11-10 17:48:08,692 [DEBUG] 	Output:	/eos/cms/store/user/taroni/TestTriggerOptimization/ratioScan/ZeroBias/TurnOn2015D/: [SE][Ls][SRM_INVALID_PATH] No such file or directory.
+
+2015-11-10 17:48:09,080 [INFO] 	Creating 47 jobs, please wait...
+2015-11-10 17:48:09,081 [DEBUG] 	Creation Time: 4.5156378746
+2015-11-10 17:48:09,081 [INFO] 	Total of 47 jobs created.
+
