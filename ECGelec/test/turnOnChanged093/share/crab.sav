@@ -1,3 +1,0 @@
--jobtype=cmssw
--cfg=crab_turnOn_change093.cfg
--scheduler=remoteglidein
