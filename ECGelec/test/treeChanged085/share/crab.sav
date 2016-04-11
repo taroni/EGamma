@@ -1,3 +1,0 @@
--jobtype=cmssw
--cfg=crab_change085.cfg
--scheduler=caf
