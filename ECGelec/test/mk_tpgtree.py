@@ -14,27 +14,12 @@ process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 
 process.GlobalTag.globaltag = '%globaltag%'
-process.prefer("GlobalTag")
+#process.prefer("GlobalTag")
 
-HLT_name = 'reRECO'
-
-
+HLT_name = 'HLT'
 
 
-# ---------------------------------------------------------------------
-# Produce eID infos
-# ---------------------------------------------------------------------
-###process.load("RecoEgamma.ElectronIdentification.cutsInCategoriesElectronIdentification_cfi")
-###New optimization
-##process.load("RecoEgamma.ElectronIdentification.cutsInCategoriesElectronIdentificationV06_DataTuning_cfi")
-# ---------------------------------------------------------------------
-# Produce eIso infos from HZZ official package
-# ---------------------------------------------------------------------
-#process.load("EGamma.ECGelec.HzzIsolationSequences_cff")
-# ---------------------------------------------------------------------
-# Produce muIso infos from HZZ official package
-# ---------------------------------------------------------------------
-#process.load("EGamma.ECGelec.muonHzzIsolationSequences_cff")
+
 
 # ---------------------------------------------------------------------
 # Unpack Ecal Digis
@@ -47,6 +32,7 @@ process.load("EventFilter.EcalRawToDigi.EcalUnpackerData_cfi");
 process.load("Geometry.EcalMapping.EcalMapping_cfi")
 process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
 #process.load("CalibCalorimetry.Configuration.Ecal_FakeConditions_cff")                                                                                                            
+
 # ECAL TPG Analyzer                                                                                                                                                                
 #process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
 process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
@@ -74,10 +60,9 @@ process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
 # ---------------------------------------------------------------------
 # Config from file
 #process.load('SimCalorimetry.EcalTrigPrimProducers.ecalTrigPrimESProducer_cff')
-#process.EcalTrigPrimESProducer.DatabaseFile = 'TPG_beamv6_transEB_spikekill.txt.tar.gz'
 process.load('SimCalorimetry.EcalTrigPrimProducers.ecalTrigPrimESProducer_cff')
-#process.EcalTrigPrimESProducer.DatabaseFile = 'TPG_beamv6_trans_spikekill_FG93.tar.gz'
-process.EcalTrigPrimESProducer.DatabaseFile = 'TPG_beamv6_trans_spikekill_255999_2015_18_22.txt.gz'
+#process.EcalTrigPrimESProducer.DatabaseFile = 'TPG_beamv6_trans_spikekill_255999_2015_18_22.txt.gz'
+process.EcalTrigPrimESProducer.DatabaseFile = 'TPG_beamv6_trans_255999_spikekill_2015.txt.gz'
 
 process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff")
 process.simEcalTriggerPrimitiveDigis.Label = 'ecalDigis'
@@ -140,9 +125,9 @@ process.runSelection = cms.EDFilter("RunSelect",
 
 
 
-process.load("EGamma.ECGelec.NtupleProducer_custom_mc_cfi")
-from EGamma.ECGelec.NtupleProducer_custom_mc_cfi import *
-process.produceNtuple = produceNtupleCustom_mc.clone()
+process.load("EGamma.ECGelec.NtupleProducer_SpikeStudy_cfi")
+from EGamma.ECGelec.NtupleProducer_SpikeStudy_cfi import *
+process.produceNtuple = produceNtupleSpikeStudy.clone()
 
 
 
@@ -219,29 +204,6 @@ process.l1extraParticlesOnline = cms.EDProducer("L1ExtraParticlesProd",
 
 
 
-# ---------------------------------------------------------------------
-# JETS
-# ---------------------------------------------------------------------
-# JPT
-#process.load('RecoJets.Configuration.RecoJPTJets_cff')
-process.load('RecoJets.Configuration.RecoPFJets_cff')
-#process.load('RecoJets.Configuration.RecoPFJets_cff')
-#JEC Corrections... to come !
-# for 360: create colection of L2L3 corrected JPT jets: ak5JPTJetsL2L3  
-# one need set of tags will be provided be JES
-# process.p1 = cms.Path(process.ak5JPTJetsL2L3*process.dump)
-
-# ---------------------------------------------------------------------
-# Fast Jet Rho Correction
-# ---------------------------------------------------------------------
-process.load('RecoJets.JetProducers.kt4PFJets_cfi')
-process.kt6PFJets = process.kt4PFJets.clone( rParam = 0.6, doRhoFastjet = True )
-process.kt6PFJets.Rho_EtaMax = cms.double(2.5)
-# ---------------------------------------------------------------------
-# Produce Ntuple Module
-# ---------------------------------------------------------------------
-
-
 
 # ---------------------------------------------------------------------
 # Save all event content in separate file (for debug purposes)
@@ -254,69 +216,8 @@ process.SpecialEventContent = cms.PSet(
         splitLevel = cms.untracked.int32(0)
        )
 
-##process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
-##                                              splitLevel = cms.untracked.int32(0),
-##                                              #outputCommands = cms.untracked.vstring('keep *'),
-##                                              #outputCommands = process.RECOEventContent.outputCommands,
-##                                              outputCommands = process.SpecialEventContent.outputCommands,
-##                                              fileName = cms.untracked.string('tree_EventContent_changed.root'),
-##                                              #SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring ('filter') ),
-##                                              dataset = cms.untracked.PSet(
-##        #filterName = cms.untracked.string('EmulSpikesFilter'),
-##        dataTier = cms.untracked.string('DIGI-RECO')
-##        )
-##)
-##
-##process.output_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 
-
-# Trigger Stuff
-process.produceNtuple.HLTTag          = 'TriggerResults::' + HLT_name
-process.produceNtuple.TriggerEventTag = 'hltTriggerSummaryAOD::' + HLT_name
-process.produceNtuple.HLTElePaths = cms.vstring(
-'HLT_Ele17_CaloIdL_TrackIdL_IsoVL_v1',
-'HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v2',
-'HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_v2'
-        )
-process.produceNtuple.HLTMuonPaths    = cms.vstring('HLT_Mu9')
-process.produceNtuple.HLTFilters      = cms.VInputTag('hltL1NonIsoHLTNonIsoSingleElectronEt17TighterEleIdIsolTrackIsolFilter::'+HLT_name,
-                                                      'hltL1NonIsoHLTNonIsoDoubleElectronEt17PixelMatchFilter::'+HLT_name,
-                                                      #'hltL1NonIsoHLTNonIsoSingleElectronEt17TightCaloEleIdEle8HEPixelMatchFilter::'+HLT_name,
-                                                      'hltL1NonIsoHLTNonIsoSingleElectronEt17TighterEleIdIsolPixelMatchFilter::'+HLT_name,
-                                                      'hltL1NonIsoHLTNonIsoSingleElectronEt17TightCaloEleIdEle8HEDoublePixelMatchFilter::'+HLT_name,
-                                                      # Muon Trigger
-                                                      'hltSingleMu9L3Filtered9')
-
-process.produceNtuple.eleVetoIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-veto")
-process.produceNtuple.eleLooseIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-loose")
-process.produceNtuple.eleMediumIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-medium")
-process.produceNtuple.eleTightIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-tight")
-
-#process.rate = cms.EDAnalyzer("RateStudy"
-#                              )
-
-
-from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
-# turn on VID producer, indicate data format  to be
-# DataFormat.AOD or DataFormat.MiniAOD, as appropriate 
-dataFormat = DataFormat.AOD
-switchOnVIDElectronIdProducer(process, dataFormat)
-# define which IDs we want to produce
-my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_50ns_V2_cff',
-                 'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff']
-#add them to the VID producer
-for idmod in my_id_modules:
-    setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
-
-
-# ---------------------------------------------------------------------
-# Sequence PATH
-# ---------------------------------------------------------------------
-
-#process.raw2digi_step = cms.Path(process.RawToDigi)
-#process.L1Reco_step = cms.Path(process.L1Reco)
-#process.reconstruction_step = cms.Path(process.reconstruction)
-
+#
 process.p = cms.Path (
 #    process.ecalEBunpacker +
     process.ecalDigis +
@@ -329,8 +230,6 @@ process.p = cms.Path (
     process.ecalUncalibHit+
     process.ecalDetIdToBeRecovered+
     process.ecalRecHit+
-    process.egmGsfElectronIDSequence +
-    process.kt6PFJets +
     process.produceNtuple
     )
 process.schedule = cms.Schedule(#process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,

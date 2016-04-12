@@ -44,7 +44,7 @@ case "$mode" in
    
     queue="cmscaf1nd"   # LXBATCH jobs queue
 #    queue="8nh"
-    batchdir="$(pwd)/log_and_results2/mcspikes2"
+    batchdir="$(pwd)/log_and_results/mcspikes2"
     mkdir -p $batchdir
     mkdir -p $batchdir/logs
     mkdir -p $batchdir/results
