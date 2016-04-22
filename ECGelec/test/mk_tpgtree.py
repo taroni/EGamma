@@ -86,7 +86,7 @@ process.simEcalTriggerPrimitiveDigis.InstanceEB =  'ebDigis'
 process.simEcalTriggerPrimitiveDigis.InstanceEE =  'eeDigis'
 process.simEcalTriggerPrimitiveDigis.BarrelOnly = False
 
-print "jaha"
+
 
 
 
@@ -104,7 +104,7 @@ process.load("RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi")
 process.ecalRecHit.EBuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEB'
 process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEE'
 
-print "jaha"
+
 # ---------------------------------------------------------------------
 # Input Files
 # ---------------------------------------------------------------------
@@ -127,7 +127,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(%numevents%)
                                         #SkipEvent = cms.untracked.vstring('ProductNotFound')
                                         )
 
-print "jaha"
+
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
 
                                        
@@ -138,13 +138,13 @@ process.runSelection = cms.EDFilter("RunSelect",
     debug = cms.untracked.bool(False)
     )
 
-print "maha"
+
 
 process.load("EGamma.ECGelec.NtupleProducer_custom_cfi")
 from EGamma.ECGelec.NtupleProducer_custom_cfi import *
 process.produceNtuple = produceNtupleCustom.clone()
 
-print "maha"
+
 
 process.produceNtuple.NadL1M = cms.untracked.bool(True)
 process.produceNtuple.NadTP = cms.untracked.bool(True)
@@ -156,7 +156,6 @@ process.produceNtuple.AOD = cms.untracked.bool(False)
 process.produceNtuple.FillSC = cms.untracked.bool(True)
 process.produceNtuple.functionName = cms.string("EcalClusterEnergyUncertainty")
 
-print "j=kaha"
 
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 
@@ -243,7 +242,6 @@ process.kt6PFJets.Rho_EtaMax = cms.double(2.5)
 
 
 
-print "jaha"
 # ---------------------------------------------------------------------
 # Save all event content in separate file (for debug purposes)
 # ---------------------------------------------------------------------
@@ -329,4 +327,4 @@ from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
 
 #call to customisation function customisePostLS1 imported from SLHCUpgradeSimulations.Configuration.postLS1Customs
 process = customisePostLS1_lowPU(process)
-print "gurta"
+
