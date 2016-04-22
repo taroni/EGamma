@@ -209,6 +209,8 @@ void Spike(TString run,TString campaign,TString sfgvb,TString etkill){
   // TString filestart="/afs/cern.ch/work/n/ndev/CMSSW_7_4_15/src/EGamma/ECGelec/test/ECALTPGtree_testing_tree11.root";  
   
   // TString filestart="/afs/cern.ch/work/n/ndev/CMSSW_7_4_15/src/EGamma/ECGelec/test/tree.root";
+  
+  filestart="/afs/cern.ch/user/n/ndev/eos/cms/store/user/ndev/TPG/ECALTPG_tree/ECALTPGtree_12_12_ON_257822.root";
   TFile *inf = TFile::Open(filestart);
 
   TTree *tr_ECAL = (TTree*)inf->Get("produceNtuple/eIDSimpleTree");

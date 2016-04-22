@@ -13,8 +13,8 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 
-process.GlobalTag.globaltag = '%globaltag%'
-#process.prefer("GlobalTag")
+process.GlobalTag.globaltag = '80X_dataRun2_Prompt_v2'
+process.prefer("GlobalTag")
 
 HLT_name = 'HLT'
 
@@ -109,7 +109,7 @@ print "jaha"
 # Input Files
 # ---------------------------------------------------------------------
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring('file:%filename%'
+                            fileNames = cms.untracked.vstring('file:root://eoscms//eos/cms/store/caf/user/ndev/TPG/257822/RAWRECOtree_93.root'
         #'root://xrootd-cms.infn.it//store/data/Run2015D/ZeroBias/RAW/v1/000/258/175/00000/269ED683-2B6A-E511-B17B-02163E013663.root'
                             ),                         
                         )
@@ -123,7 +123,7 @@ process.TFileService = cms.Service ("TFileService",
                                     fileName = cms.string ("tree.root")
                                     )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(%numevents%)
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1)
                                         #SkipEvent = cms.untracked.vstring('ProductNotFound')
                                         )
 
@@ -271,6 +271,22 @@ process.SpecialEventContent = cms.PSet(
 ##process.output_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 
 
+# Trigger Stuff
+process.produceNtuple.HLTTag          = 'TriggerResults::' + HLT_name
+process.produceNtuple.TriggerEventTag = 'hltTriggerSummaryAOD::' + HLT_name
+process.produceNtuple.HLTElePaths = cms.vstring(
+'HLT_Ele17_CaloIdL_TrackIdL_IsoVL_v1',
+'HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v2',
+'HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_v2'
+        )
+process.produceNtuple.HLTMuonPaths    = cms.vstring('HLT_Mu9')
+process.produceNtuple.HLTFilters      = cms.VInputTag('hltL1NonIsoHLTNonIsoSingleElectronEt17TighterEleIdIsolTrackIsolFilter::'+HLT_name,
+                                                      'hltL1NonIsoHLTNonIsoDoubleElectronEt17PixelMatchFilter::'+HLT_name,
+                                                      #'hltL1NonIsoHLTNonIsoSingleElectronEt17TightCaloEleIdEle8HEPixelMatchFilter::'+HLT_name,
+                                                      'hltL1NonIsoHLTNonIsoSingleElectronEt17TighterEleIdIsolPixelMatchFilter::'+HLT_name,
+                                                      'hltL1NonIsoHLTNonIsoSingleElectronEt17TightCaloEleIdEle8HEDoublePixelMatchFilter::'+HLT_name,
+                                                      # Muon Trigger
+                                                      'hltSingleMu9L3Filtered9')
 
 process.produceNtuple.eleVetoIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-veto")
 process.produceNtuple.eleLooseIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-loose")

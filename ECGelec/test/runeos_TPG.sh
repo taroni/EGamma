@@ -66,7 +66,7 @@ case "$mode" in
       s=$[$s+1]
 
 #      cp -r configuration/configTPGtemplate.py $batchdir/runTPG_cfg_${s}.py
-      cp -r mc_mk_tpgtree.py $batchdir/runTPG_cfg_${s}.py
+      cp -r mk_tpgtree.py $batchdir/runTPG_cfg_${s}.py
       cp -r batch_template_AAA.sh $batchdir/batch_job_${s}.sh
 
       cd $batchdir/
