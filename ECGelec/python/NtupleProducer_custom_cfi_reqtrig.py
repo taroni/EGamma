@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-produceNtupleCustom = cms.EDAnalyzer("SimpleNtpleCustom",
+produceNtupleCustom_reqtrig = cms.EDAnalyzer("SimpleNtpleCustom_reqtrig",
                                      ## Custom Nadir
 
                                      # boolean parameters
@@ -15,10 +15,10 @@ produceNtupleCustom = cms.EDAnalyzer("SimpleNtpleCustom",
 
                                      # to get the trigger primitives
                                      TPCollectionNormal = cms.InputTag("ecalDigis","EcalTriggerPrimitives"),
-                                     #  TPCollectionNormal = cms.InputTag("ecalEBunpacker","EcalTriggerPrimitives"),
+                                     #TPCollectionNormal = cms.InputTag("ecalEBunpacker","EcalTriggerPrimitives"),
                                      
                                      TPEmulatorCollection  = cms.InputTag("simEcalTriggerPrimitiveDigis"),
-                                     
+                                     #TPEmulatorCollection  = cms.InputTag("ecalTriggerPrimitiveDigis"),
                                      GTRecordCollection = cms.string('gtDigis'),                                   
 
                                      #rechit
@@ -69,12 +69,12 @@ produceNtupleCustom = cms.EDAnalyzer("SimpleNtpleCustom",
                                      MCTag = cms.InputTag("generator"),
                                      TkPTag = cms.InputTag("mergedtruth:MergedTrackTruth:readseeds"),
                                      ## Trigger Stuff
-#keep_trigger = cms.bool(False),                        
-#HLTTag          = cms.InputTag("TriggerResults","","HLT"),
-#TriggerEventTag = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
-#HLTElePaths     = cms.vstring("HLT_Photon15_L1R"),
-#HLTMuonPaths    = cms.vstring("HLT_Mu9"),
-#HLTFilters      = cms.VInputTag("hltL1NonIsoHLTNonIsoSinglePhotonEt10HcalIsolFilter::HLT"),
+                                     keep_trigger = cms.bool(False),                        
+                                     HLTTag          = cms.InputTag("TriggerResults","","HLT"),
+                                     TriggerEventTag = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
+                                     HLTElePaths     = cms.vstring("HLT_Photon15_L1R"),
+                                     HLTMuonPaths    = cms.vstring("HLT_Mu9"),
+                                     HLTFilters      = cms.VInputTag("hltL1NonIsoHLTNonIsoSinglePhotonEt10HcalIsolFilter::HLT"),
                                      # 
                                      dcsTag = cms.untracked.InputTag("scalersRawToDigi"),                                 
                                      type = cms.string("DATA"),

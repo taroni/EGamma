@@ -1,3 +1,5 @@
+
+
 // C++
 #include <memory>
 #include <iostream>
@@ -125,10 +127,10 @@
 // TrackingParticles
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
+//#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 //#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
+//#include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
@@ -225,10 +227,10 @@ class towerEner {
   int tpgEmulsFGVB_[5] ;
   int tpgADC_;
   int iphi_, ieta_, nbXtal_, spike_ ;
-  int twrADC_, sFGVB_, sevlv_, ttFlag_, sevlv2_;
+  int twrADC_, sFGVB_, sevlv_, ttFlag_, sevlv2_,rechit_cleaning_cut_;
   towerEner()
     : eRec_(0), maxRechit_(0), crystNb_(0), tpgADC_(0),
-    iphi_(-999), ieta_(-999), nbXtal_(0), spike_(0), twrADC_(0), sFGVB_(-999), sevlv_(0) , ttFlag_(0),sevlv2_(0)
+    iphi_(-999), ieta_(-999), nbXtal_(0), spike_(0), twrADC_(0), sFGVB_(999), sevlv_(0) , ttFlag_(0),sevlv2_(0),rechit_cleaning_cut_(0)
     {
       for (int i=0 ; i<5 ; i ++) {
 	tpgEmul_[i] = 0 ;
@@ -318,7 +320,7 @@ class SimpleNtpleCustom : public edm::EDAnalyzer {
   int _ttFlag[4032];
   int _sFGVB[4032];
   int _twrADC[4032];
-	
+  int _rechit_cleaning_cut[4032];
   // Vertices
   int _vtx_N;
   double _vtx_x[50], _vtx_y[50], _vtx_z[50];
@@ -336,9 +338,24 @@ class SimpleNtpleCustom : public edm::EDAnalyzer {
   // original TP
   int _trig_tower_N, _trig_tower_ieta[4032],_trig_tower_iphi[4032],_trig_tower_adc[4032], _trig_tower_sFGVB[4032]; 
 
-  //rechitswithbadcrystals
+  //rechits with bad crystals (sevlv 3 or 4 crystals)
   int _n_bad_crystals,_erec_Et_sevlv3_4[4032];
   double _erec_eta_sevlv3_4[4032],_erec_phi_sevlv3_4[4032],_erec_theta_sevlv3_4[4032];
+ 
+ //all rechits
+  float  _all_rechits_time[8064]; 
+  int  _num_all_rechits,_all_rechits_Et[8064];
+  double _all_rechits_eta[8064],_all_rechits_phi[8064],_all_rechits_theta[8064];
+
+   //all intime rechits abs(time)<15
+  int  _num_intime_rechits,_intime_rechits_Et[4032];
+  double _intime_rechits_eta[4032],_intime_rechits_phi[4032],_intime_rechits_theta[4032];
+
+  //all intime rechits abs(time)<15 with severity level 3 or 4
+  int  _num_intime_rechits_sevlv3_4,_intime_rechits_sevlv3_4_Et[4032];
+  double _intime_rechits_sevlv3_4_eta[4032],_intime_rechits_sevlv3_4_phi[4032],_intime_rechits_sevlv3_4_theta[4032];
+
+
   // cleaned TP
   int _trig_tower_N_modif, _trig_tower_ieta_modif[4032],_trig_tower_iphi_modif[4032],
     _trig_tower_adc_modif[4032], _trig_tower_sFGVB_modif[4032]; 

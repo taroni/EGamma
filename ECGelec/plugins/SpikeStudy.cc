@@ -21,7 +21,7 @@ SpikeStudy::SpikeStudy(const edm::ParameterSet& iConfig) :
 
   VerticesTag_(iConfig.getParameter<edm::InputTag> ("VerticesTag")),
   dcsTag_ (iConfig.getUntrackedParameter<edm::InputTag>("dcsTag")),
-  nadGetL1M_ (iConfig.getUntrackedParameter<bool>("NadL1M")),
+  GetL1M_ (iConfig.getUntrackedParameter<bool>("L1M")),
   // Trigger Stuff
   PileupSrc_ ("addPileupInfo"),
   type_ (iConfig.getParameter<std::string>("type")),
@@ -769,7 +769,7 @@ void SpikeStudy::FillTpData (const edm::Event& iEvent, const edm::EventSetup& iS
     edm::Handle< l1extra::L1EmParticleCollection > emNonisolColl_M ;
     edm::Handle< l1extra::L1EmParticleCollection > emIsolColl_M ;  
 
-    if( !nadGetL1M_ ) {      
+    if( !GetL1M_ ) {      
       // standard collection ALONE
       iEvent.getByLabel("l1extraParticles","NonIsolated", emNonisolColl ) ;
       iEvent.getByLabel("l1extraParticles","Isolated", emIsolColl ) ;
@@ -820,7 +820,7 @@ void SpikeStudy::FillTpData (const edm::Event& iEvent, const edm::EventSetup& iS
       counter++;
     } // for loop on Non Iso cand
 	  
-    if( nadGetL1M_ ) {
+    if( GetL1M_ ) {
       _trig_L1emIso_N_M = emIsolColl_M->size();
       //      if(PrintDebug_) cout << "_trig_L1emIso_N_M =" << _trig_L1emIso_N_M << endl;
       cout << "_trig_L1emIso_N_M =" << _trig_L1emIso_N_M << endl;
@@ -837,7 +837,7 @@ void SpikeStudy::FillTpData (const edm::Event& iEvent, const edm::EventSetup& iS
            counter++;
       }
     ///// MODIFIED COLLECTION IF ASKED
-//      if( nadGetL1M_ ) {
+//      if( GetL1M_ ) {
 
       // Isolated candidates
 //      _trig_L1emIso_N_M = emIsolColl_M->size();
