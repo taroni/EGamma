@@ -157,6 +157,7 @@ process.produceNtuple.FillSC = cms.untracked.bool(True)
 process.produceNtuple.functionName = cms.string("EcalClusterEnergyUncertainty")
 
 
+
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 
 # ---------------------------------------------------------------------
@@ -269,6 +270,22 @@ process.SpecialEventContent = cms.PSet(
 ##process.output_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 
 
+# Trigger Stuff
+process.produceNtuple.HLTTag          = 'TriggerResults::' + HLT_name
+process.produceNtuple.TriggerEventTag = 'hltTriggerSummaryAOD::' + HLT_name
+process.produceNtuple.HLTElePaths = cms.vstring(
+'HLT_Ele17_CaloIdL_TrackIdL_IsoVL_v1',
+'HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v2',
+'HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_v2'
+        )
+process.produceNtuple.HLTMuonPaths    = cms.vstring('HLT_Mu9')
+process.produceNtuple.HLTFilters      = cms.VInputTag('hltL1NonIsoHLTNonIsoSingleElectronEt17TighterEleIdIsolTrackIsolFilter::'+HLT_name,
+                                                      'hltL1NonIsoHLTNonIsoDoubleElectronEt17PixelMatchFilter::'+HLT_name,
+                                                      #'hltL1NonIsoHLTNonIsoSingleElectronEt17TightCaloEleIdEle8HEPixelMatchFilter::'+HLT_name,
+                                                      'hltL1NonIsoHLTNonIsoSingleElectronEt17TighterEleIdIsolPixelMatchFilter::'+HLT_name,
+                                                      'hltL1NonIsoHLTNonIsoSingleElectronEt17TightCaloEleIdEle8HEDoublePixelMatchFilter::'+HLT_name,
+                                                      # Muon Trigger
+                                                      'hltSingleMu9L3Filtered9')
 
 process.produceNtuple.eleVetoIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-veto")
 process.produceNtuple.eleLooseIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-loose")
@@ -327,4 +344,3 @@ from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
 
 #call to customisation function customisePostLS1 imported from SLHCUpgradeSimulations.Configuration.postLS1Customs
 process = customisePostLS1_lowPU(process)
-

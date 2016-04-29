@@ -42,6 +42,11 @@
 <use   name="TrackingTools/IPTools"/>
 <use   name="TrackingTools/TrajectoryState"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
+<use   name="DataFormats/L1GlobalMuonTrigger"/>
+<use   name="DataFormats/L1GlobalTrigger"/>
+<use   name="DataFormats/L1Trigger"/>
+<use   name="L1Trigger/L1TCalorimeter"/>
+<use   name="CondFormats/L1TObjects"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/CaloTopology"/>
 <use   name="HLTrigger/HLTcore"/>

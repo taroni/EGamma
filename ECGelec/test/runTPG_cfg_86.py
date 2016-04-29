@@ -14,7 +14,7 @@ process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 
 process.GlobalTag.globaltag = '80X_dataRun2_Prompt_v2'
-#process.prefer("GlobalTag")
+process.prefer("GlobalTag")
 
 HLT_name = 'HLT'
 

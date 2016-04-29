@@ -13,7 +13,7 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 
-process.GlobalTag.globaltag = '80X_dataRun2_Prompt_v2'
+process.GlobalTag.globaltag = '%globaltag%'
 #process.prefer("GlobalTag")
 
 HLT_name = 'HLT'
@@ -86,7 +86,7 @@ process.simEcalTriggerPrimitiveDigis.InstanceEB =  'ebDigis'
 process.simEcalTriggerPrimitiveDigis.InstanceEE =  'eeDigis'
 process.simEcalTriggerPrimitiveDigis.BarrelOnly = False
 
-print "jaha"
+
 
 
 
@@ -104,12 +104,12 @@ process.load("RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi")
 process.ecalRecHit.EBuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEB'
 process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEE'
 
-print "jaha"
+
 # ---------------------------------------------------------------------
 # Input Files
 # ---------------------------------------------------------------------
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring('file:root://eoscms//eos/cms/store/caf/user/ndev/TPG/257822/RAWRECOtree_93.root'
+                            fileNames = cms.untracked.vstring('file:%filename%'
         #'root://xrootd-cms.infn.it//store/data/Run2015D/ZeroBias/RAW/v1/000/258/175/00000/269ED683-2B6A-E511-B17B-02163E013663.root'
                             ),                         
                         )
@@ -123,11 +123,11 @@ process.TFileService = cms.Service ("TFileService",
                                     fileName = cms.string ("tree.root")
                                     )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1)
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(%numevents%)
                                         #SkipEvent = cms.untracked.vstring('ProductNotFound')
                                         )
 
-print "jaha"
+
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
 
                                        
@@ -138,13 +138,13 @@ process.runSelection = cms.EDFilter("RunSelect",
     debug = cms.untracked.bool(False)
     )
 
-print "maha"
 
-process.load("EGamma.ECGelec.NtupleProducer_custom_cfi")
-from EGamma.ECGelec.NtupleProducer_custom_cfi import *
-process.produceNtuple = produceNtupleCustom.clone()
 
-print "maha"
+process.load("EGamma.ECGelec.NtupleProducer_custom_cfi_mc")
+from EGamma.ECGelec.NtupleProducer_custom_cfi_mc import *
+process.produceNtuple = produceNtupleCustom_mc.clone()
+
+
 
 process.produceNtuple.NadL1M = cms.untracked.bool(True)
 process.produceNtuple.NadTP = cms.untracked.bool(True)
@@ -156,7 +156,7 @@ process.produceNtuple.AOD = cms.untracked.bool(False)
 process.produceNtuple.FillSC = cms.untracked.bool(True)
 process.produceNtuple.functionName = cms.string("EcalClusterEnergyUncertainty")
 
-print "j=kaha"
+
 
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 
@@ -243,7 +243,6 @@ process.kt6PFJets.Rho_EtaMax = cms.double(2.5)
 
 
 
-print "jaha"
 # ---------------------------------------------------------------------
 # Save all event content in separate file (for debug purposes)
 # ---------------------------------------------------------------------
@@ -270,7 +269,7 @@ process.SpecialEventContent = cms.PSet(
 ##
 ##process.output_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 
-
+"""
 # Trigger Stuff
 process.produceNtuple.HLTTag          = 'TriggerResults::' + HLT_name
 process.produceNtuple.TriggerEventTag = 'hltTriggerSummaryAOD::' + HLT_name
@@ -287,7 +286,7 @@ process.produceNtuple.HLTFilters      = cms.VInputTag('hltL1NonIsoHLTNonIsoSingl
                                                       'hltL1NonIsoHLTNonIsoSingleElectronEt17TightCaloEleIdEle8HEDoublePixelMatchFilter::'+HLT_name,
                                                       # Muon Trigger
                                                       'hltSingleMu9L3Filtered9')
-
+"""
 process.produceNtuple.eleVetoIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-veto")
 process.produceNtuple.eleLooseIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-loose")
 process.produceNtuple.eleMediumIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-medium")
@@ -345,4 +344,3 @@ from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
 
 #call to customisation function customisePostLS1 imported from SLHCUpgradeSimulations.Configuration.postLS1Customs
 process = customisePostLS1_lowPU(process)
-print "gurta"

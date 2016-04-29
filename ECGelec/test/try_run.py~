@@ -13,7 +13,7 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 
-process.GlobalTag.globaltag = '80X_dataRun2_Prompt_v2'
+process.GlobalTag.globaltag = '76X_mcRun2_asymptotic_v12'
 #process.prefer("GlobalTag")
 
 HLT_name = 'HLT'
@@ -73,12 +73,8 @@ process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
 # Simulate Ecal Trigger Primitives
 # ---------------------------------------------------------------------
 # Config from file
-#process.load('SimCalorimetry.EcalTrigPrimProducers.ecalTrigPrimESProducer_cff')
-#process.EcalTrigPrimESProducer.DatabaseFile = 'TPG_beamv6_transEB_spikekill.txt.tar.gz'
 process.load('SimCalorimetry.EcalTrigPrimProducers.ecalTrigPrimESProducer_cff')
-#process.EcalTrigPrimESProducer.DatabaseFile = 'TPG_beamv6_trans_spikekill_FG93.tar.gz'
 process.EcalTrigPrimESProducer.DatabaseFile = 'TPG_beamv6_trans_spikekill_255999_2015_18_22.txt.gz'
-
 process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff")
 process.simEcalTriggerPrimitiveDigis.Label = 'ecalDigis'
 #process.simEcalTriggerPrimitiveDigis.Label = 'ecalEBunpacker'
@@ -86,7 +82,6 @@ process.simEcalTriggerPrimitiveDigis.InstanceEB =  'ebDigis'
 process.simEcalTriggerPrimitiveDigis.InstanceEE =  'eeDigis'
 process.simEcalTriggerPrimitiveDigis.BarrelOnly = False
 
-print "jaha"
 
 
 
@@ -104,12 +99,12 @@ process.load("RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi")
 process.ecalRecHit.EBuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEB'
 process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEE'
 
-print "jaha"
+
 # ---------------------------------------------------------------------
 # Input Files
 # ---------------------------------------------------------------------
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring('file:root://eoscms//eos/cms/store/caf/user/ndev/TPG/257822/RAWRECOtree_93.root'
+                            fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/n/ndev/eos/cms/store/user/ndev/MinBias-Gen-Sim/Nab_raw2digi/160310_200606/0000/MyRECO_inRECO_32.root'
         #'root://xrootd-cms.infn.it//store/data/Run2015D/ZeroBias/RAW/v1/000/258/175/00000/269ED683-2B6A-E511-B17B-02163E013663.root'
                             ),                         
                         )
@@ -127,7 +122,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1)
                                         #SkipEvent = cms.untracked.vstring('ProductNotFound')
                                         )
 
-print "jaha"
+
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
 
                                        
@@ -138,13 +133,13 @@ process.runSelection = cms.EDFilter("RunSelect",
     debug = cms.untracked.bool(False)
     )
 
-print "maha"
+
 
 process.load("EGamma.ECGelec.NtupleProducer_custom_cfi")
 from EGamma.ECGelec.NtupleProducer_custom_cfi import *
 process.produceNtuple = produceNtupleCustom.clone()
 
-print "maha"
+
 
 process.produceNtuple.NadL1M = cms.untracked.bool(True)
 process.produceNtuple.NadTP = cms.untracked.bool(True)
@@ -156,7 +151,7 @@ process.produceNtuple.AOD = cms.untracked.bool(False)
 process.produceNtuple.FillSC = cms.untracked.bool(True)
 process.produceNtuple.functionName = cms.string("EcalClusterEnergyUncertainty")
 
-print "j=kaha"
+
 
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 
@@ -243,7 +238,6 @@ process.kt6PFJets.Rho_EtaMax = cms.double(2.5)
 
 
 
-print "jaha"
 # ---------------------------------------------------------------------
 # Save all event content in separate file (for debug purposes)
 # ---------------------------------------------------------------------
@@ -321,7 +315,8 @@ for idmod in my_id_modules:
 process.p = cms.Path (
 #    process.ecalEBunpacker +
     process.ecalDigis +
-    process.simEcalTriggerPrimitiveDigis +
+#    process.simEcalTriggerPrimitiveDigis +
+    process.ecalTriggerPrimitiveDigis +
     process.simRctDigis +
     process.simGctDigis +
     process.simGtDigis +
@@ -345,4 +340,3 @@ from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
 
 #call to customisation function customisePostLS1 imported from SLHCUpgradeSimulations.Configuration.postLS1Customs
 process = customisePostLS1_lowPU(process)
-print "gurta"
