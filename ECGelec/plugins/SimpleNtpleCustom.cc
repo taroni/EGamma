@@ -9,83 +9,189 @@ class CaloSubdetectorGeometry;
 // ====================================================================================
 SimpleNtpleCustom::SimpleNtpleCustom(const edm::ParameterSet& iConfig) :
 
-  // Nadir study
+  
   hcalTowers_ (iConfig.getParameter<edm::InputTag>("hcalTowers")),
   hOverEConeSize_ (iConfig.getParameter<double>("hOverEConeSize")),
   hOverEPtMin_ (iConfig.getParameter<double>("hOverEPtMin")),
-  
+ 
+
   nadGetL1M_ (iConfig.getUntrackedParameter<bool>("NadL1M")),
   nadGetTP_ (iConfig.getUntrackedParameter<bool>("NadTP")),
   nadGetTP_Modif_ (iConfig.getUntrackedParameter<bool>("NadTPmodif")),
   nadGetTP_Emul_ (iConfig.getUntrackedParameter<bool>("NadTPemul")),
   PrintDebug_ (iConfig.getUntrackedParameter<bool>("PrintDebug")),
+
   tpCollectionNormal_ (iConfig.getParameter<edm::InputTag> ("TPCollectionNormal") ),
   tpCollectionModif_ (iConfig.getParameter<edm::InputTag> ("TPCollectionModif") ),
   tpEmulatorCollection_ (iConfig.getParameter<edm::InputTag> ("TPEmulatorCollection") ),
+
+
+  //l1extraIsol_ (iConfig.getParameter<edm::InputTag> ("l1extraIsol")),
+  //l1extraonlineIsol_ (iConfig.getParameter<edm::InputTag> ("l1extraonlineIsol")),
+
+
+  l1extraonlineIsol_ (iConfig.getParameter<edm::InputTag> ("emIsolCollToken")),
+  l1extraonlineNonIsol_ (iConfig.getParameter<edm::InputTag> ("emNonisolCollToken")),
+
   EcalRecHitCollectionEB_ (iConfig.getParameter<edm::InputTag>("EcalRecHitCollectionEB") ) ,
   EcalRecHitCollectionEE_ (iConfig.getParameter<edm::InputTag>("EcalRecHitCollectionEE")) ,
-  EleIso_TdrHzzTkMapTag_ (iConfig.getParameter<edm::InputTag>("eleIso_TdrHzzTkMapTag")),
-  EleIso_TdrHzzHcalMapTag_ (iConfig.getParameter<edm::InputTag>("eleIso_TdrHzzHcalMapTag")),
-  EleIso_Eg4HzzTkMapTag_ (iConfig.getParameter<edm::InputTag>("eleIso_Eg4HzzTkMapTag")),
-  EleIso_Eg4HzzEcalMapTag_ (iConfig.getParameter<edm::InputTag>("eleIso_Eg4HzzEcalMapTag")),
-  EleIso_Eg4HzzHcalMapTag_ (iConfig.getParameter<edm::InputTag>("eleIso_Eg4HzzHcalMapTag")),
+
+  // EleIso_TdrHzzTkMapTag_ (iConfig.getParameter<edm::InputTag>("eleIso_TdrHzzTkMapTag")),
+  // EleIso_TdrHzzHcalMapTag_ (iConfig.getParameter<edm::InputTag>("eleIso_TdrHzzHcalMapTag")),
+  // EleIso_Eg4HzzTkMapTag_ (iConfig.getParameter<edm::InputTag>("eleIso_Eg4HzzTkMapTag")),
+  // EleIso_Eg4HzzEcalMapTag_ (iConfig.getParameter<edm::InputTag>("eleIso_Eg4HzzEcalMapTag")),
+  // EleIso_Eg4HzzHcalMapTag_ (iConfig.getParameter<edm::InputTag>("eleIso_Eg4HzzHcalMapTag")),
+
   eleVetoIdMapTag_ (iConfig.getParameter<edm::InputTag>("eleVetoIdMap")),
   eleLooseIdMapTag_ (iConfig.getParameter<edm::InputTag>("eleLooseIdMap")),
   eleMediumIdMapTag_ (iConfig.getParameter<edm::InputTag>("eleMediumIdMap")),
   eleTightIdMapTag_ (iConfig.getParameter<edm::InputTag>("eleTightIdMap")),
+
   EleTag_ (iConfig.getParameter<edm::InputTag> ("EleTag")),
   MuonTag_ (iConfig.getParameter<edm::InputTag> ("MuonTag")),
+
   MuonIso_HzzMapTag_ (iConfig.getParameter<edm::InputTag>("MuonIso_HzzMapTag")),
   MuonIsoTk_HzzMapTag_ (iConfig.getParameter<edm::InputTag>("MuonIsoTk_HzzMapTag")),
   MuonIsoEcal_HzzMapTag_ (iConfig.getParameter<edm::InputTag>("MuonIsoEcal_HzzMapTag")),
   MuonIsoHcal_HzzMapTag_ (iConfig.getParameter<edm::InputTag>("MuonIsoHcal_HzzMapTag")),
+
   SeedTag_ (iConfig.getParameter<edm::InputTag> ("SeedTag")),
   MCTag_  (iConfig.getParameter<edm::InputTag>("MCTag")),
-  TkPTag_ (iConfig.getParameter<edm::InputTag>("TkPTag")),
-  CaloJetTag_(iConfig.getParameter<edm::InputTag> ("CaloJetTag")),
-  JPTJetTag_(iConfig.getParameter<edm::InputTag> ("JPTJetTag")),
-  PFJetTag_(iConfig.getParameter<edm::InputTag> ("PFJetTag")),
+  //
+
+
+  //  TkPTag_ (iConfig.getParameter<edm::InputTag>("TkPTag")),
+  //  CaloJetTag_(iConfig.getParameter<edm::InputTag> ("CaloJetTag")),
+  // JPTJetTag_(iConfig.getParameter<edm::InputTag> ("JPTJetTag")),
+  // PFJetTag_(iConfig.getParameter<edm::InputTag> ("PFJetTag")),
   VerticesTag_(iConfig.getParameter<edm::InputTag> ("VerticesTag")),
   dcsTag_ (iConfig.getUntrackedParameter<edm::InputTag>("dcsTag")),
-
   // Trigger Stuff
+  ///Stage 2 Level 1
+  trigger_stage2_emul_ (iConfig.getParameter<bool>("trigger_stage2_emul")),
+  towerTag_ (iConfig.getParameter<edm::InputTag>("towerToken")),
+  mpEGTag_ (iConfig.getParameter<edm::InputTag>("mpEGToken")),
+  egTag_ (iConfig.getParameter<edm::InputTag>("egToken")),
+  //
+  towerTag_emul_ (iConfig.getParameter<edm::InputTag>("towerToken_emul")),
+  clusterTag_emul_ (iConfig.getParameter<edm::InputTag>("clusterToken_emul")),
+  mpEGTag_emul_ (iConfig.getParameter<edm::InputTag>("mpEGToken_emul")),
+  egTag_emul_ (iConfig.getParameter<edm::InputTag>("egToken_emul")),
+    
+
 
   //
-  
   PileupSrc_ ("addPileupInfo"),
   RhoCorrection_("kt6PFJets:rho"),
   SigmaRhoCorrection_("kt6PFJets:sigma"),
-  type_ (iConfig.getParameter<std::string>("type")),
+  //RhoCorrection_(iConfig.getParameter<std::string>("kt6")),
+  //SigmaRhoCorrection_(iConfig.getParameter<std::string>("kt6sigma")),
+
+  typeData_ (iConfig.getUntrackedParameter<bool>("type_data")),
   aod_ (iConfig.getUntrackedParameter<bool>("AOD")),
   funcname_  (iConfig.getParameter<std::string>("functionName")),
   useBeamSpot_ (iConfig.getParameter<bool>("useBeamSpot"))
-				    //
 				    //,"addPileupInfo::REDIGI311X"))
 				    //
 				    // ====================================================================================
+
+
 {
+  
+  
+  triggerEventToken_ = consumes<trigger::TriggerEvent>(triggerEventTag_);
 
+  ///                 Stage 2 Level 1                   ///
+  //m_towerToken_          = consumes<l1t::CaloTowerBxCollection>(towerTag_);
+  m_towerToken_          = consumes<BXVector<l1t::CaloTower>>(towerTag_);
+  m_mpEGToken_           = consumes<l1t::EGammaBxCollection>(mpEGTag_);
+  m_egToken_             = consumes<l1t::EGammaBxCollection>(egTag_);
 
-      // HLTTag_=iConfig.getParameter<edm::InputTag> ("HLTTag");
-      // triggerEventTag_=iConfig.getParameter<edm::InputTag> ("TriggerEventTag");
+    m_towerToken_emul_     = consumes<l1t::CaloTowerBxCollection>(towerTag_emul_);
+  m_clusterToken_emul_   = consumes<l1t::CaloClusterBxCollection>(clusterTag_emul_);
+  m_mpEGToken_emul_      = consumes<l1t::EGammaBxCollection>(mpEGTag_emul_);
+  m_egToken_emul_        = consumes<BXVector<l1t::EGamma>>(egTag_emul_);
 
-      // HLT_ElePaths_  = iConfig.getParameter<std::vector<std::string > >("HLTElePaths");
-      // HLT_MuonPaths_ = iConfig.getParameter<std::vector<std::string > >("HLTMuonPaths");
-      // HLT_Filters_   = iConfig.getParameter<std::vector<edm::InputTag > >("HLTFilters");
-      
+  
 
+  //add consumes call for 76X port
+  hcalTowersT_ = consumes<CaloTowerCollection>( iConfig.getParameter<edm::InputTag>("hcalTowers")) ;
+
+  tpCollectionNormalT_ = consumes<EcalTrigPrimDigiCollection>( iConfig.getParameter<edm::InputTag>("TPCollectionNormal")) ;
+  tpCollectionModifT_ = consumes<EcalTrigPrimDigiCollection>( iConfig.getParameter<edm::InputTag>("TPCollectionModif")) ;
+  tpEmulatorCollectionT_ = consumes<EcalTrigPrimDigiCollection>( iConfig.getParameter<edm::InputTag>("TPEmulatorCollection")) ;
+
+  EcalRecHitCollectionEB_T_ = consumes<EcalRecHitCollection>( iConfig.getParameter<edm::InputTag>("EcalRecHitCollectionEB") );
+  EcalRecHitCollectionEE_T_ = consumes<EcalRecHitCollection>( iConfig.getParameter<edm::InputTag>("EcalRecHitCollectionEE") );
+
+  //  l1extraIsolT_  = consumes<l1extra::L1EmParticleCollection>( iConfig.getParameter<edm::InputTag>("l1extraIsol") );
+  //  l1extraonlineIsolT_  = consumes<l1extra::L1EmParticleCollection>( iConfig.getParameter<edm::InputTag>("l1extraonlineIsol") );
+
+  l1extraonlineIsolT_  = consumes<l1extra::L1EmParticleCollection>( l1extraonlineIsol_ );
+  l1extraonlineNonIsolT_  = consumes<l1extra::L1EmParticleCollection>(   l1extraonlineNonIsol_);
+
+  
+  eleVetoIdMapTagT_ = consumes<edm::ValueMap<bool>>( iConfig.getParameter<edm::InputTag>("eleVetoIdMap") );
+  eleLooseIdMapTagT_ = consumes<edm::ValueMap<bool>>( iConfig.getParameter<edm::InputTag>("eleLooseIdMap") );
+  eleMediumIdMapTagT_ = consumes<edm::ValueMap<bool>>( iConfig.getParameter<edm::InputTag>("eleMediumIdMap") );
+  eleTightIdMapTagT_ = consumes<edm::ValueMap<bool>>( iConfig.getParameter<edm::InputTag>("eleTightIdMap") );
+
+  MuonIso_HzzMapTagT_ = consumes<edm::ValueMap<double>>( iConfig.getParameter<edm::InputTag>("MuonIso_HzzMapTag") );
+  MuonIsoTk_HzzMapTagT_ = consumes<edm::ValueMap<double>>( iConfig.getParameter<edm::InputTag>("MuonIsoTk_HzzMapTag") );
+  MuonIsoEcal_HzzMapTagT_ = consumes<edm::ValueMap<double>>( iConfig.getParameter<edm::InputTag>("MuonIsoEcal_HzzMapTag") );
+  MuonIsoHcal_HzzMapTagT_ = consumes<edm::ValueMap<double>>( iConfig.getParameter<edm::InputTag>("MuonIsoHcal_HzzMapTag") );
+
+  EleTagT_ = consumes<reco::GsfElectronCollection>( iConfig.getParameter<edm::InputTag>("EleTag") );
+  MuonTagT_ = consumes<reco::Muon>( iConfig.getParameter<edm::InputTag>("MuonTag") );
+
+  SeedTagT_ = consumes<reco::ElectronSeedCollection>( iConfig.getParameter<edm::InputTag>("SeedTag") );
+  MCTagT_ = consumes<edm::HepMCProduct>( iConfig.getParameter<edm::InputTag>("MCTag") );
+
+  
+  CaloJetTagT_ = consumes<reco::CaloJetCollection>( iConfig.getParameter<edm::InputTag>("CaloJetTag") );
+  PFJetTagT_ = consumes<reco::PFJetCollection>( iConfig.getParameter<edm::InputTag>("PFJetTag") );
+  VerticesTagT_ = consumes<reco::VertexCollection>( iConfig.getParameter<edm::InputTag>("VerticesTag") );
+  dcsTagT_=consumes<DcsStatusCollection>( iConfig.getUntrackedParameter<edm::InputTag>("dcsTag") );
+
+  PileupSrcT_ = consumes<std::vector<PileupSummaryInfo>>( iConfig.getParameter<edm::InputTag>("Pileupsrc")) ;
+  RhoCorrectionT_ = consumes<double>( iConfig.getParameter<edm::InputTag>("kt6")) ;
+  SigmaRhoCorrectionT_ = consumes<double>( iConfig.getParameter<edm::InputTag>("kt6sigma") );
+	
+  HLTTagT_ = consumes<edm::TriggerResults>( iConfig.getParameter<edm::InputTag>("HLTTag") );
+
+  triggerEventTagT_ = consumes<trigger::TriggerEvent>( iConfig.getParameter<edm::InputTag>("TriggerEventTag") );
+  hltTriggerSummaryTagT_ = consumes<trigger::TriggerEvent>( iConfig.getParameter<edm::InputTag>("hltTriggerSummaryAOD") );
+
+  HLTTag_=iConfig.getParameter<edm::InputTag> ("HLTTag");
+  hltTriggerSummaryTag_=iConfig.getParameter<edm::InputTag> ("hltTriggerSummaryAOD");
+  
+ 
+  HLT_ElePaths_  = iConfig.getParameter<std::vector<std::string > >("HLTElePaths");
+  HLT_MuonPaths_ = iConfig.getParameter<std::vector<std::string > >("HLTMuonPaths");
+  HLT_Filters_   = iConfig.getParameter<std::vector<edm::InputTag > >("HLTFilters");
+  
+  //nuwar
+  partflowT_=consumes<reco::PFCandidateCollection>( edm::InputTag("particleFlow") );
+  beamspotT_=consumes<reco::BeamSpot>( edm::InputTag("offlineBeamSpot") );
+  tracksT_=consumes<reco::TrackCollection>( edm::InputTag("generalTracks") );
+  genparticlesT_=consumes<reco::GenParticleCollection>( edm::InputTag("genParticles") );
+  hybridsuperclusterT_=consumes<reco::SuperClusterCollection>( edm::InputTag("correctedHybridSuperClusters") );
+  multisuperclusterT_=consumes<reco::SuperClusterCollection>( edm::InputTag("correctedMulti5x5SuperClustersWithPreshower") );
 
   //now do what ever initialization is needed
-  funcbase_ = EcalClusterFunctionFactory::get()->create( funcname_, iConfig ); 
+  funcbase_ = EcalClusterFunctionFactory::get()->create(funcname_ , iConfig ); 
   gtRecordCollectionTag_ = iConfig.getParameter<std::string>("GTRecordCollection") ;
-	
-// //  std::cout<<"1111111111111111122222222222222222222233333333333333333335555555555555555555"<<std::endl; 
+  gtRecordCollectionTagT_ = consumes<L1GlobalTriggerReadoutRecord>( iConfig.getParameter<std::string>("GTRecordCollection") );
+
 	
   simulation_ = iConfig.getUntrackedParameter<bool>("simulation", true);
   fillsc_     = iConfig.getUntrackedParameter<bool>("FillSC", false);
   //std::cout << "Filling super cluster quantities? " << fillsc_<< std::endl;
   if(PrintDebug_) std::cout << "Creating TFileService..." << std::endl;
 
+
+
+  
   edm::Service<TFileService> fs ;
   mytree_  = fs->make <TTree>("eIDSimpleTree","eIDSimpleTree"); 
 	
@@ -98,6 +204,7 @@ SimpleNtpleCustom::SimpleNtpleCustom(const edm::ParameterSet& iConfig) :
   mytree_->Branch("PU_N",&_PU_N,"PU_N/I");
   mytree_->Branch("PU_rhoCorr",&_PU_rho,"PU_rhoCorr/D");
   mytree_->Branch("PU_sigmaCorr",&_PU_sigma,"PU_sigmaCorr/D");
+ 
 
   // Vertices
   mytree_->Branch("vtx_N",&_vtx_N,"vtx_N/I");
@@ -114,27 +221,28 @@ SimpleNtpleCustom::SimpleNtpleCustom(const edm::ParameterSet& iConfig) :
 //  mytree_->Branch("skim_is2leptons",&_skim_is2leptons,"skim_is2leptons/I");
 //  mytree_->Branch("skim_is3leptons",&_skim_is3leptons,"skim_is3leptons/I");
 
-  // // Towers (original collection)
-  // mytree_->Branch("trig_tower_N", &_trig_tower_N, "trig_tower_N/I");
-  // mytree_->Branch("trig_tower_ieta",  &_trig_tower_ieta,  "trig_tower_ieta[trig_tower_N]/I");
-  // mytree_->Branch("trig_tower_iphi",  &_trig_tower_iphi,  "trig_tower_iphi[trig_tower_N]/I");
-  // mytree_->Branch("trig_tower_adc",  &_trig_tower_adc,  "trig_tower_adc[trig_tower_N]/I");
-  // mytree_->Branch("trig_tower_sFGVB",  &_trig_tower_sFGVB,  "trig_tower_sFGVB[trig_tower_N]/I");
+  // Towers (original collection)
+  mytree_->Branch("trig_tower_N", &_trig_tower_N, "trig_tower_N/I");
+  mytree_->Branch("trig_tower_ieta",  &_trig_tower_ieta,  "trig_tower_ieta[trig_tower_N]/I");
+  mytree_->Branch("trig_tower_iphi",  &_trig_tower_iphi,  "trig_tower_iphi[trig_tower_N]/I");
+  mytree_->Branch("trig_tower_adc",  &_trig_tower_adc,  "trig_tower_adc[trig_tower_N]/I");
+  mytree_->Branch("trig_tower_sFGVB",  &_trig_tower_sFGVB,  "trig_tower_sFGVB[trig_tower_N]/I");
 	
-  // // Towers (cleaned collection)
-  // mytree_->Branch("trig_tower_N_modif", &_trig_tower_N_modif, "trig_tower_N_modif/I");
-  // mytree_->Branch("trig_tower_ieta_modif",  &_trig_tower_ieta_modif,  "trig_tower_ieta_modif[trig_tower_N_modif]/I");
-  // mytree_->Branch("trig_tower_iphi_modif",  &_trig_tower_iphi_modif,  "trig_tower_iphi_modif[trig_tower_N_modif]/I");
-  // mytree_->Branch("trig_tower_adc_modif",  &_trig_tower_adc_modif,  "trig_tower_adc_modif[trig_tower_N_modif]/I");
-  // mytree_->Branch("trig_tower_sFGVB_modif",  &_trig_tower_sFGVB_modif,  "trig_tower_sFGVB_modif[trig_tower_N_modif]/I");
+  // Towers (cleaned collection)
+  mytree_->Branch("trig_tower_N_modif", &_trig_tower_N_modif, "trig_tower_N_modif/I");
+  mytree_->Branch("trig_tower_ieta_modif",  &_trig_tower_ieta_modif,  "trig_tower_ieta_modif[trig_tower_N_modif]/I");
+  mytree_->Branch("trig_tower_iphi_modif",  &_trig_tower_iphi_modif,  "trig_tower_iphi_modif[trig_tower_N_modif]/I");
+  mytree_->Branch("trig_tower_adc_modif",  &_trig_tower_adc_modif,  "trig_tower_adc_modif[trig_tower_N_modif]/I");
+  mytree_->Branch("trig_tower_sFGVB_modif",  &_trig_tower_sFGVB_modif,  "trig_tower_sFGVB_modif[trig_tower_N_modif]/I");
 	
-  // // Towers (emulated)
-  // mytree_->Branch("trig_tower_N_emul", &_trig_tower_N_emul, "trig_tower_N_emul/I");
-  // mytree_->Branch("trig_tower_ieta_emul",  &_trig_tower_ieta_emul,  "trig_tower_ieta_emul[trig_tower_N_emul]/I");
-  // mytree_->Branch("trig_tower_iphi_emul",  &_trig_tower_iphi_emul,  "trig_tower_iphi_emul[trig_tower_N_emul]/I");
-  // mytree_->Branch("trig_tower_adc_emul",  &_trig_tower_adc_emul,  "trig_tower_adc_emul[trig_tower_N_emul][5]/I");
-  // mytree_->Branch("trig_tower_sFGVB_emul",  &_trig_tower_sFGVB_emul,  "trig_tower_sFGVB_emul[trig_tower_N_emul][5]/I");
+  // Towers (emulated)
+  mytree_->Branch("trig_tower_N_emul", &_trig_tower_N_emul, "trig_tower_N_emul/I");
+  mytree_->Branch("trig_tower_ieta_emul",  &_trig_tower_ieta_emul,  "trig_tower_ieta_emul[trig_tower_N_emul]/I");
+  mytree_->Branch("trig_tower_iphi_emul",  &_trig_tower_iphi_emul,  "trig_tower_iphi_emul[trig_tower_N_emul]/I");
+  mytree_->Branch("trig_tower_adc_emul",  &_trig_tower_adc_emul,  "trig_tower_adc_emul[trig_tower_N_emul][5]/I");
+  mytree_->Branch("trig_tower_sFGVB_emul",  &_trig_tower_sFGVB_emul,  "trig_tower_sFGVB_emul[trig_tower_N_emul][5]/I");
 		
+  
   //rechits with bad (sev_level=3,4) crystals
   mytree_->Branch("n_bad_crystals", &_n_bad_crystals, "n_bad_crystals/I");
   mytree_->Branch("erec_eta_sevlv3_4", &_erec_eta_sevlv3_4, "erec_eta_sevlv3_4[n_bad_crystals]/D");
@@ -143,35 +251,7 @@ SimpleNtpleCustom::SimpleNtpleCustom(const edm::ParameterSet& iConfig) :
   mytree_->Branch("erec_theta_sevlv3_4", &_erec_theta_sevlv3_4, "erec_theta_sevlv3_4[n_bad_crystals]/D");
 
 
-  //all rechits
-
-  mytree_->Branch("num_all_rechits", &_num_all_rechits, "num_all_rechits/I");
-  mytree_->Branch("all_rechits_time", &_all_rechits_time, "all_rechits_time[num_all_rechits]/F");
-  mytree_->Branch("all_rechits_eta", &_all_rechits_eta, "all_rechits_eta[num_all_rechits]/D");
-  mytree_->Branch("all_rechits_Et", &_all_rechits_Et, "all_rechits_Et[num_all_rechits]/I");
-  mytree_->Branch("all_rechits_theta", &_all_rechits_theta, "all_rechits_theta[num_all_rechits]/D");
-  mytree_->Branch("all_rechits_phi", &_all_rechits_phi, "all_rechits_phi[num_all_rechits]/D");
-
-
-  //intime rechits: abs(time)<15
-  mytree_->Branch("num_intime_rechits", &_num_intime_rechits, "num_intime_rechits/I");
-  mytree_->Branch("intime_rechits_eta", &_intime_rechits_eta, "intime_rechits_eta[num_intime_rechits]/D");
-  mytree_->Branch("intime_rechits_Et", &_intime_rechits_Et, "intime_rechits_Et[num_intime_rechits]/I");
-  mytree_->Branch("intime_rechits_theta", &_intime_rechits_theta, "intime_rechits_theta[num_intime_rechits]/D");
-  mytree_->Branch("intime_rechits_phi", &_intime_rechits_phi, "intime_rechits_phi[num_intime_rechits]/D");
-
-
-  //intime rechits: abs(time)<15 with severity level 3 or 4
-  mytree_->Branch("num_intime_rechits_sevlv3_4", &_num_intime_rechits_sevlv3_4, "num_intime_rechits_sevlv3_4/I");
-  mytree_->Branch("intime_rechits_sevlv3_4_eta", &_intime_rechits_sevlv3_4_eta, "intime_rechits_sevlv3_4_eta[num_intime_rechits_sevlv3_4]/D");
-  mytree_->Branch("intime_rechits_sevlv3_4_Et", &_intime_rechits_sevlv3_4_Et, "intime_rechits_sevlv3_4_Et[num_intime_rechits_sevlv3_4]/I");
-  mytree_->Branch("intime_rechits_sevlv3_4_theta", &_intime_rechits_sevlv3_4_theta, "intime_rechits_sevlv3_4_theta[num_intime_rechits_sevlv3_4]/D");
-  mytree_->Branch("intime_rechits_sevlv3_4_phi", &_intime_rechits_sevlv3_4_phi, "intime_rechits_sevlv3_4_phi[num_intime_rechits_sevlv3_4]/D");
- 
-
-
-
-  //nab
+ //nab
 
   mytree_->Branch("nbOfTowers",&_nbOfTowers,"nbOfTowers/i");
 
@@ -191,10 +271,8 @@ SimpleNtpleCustom::SimpleNtpleCustom(const edm::ParameterSet& iConfig) :
   mytree_->Branch("ttFlag", &_ttFlag,"ttFlag[nbOfTowers]/I");
   mytree_->Branch("sevlv", &_sevlv,"sevlv[nbOfTowers]/I");
   mytree_->Branch("sevlv2", &_sevlv2,"sevlv2[nbOfTowers]/I");
-  mytree_->Branch("rechit_cleaning_cut", &_rechit_cleaning_cut,"rechit_cleaning_cut[nbOfTowers]/I");
-  mytree_->Branch("twrADC", &_twrADC,"twrADC[nbOfTowers]/I");
   mytree_->Branch("spike", &_spike,"spike[nbOfTowers]/I");
-  mytree_->Branch("sFVGB", &_sFGVB,"sFGVB[nbOfTowers]/I");
+  mytree_->Branch("sFGVB", &_sFGVB,"sFGVB[nbOfTowers]/I");
   mytree_->Branch("rawTPEmulsFGVB1", &_rawTPEmulsFGVB1,"rawTPEmulsFGVB1[nbOfTowers]/I");
   mytree_->Branch("rawTPEmulsFGVB2", &_rawTPEmulsFGVB2,"rawTPEmulsFGVB2[nbOfTowers]/I");
   mytree_->Branch("rawTPEmulsFGVB3", &_rawTPEmulsFGVB3,"rawTPEmulsFGVB3[nbOfTowers]/I");
@@ -669,7 +747,7 @@ SimpleNtpleCustom::SimpleNtpleCustom(const edm::ParameterSet& iConfig) :
   _m_jets_jpt  = new TClonesArray ("TLorentzVector");
   mytree_->Branch("jets_jpt_N", &_jets_jpt_N, "jets_jpt_N/I");
   mytree_->Branch("jets_jpt",  "TClonesArray", &_m_jets_jpt, 256000,0);
-	
+
   // PF jets
   _m_jets_pf   = new TClonesArray ("TLorentzVector");
   mytree_->Branch("jets_pf_N",  &_jets_pf_N,  "jets_pf_N/I");
@@ -690,7 +768,7 @@ SimpleNtpleCustom::SimpleNtpleCustom(const edm::ParameterSet& iConfig) :
   mytree_->Branch ("jets_pf_neutralMultiplicity",    &jets_pf_neutralMultiplicity,    "jets_pf_neutralMultiplicity[100]/I");
 	
   mytree_->Branch ("jets_pf_nConstituents",          &jets_pf_nConstituents,          "jets_pf_nConstituents[100]/I");
-	
+  	
   // SuperClusters
   // SC EB
   mytree_->Branch("sc_hybrid_N",   &_sc_hybrid_N,   "sc_hybrid_N/I");
@@ -722,6 +800,7 @@ SimpleNtpleCustom::SimpleNtpleCustom(const edm::ParameterSet& iConfig) :
   mytree_->Branch("sc_hybrid_RCTphi", &_sc_hybrid_RCTphi, "_sc_hybrid_RCTphi[25]/I");
   mytree_->Branch("sc_hybrid_RCTL1iso", &_sc_hybrid_RCTL1iso, "_sc_hybrid_RCTL1iso[25]/I");
   mytree_->Branch("sc_hybrid_RCTL1noniso", &_sc_hybrid_RCTL1noniso, "_sc_hybrid_RCTL1noniso[25]/I");
+
   // SC EE 
   mytree_->Branch("sc_multi55_N",   &_sc_multi55_N,   "sc_multi55_N/I");
   mytree_->Branch("sc_multi55_E",   &_sc_multi55_E,   "sc_multi55_E[25]/D");
@@ -748,7 +827,10 @@ SimpleNtpleCustom::SimpleNtpleCustom(const edm::ParameterSet& iConfig) :
   mytree_->Branch("sc_multi55_RCTphi", &_sc_multi55_RCTphi, "_sc_multi55_RCTphi[25]/I");
   mytree_->Branch("sc_multi55_RCTL1iso", &_sc_multi55_RCTL1iso, "_sc_multi55_RCTL1iso[25]/I");
   mytree_->Branch("sc_multi55_RCTL1noniso", &_sc_multi55_RCTL1noniso, "_sc_multi55_RCTL1noniso[25]/I");
-  
+
+
+
+  /*  !!   If this is uncommented when the fillTruth method is not called, the prigram crashes because the variables used to fill the tree are not defined !!
   // Generated W,Z's & leptons
   _m_MC_gen_V = new TClonesArray ("TLorentzVector");
   mytree_->Branch ("MC_gen_V", "TClonesArray", &_m_MC_gen_V, 256000,0);
@@ -757,19 +839,74 @@ SimpleNtpleCustom::SimpleNtpleCustom(const edm::ParameterSet& iConfig) :
   _m_MC_gen_leptons = new TClonesArray ("TLorentzVector");
   mytree_->Branch ("MC_gen_leptons", "TClonesArray", &_m_MC_gen_leptons, 256000,0);
   mytree_->Branch ("MC_gen_leptons_pdgid",&_MC_gen_leptons_pdgid, "MC_gen_leptons_pdgid[10]/D");
+  //
+  */
+
+  /////////////////////////////////////////////////////////
+  ///                 Stage 2 Level1                   ///
+  /////////////////////////////////////////////////////////
+  mytree_->Branch ("Stage2_tower_n",&_Stage2_tower_n,"Stage2_tower_n/I");
+  mytree_->Branch ("Stage2_tower_hwPt",&_Stage2_tower_hwPt,"Stage2_tower_hwPt[2736]/I");
+  mytree_->Branch ("Stage2_tower_hwEta",&_Stage2_tower_hwEta,"Stage2_tower_hwEta[2736]/I");
+  mytree_->Branch ("Stage2_tower_hwPhi",&_Stage2_tower_hwPhi,"Stage2_tower_hwPhi[2736]/I");
+
+
+  mytree_->Branch ("Stage2_mpeg_n",&_Stage2_mpeg_n,"Stage2_mpeg_n/I");
+  mytree_->Branch ("Stage2_mpeg_hwPt",&_Stage2_mpeg_hwPt,"Stage2_mpeg_hwPt[12]/I");
+  mytree_->Branch ("Stage2_mpeg_hwEta",&_Stage2_mpeg_hwEta,"Stage2_mpeg_hwEta[12]/I");
+  mytree_->Branch ("Stage2_mpeg_hwPhi",&_Stage2_mpeg_hwPhi,"Stage2_mpeg_hwPhi[12]/I");
+
+  mytree_->Branch ("Stage2_eg_n",&_Stage2_eg_n,"Stage2_eg_n/I");
+  mytree_->Branch ("Stage2_eg_hwPt",&_Stage2_eg_hwPt,"Stage2_eg_hwPt[12]/I");
+  mytree_->Branch ("Stage2_eg_hwEta",&_Stage2_eg_hwEta,"Stage2_eg_hwEta[12]/I");
+  mytree_->Branch ("Stage2_eg_hwPhi",&_Stage2_eg_hwPhi,"Stage2_eg_hwPhi[12]/I");
+  mytree_->Branch ("Stage2_eg_et",&_Stage2_eg_et,"Stage2_eg_et[12]/F");
+  mytree_->Branch ("Stage2_eg_eta",&_Stage2_eg_eta,"Stage2_eg_eta[12]/F");
+  mytree_->Branch ("Stage2_eg_phi",&_Stage2_eg_phi,"Stage2_eg_phi[12]/F");
+  //
+  mytree_->Branch ("Stage2_tower_emul_n",&_Stage2_tower_emul_n,"Stage2_tower_emul_n/I");
+  mytree_->Branch ("Stage2_tower_emul_hwEtHad",&_Stage2_tower_emul_hwEtHad,"Stage2_tower_emul_hwEtHad[2736]/I");
+  mytree_->Branch ("Stage2_tower_emul_hwPt",&_Stage2_tower_emul_hwPt,"Stage2_tower_emul_hwPt[2736]/I");
+  mytree_->Branch ("Stage2_tower_emul_hwEta",&_Stage2_tower_emul_hwEta,"Stage2_tower_emul_hwEta[2736]/I");
+  mytree_->Branch ("Stage2_tower_emul_hwPhi",&_Stage2_tower_emul_hwPhi,"Stage2_tower_emul_hwPhi[2736]/I");
+  mytree_->Branch ("Stage2_tower_emul_hwEtEm",&_Stage2_tower_emul_hwEtEm,"Stage2_tower_emul_hwEtEm[2736]/I");
+  //
+  mytree_->Branch ("Stage2_mpeg_emul_n",&_Stage2_mpeg_emul_n,"Stage2_mpeg_emul_n/I");
+  mytree_->Branch ("Stage2_mpeg_emul_hwPt",&_Stage2_mpeg_emul_hwPt,"Stage2_mpeg_emul_hwPt[12]/I");
+  mytree_->Branch ("Stage2_mpeg_emul_hwEta",&_Stage2_mpeg_emul_hwEta,"Stage2_mpeg_emul_hwEta[12]/I");
+  mytree_->Branch ("Stage2_mpeg_emul_hwPhi",&_Stage2_mpeg_emul_hwPhi,"Stage2_mpeg_emul_hwPhi[12]/I");
+  mytree_->Branch ("Stage2_mpeg_emul_shape",&_Stage2_mpeg_emul_shape,"Stage2_mpeg_emul_shape[12]/I");
+  mytree_->Branch ("Stage2_mpeg_emul_shapeID",&_Stage2_mpeg_emul_shapeID,"Stage2_mpeg_emul_shapeID[12]/I");
+  //
+  mytree_->Branch("Stage2_mpeg_emul_hwIsoSum", &_Stage2_mpeg_emul_hwIsoSum,"Stage2_mpeg_emul_hwIsoSum[12]/I");
+  mytree_->Branch("Stage2_mpeg_emul_nTT", &_Stage2_mpeg_emul_nTT,"Stage2_mpeg_emul_nTT[12]/I");
+  mytree_->Branch("Stage2_mpeg_emul_hOverERatio", &_Stage2_mpeg_emul_hOverERatio,"Stage2_mpeg_emul_hOverERatio[12]/I");
+  mytree_->Branch("Stage2_mpeg_emul_isoflag", &_Stage2_mpeg_emul_isoflag,"Stage2_mpeg_emul_isoflag[12]/I");
+  //
+  mytree_->Branch ("Stage2_eg_emul_n",&_Stage2_eg_emul_n,"Stage2_eg_emul_n/I");
+  mytree_->Branch ("Stage2_eg_emul_hwPt",&_Stage2_eg_emul_hwPt,"Stage2_eg_emul_hwPt[12]/I");
+  mytree_->Branch ("Stage2_eg_emul_hwEta",&_Stage2_eg_emul_hwEta,"Stage2_eg_emul_hwEta[12]/I");
+  mytree_->Branch ("Stage2_eg_emul_hwPhi",&_Stage2_eg_emul_hwPhi,"Stage2_eg_emul_hwPhi[12]/I");
+  mytree_->Branch ("Stage2_eg_emul_et",&_Stage2_eg_emul_et,"Stage2_eg_emul_et[12]/F");
+  mytree_->Branch ("Stage2_eg_emul_eta",&_Stage2_eg_emul_eta,"Stage2_eg_emul_eta[12]/F");
+  mytree_->Branch ("Stage2_eg_emul_phi",&_Stage2_eg_emul_phi,"Stage2_eg_emul_phi[12]/F");
+
+
 }
 
 // ====================================================================================
 SimpleNtpleCustom::~SimpleNtpleCustom()
 // ====================================================================================
 {
+ 
   delete m_electrons ;
   delete m_muons;
   delete _m_jets_calo;
   delete _m_jets_jpt;
   delete _m_jets_pf;
+ 
 	
-  if(type_ == "MC") {
+  if(! typeData_ ) {
     delete _m_MC_gen_V;
     delete _m_MC_gen_leptons;
   } // if MC
@@ -780,6 +917,9 @@ void SimpleNtpleCustom::analyze(const edm::Event& iEvent, const edm::EventSetup&
 // ====================================================================================
 {
   
+  //
+
+ 
   if(PrintDebug_) std::cout << "Update Field" << std::endl;
   // Clemy's Stuff for Charge
   bool updateField(false);
@@ -811,7 +951,7 @@ void SimpleNtpleCustom::analyze(const edm::Event& iEvent, const edm::EventSetup&
   //std::cout << "Init()" << std::endl;
   Init();
   if (funcbase_) funcbase_->init(iSetup);
-  //std::cout << "FillEvent (iEvent, iSetup);" << std::endl;
+  std::cout << "FillEvent (iEvent, iSetup);" << std::endl;
   if(PrintDebug_) std::cout << "FillEvent" << std::endl;
   FillEvent (iEvent, iSetup);
 //  std::cout<<"what's the point of filling "	
@@ -830,14 +970,15 @@ void SimpleNtpleCustom::analyze(const edm::Event& iEvent, const edm::EventSetup&
   //
   if(PrintDebug_) std::cout << "FillTrigger (iEvent, iSetup);" << std::endl;
   FillTrigger (iEvent, iSetup);
-  //std::cout << "m_electrons -> Clear() ;" << std::endl;
+  if(PrintDebug_) std::cout << "m_electrons -> Clear() ;" << std::endl;
   m_electrons -> Clear() ;
-  //std::cout << "muons" << std::endl;
+  if(PrintDebug_) std::cout << "muons" << std::endl;
   m_muons -> Clear() ;
-  //std::cout << "gen V" << std::endl;
-  if(type_ == "MC") {
+  if(PrintDebug_) std::cout << "gen V" << std::endl;
+  if( !typeData_) {
+    
     _m_MC_gen_V->Clear();
-    //cout << "gen leptons" << endl;
+    if(PrintDebug_) cout << "gen leptons" << endl;
     _m_MC_gen_leptons->Clear();
   } // if MC
   if(PrintDebug_) std::cout << "FillEle (iEvent, iSetup);" << std::endl;
@@ -863,7 +1004,6 @@ void SimpleNtpleCustom::analyze(const edm::Event& iEvent, const edm::EventSetup&
   //if(!aod_) 
   //FillTipLipIp(iEvent, iSetup);
 	
-  //std::cout << "mytree_->Fill();" << std::endl;
   mytree_->Fill();
 	
 } // analyze
@@ -872,6 +1012,8 @@ void SimpleNtpleCustom::analyze(const edm::Event& iEvent, const edm::EventSetup&
 void SimpleNtpleCustom::FillEvent (const edm::Event& iEvent, const edm::EventSetup& iSetup)
 // ====================================================================================
 {
+
+
   nEvent = iEvent.id().event();
 
 //  std::cout<<"Fill events here asscess the number of envent= "<<nEvent<<std::endl;
@@ -881,7 +1023,7 @@ void SimpleNtpleCustom::FillEvent (const edm::Event& iEvent, const edm::EventSet
   // -----------------
   // Pile-up
   // -----------------
-  if(type_ == "MC") {
+  if( !typeData_ ) {
     Handle<vector<PileupSummaryInfo> > PupInfo;
     iEvent.getByLabel(PileupSrc_, PupInfo);
     for (vector<PileupSummaryInfo>::const_iterator cand = PupInfo->begin();cand != PupInfo->end(); ++ cand) {
@@ -893,12 +1035,16 @@ void SimpleNtpleCustom::FillEvent (const edm::Event& iEvent, const edm::EventSet
 
   if(PrintDebug_) std::cout << "Rho Fast Jet" << std::endl;
   // Rho/FastJet Correction
+
+  /*  Take this out: just trouble and it is not used at all
   Handle<double> rhoHandle, sigmaHandle;
   iEvent.getByLabel(RhoCorrection_, rhoHandle);
   iEvent.getByLabel(SigmaRhoCorrection_, sigmaHandle);
+  cout << " FillEvent 2 " << endl;
   _PU_rho   = *rhoHandle;
   _PU_sigma = *sigmaHandle;
-  // 	cout << "Rho, Sigma: " << _rho << "   " << _sigma << endl;
+  */
+  //cout << "Rho, Sigma: " << _PU_rho << "   " << _PU_sigma << endl;
 
   // -----------------
   // Vertices
@@ -906,12 +1052,11 @@ void SimpleNtpleCustom::FillEvent (const edm::Event& iEvent, const edm::EventSet
   if(PrintDebug_) std::cout << "Vertices" << std::endl;
   Handle<reco::VertexCollection> recoPrimaryVertexCollection;
   iEvent.getByLabel(VerticesTag_,recoPrimaryVertexCollection);
-  
   const reco::VertexCollection & vertices = *recoPrimaryVertexCollection.product();
 
-  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+  //edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   ///iEvent.getByType(recoBeamSpotHandle);
-  const reco::BeamSpot bs = *recoBeamSpotHandle;
+  //const reco::BeamSpot bs = *recoBeamSpotHandle;
 	
   int vtx_counter=0;
   _vtx_N = recoPrimaryVertexCollection->size();
@@ -978,11 +1123,10 @@ void SimpleNtpleCustom::FillTrigger (const edm::Event& iEvent, const edm::EventS
   // ----------------------------------------------
 	
   // Get HLTTag when running
-  /*
   Handle<trigger::TriggerEvent> triggerEventHLT;
-  iEvent.getByLabel("hltTriggerSummaryAOD", triggerEventHLT);
+  iEvent.getByLabel(hltTriggerSummaryTag_, triggerEventHLT);
   cout << " HLT = " << triggerEventHLT.provenance()->processName()  << endl;
-	
+  
   edm::Handle<edm::TriggerResults> triggerResultsHandle;
   iEvent.getByLabel (HLTTag_,triggerResultsHandle);
   const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResultsHandle);
@@ -1060,7 +1204,7 @@ void SimpleNtpleCustom::FillTrigger (const edm::Event& iEvent, const edm::EventS
 		
   } // for loop on trigger results 	
 	
-  */
+
   
 
         // geometry
@@ -1079,17 +1223,16 @@ void SimpleNtpleCustom::FillTrigger (const edm::Event& iEvent, const edm::EventS
 
 
 
-
   map<EcalTrigTowerDetId, towerEner> mapTower ;
   map<EcalTrigTowerDetId, towerEner>::iterator itTT ;
 
   ///////////////////////////                                                                                                                                                      
-  // Get TP data         Nab                                                                                                                                             
+  // Get TP data    Nab    //                                                                                                                                         
   ///////////////////////////                                                                                                                                                      
 
   edm::Handle<EcalTrigPrimDigiCollection> tp;
   iEvent.getByLabel(tpCollectionNormal_,tp);
-  // std::cout<<"TP collection size="<<tp.product()->size()<<std::endl ;
+  std::cout<<"TP collection size="<<tp.product()->size()<<std::endl ;
 
   for (unsigned int i=0;i<tp.product()->size();i++) {
     EcalTriggerPrimitiveDigi d = (*(tp.product()))[i];
@@ -1100,30 +1243,22 @@ void SimpleNtpleCustom::FillTrigger (const edm::Event& iEvent, const edm::EventS
     tE.ttFlag_ = d[0].ttFlag();
     tE.tpgADC_ = (d[0].raw()&0xfff) ;
     tE.twrADC_ = (d[0].raw()&0xff) ;
-
-    
     // if ((d[0].raw()&0xfff)!=0 ||  (d[0].raw()&0xff)!=0){                                                                                                                      
     //   if (fabs(TPtowid.ieta()) < 18 && d[0].sFGVB()==0) {                                                                                                                     
     //       std::cout << i  << " evt:" << myevt<<  " adc size: " << d[0].raw() <<  " tpgADC: " << (d[0].raw()&0xfff) << " twrADC: " << (d[0].raw()&0xff)  <<  " sFGVB: " << d[0].sFGVB() <<   " eta: " << TPtowid.ieta() << endl;                                                                                                                                   
   //     }                                                                                                                                                                     
   // }                                                                                                                                                                         
     tE.sFGVB_ = (d[0].sFGVB());
-    // if (tE.twrADC_>6)
-    //   {
-    // 	cout<<tE.twrADC_<<" jakmubaley"<<endl;
-    // 	cout<<d[0].sFGVB()<< " chaparemka"<<endl;
-    //   }
-    // if ((d[0].sFGVB())==1 &&  tE.twrADC_>0)
-    //   {
+    if (tE.twrADC_>6)
+      {
+      }
+    if ((d[0].sFGVB())==1 &&  tE.twrADC_>0)
+      {
 	
-    // 	cout<<" yesfgv "<<tE.sFGVB_<<endl;
-    // 	cout<<" taver adc"<<(d[0].raw()&0xff)<<endl;
-    //   }
-    
-
+      }
     mapTower[TPtowid] = tE ;
   }
-
+  
 
   ///////////////////////////                                                                                                               
   // Get Emulators TP                                                                                                                       
@@ -1143,11 +1278,8 @@ void SimpleNtpleCustom::FillTrigger (const edm::Event& iEvent, const edm::EventS
 	(itTT->second).tpgEmulFlag_[j] = d[j].ttFlag();
 	(itTT->second).tpgEmulsFGVB_[j] = d[j].sFGVB();
       }
-    // if(( d[2].raw()&0xff)>6 )
-    // {
-    //   cout<<(d[2].raw()&0xff)<<" jhauwa"<<endl;
-    //   cout<<d[2].sFGVB()<<" jhauwo"<<endl;
-    // }
+    if(( d[2].raw()&0xff)>6 )
+    {  }
 
   }
 
@@ -1157,6 +1289,7 @@ void SimpleNtpleCustom::FillTrigger (const edm::Event& iEvent, const edm::EventS
     ///////////////////////////
     // Get rechits and spikes
     ///////////////////////////
+
 
     edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
     iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
@@ -1171,119 +1304,52 @@ void SimpleNtpleCustom::FillTrigger (const edm::Event& iEvent, const edm::EventS
     //  const EcalChannelStatus *chStatus = pChannelStatus.product();
     //const EcalRecHit * rh; 
     // Get EB rechits
-
     edm::Handle<EcalRecHitCollection> rechitsEB; 
     iEvent.getByLabel(EcalRecHitCollectionEB_, rechitsEB) ;
-
     int num_bad_crystals=0;
-    int num_all_rechits=0;
-    int num_intime_rechits=0;
-    int num_intime_rechits_sevlv3_4=0;
-
     if (rechitsEB.product()->size()!=0) {
       for ( EcalRecHitCollection::const_iterator rechitItr = rechitsEB->begin(); rechitItr != rechitsEB->end(); ++rechitItr ) {   
-
             EBDetId id = rechitItr->id(); 
             const EcalTrigTowerDetId towid = id.tower();
             itTT = mapTower.find(towid) ;
-
-
+	    	    
 	    double theta = theBarrelGeometry_->getGeometry(id)->getPosition().theta() ;  
-	    double erec_eta=theBarrelGeometry_->getGeometry(id)->getPosition().eta();
-	    double erec_phi=theBarrelGeometry_->getGeometry(id)->getPosition().phi();
-
-	    double rechit_energy=rechitItr->energy()*sin(theta);
-	    float rechit_time=rechitItr->time();
-
 	    int severity_level=sevlv->severityLevel(id, *rechitsEB);
 
-
-	    // if (rechit_energy>4)
-	    //   {
-	    // 	cout<<"rechit time looks like : "<<rechit_time<<endl; 
-	    // 	cout<<"rechit energy looks like : "<<rechit_energy<<endl; 
-	    // 	cout<<"rechit sevlv is :"<<severity_level<<endl;
-	    	
-
-	    //   }
-	    //cleaning cut, set to 1 when highest rechit transverse Et  >4 has time <15ns, otherwise zero
-
-	    if (rechit_energy>1) 
+	    if (severity_level==3 ||severity_level==4)
 	      {
-	      _all_rechits_Et[num_all_rechits]=rechit_energy;
-	      _all_rechits_theta[num_all_rechits]=theta;
-	      _all_rechits_eta[num_all_rechits]=erec_eta;
-	      _all_rechits_phi[num_all_rechits]=erec_phi;
-	      _all_rechits_time[num_all_rechits]=rechit_time;
-	      num_all_rechits++;
-	      }
+		double erec_eta=theBarrelGeometry_->getGeometry(id)->getPosition().eta();
+		double erec_phi=theBarrelGeometry_->getGeometry(id)->getPosition().phi();
+		double erec_et=rechitItr->energy()*sin(theta) ;
 
-
-	    if (rechit_energy>1 && abs(rechit_time)<16)
-	      {  
-	    	_intime_rechits_Et[num_intime_rechits]=rechit_energy;
-	    	_intime_rechits_theta[num_intime_rechits]=theta;
-	    	_intime_rechits_eta[num_intime_rechits]=erec_eta;
-	    	_intime_rechits_phi[num_intime_rechits]=erec_phi;
-	    	num_intime_rechits++;
-		
-	    	if (severity_level==3 ||severity_level==4)
-	    	  {
-	    	    _intime_rechits_sevlv3_4_Et[num_intime_rechits_sevlv3_4]=rechit_energy;
-	    	    _intime_rechits_sevlv3_4_theta[num_intime_rechits_sevlv3_4]=theta;
-	    	    _intime_rechits_sevlv3_4_eta[num_intime_rechits_sevlv3_4]=erec_eta;
-	    	    _intime_rechits_sevlv3_4_phi[num_intime_rechits_sevlv3_4]=erec_phi;
-	    	    num_intime_rechits_sevlv3_4++;
-	    	  }
-	      }
-
-
-	    if (rechit_energy>4 && rechit_energy>(itTT->second).maxRechit_)
-	      {
-		(itTT->second).maxRechit_ = rechit_energy;
-		if (abs(rechit_time)<16)
-		  {
-		    (itTT->second).rechit_cleaning_cut_=1;
-
-		  }
-		else
-		  { 
-		    (itTT->second).rechit_cleaning_cut_=0;
-		  }
-	      
-		//		cout<<"cleaning cut looks like : "<<(itTT->second).rechit_cleaning_cut_<<endl; 
-			
-	      }
-
-      	    if (severity_level==3 ||severity_level==4)
-	      { 
-		_erec_eta_sevlv3_4[num_bad_crystals]=erec_eta;
-	    	_erec_Et_sevlv3_4[num_bad_crystals]=rechit_energy;
+	    	_erec_eta_sevlv3_4[num_bad_crystals]=erec_eta;
+	    	_erec_Et_sevlv3_4[num_bad_crystals]=erec_et;
 	    	_erec_phi_sevlv3_4[num_bad_crystals]=erec_phi;
 	    	_erec_theta_sevlv3_4[num_bad_crystals]=theta;
 
 		num_bad_crystals+=1;
 	      }
 
+	    _n_bad_crystals=num_bad_crystals;
 
 
             if (itTT != mapTower.end()) {
 	      
 	    
-                (itTT->second).eRec_ += rechit_energy ;
-		if ( ((itTT->second).maxRechit_) < (rechit_energy)) 
+                (itTT->second).eRec_ += rechitItr->energy()*sin(theta) ;
+		if ( ((itTT->second).maxRechit_) < (rechitItr->energy()*sin(theta))) 
 		     {
-		       if((rechit_energy) > 1.)
+		       if((rechitItr->energy()*sin(theta)) > 1.)
 		      {
 			(itTT->second).sevlv_ = severity_level; 
-			(itTT->second).maxRechit_ = rechit_energy;
+			(itTT->second).maxRechit_ = rechitItr->energy()*sin(theta);
 		      }
 		     }     
 		if ( (itTT->second).sevlv2_ !=3) 
 		  {
 		    if ((itTT->second).sevlv2_ !=4)
 		      {
-			if((rechit_energy) > 1.)
+			if((rechitItr->energy()*sin(theta)) > 1.)
 			  {
 			    (itTT->second).sevlv2_ = severity_level; 
 			  }
@@ -1292,13 +1358,10 @@ void SimpleNtpleCustom::FillTrigger (const edm::Event& iEvent, const edm::EventS
 	      
 		(itTT->second).crystNb_++;
 	    }
-
       }
     }
-    _n_bad_crystals=num_bad_crystals;
-    _num_all_rechits=num_all_rechits;
-    _num_intime_rechits=num_intime_rechits;
-    _num_intime_rechits_sevlv3_4=num_intime_rechits_sevlv3_4;
+
+
     // Get EE rechits
     edm::Handle<EcalRecHitCollection> rechitsEE; 
     if (iEvent.getByLabel(EcalRecHitCollectionEE_, rechitsEE) ) {
@@ -1329,103 +1392,108 @@ void SimpleNtpleCustom::FillTrigger (const edm::Event& iEvent, const edm::EventS
 
 
 
-    // // ORIGINAL TP
-    // if( nadGetTP_ ) {
-    //   if(PrintDebug_) cout << "create new ecal_tp pointer" << endl;
-    //   //edm::Handle<EcalTrigPrimDigiCollection> tp;
-    //   edm::Handle<EcalTrigPrimDigiCollection>* ecal_tp_ = new edm::Handle<EcalTrigPrimDigiCollection> ;
+    // ORIGINAL TP
+    if( nadGetTP_ ) {
+      if(PrintDebug_) cout << "create new ecal_tp pointer" << endl;
+      //edm::Handle<EcalTrigPrimDigiCollection> tp;
+      edm::Handle<EcalTrigPrimDigiCollection>* ecal_tp_ = new edm::Handle<EcalTrigPrimDigiCollection> ;
 
-    //   if(PrintDebug_) cout << "..created. get by label the tp collection" << endl;
+      if(PrintDebug_) cout << "..created. get by label the tp collection" << endl;
 
-    //   iEvent.getByLabel(tpCollectionNormal_,*ecal_tp_);
-    //   if(PrintDebug_) cout << "got it" << endl;
+      iEvent.getByLabel(tpCollectionNormal_,*ecal_tp_);
+      if(PrintDebug_) cout << "got it" << endl;
 
-    //   _trig_tower_N = ecal_tp_->product()->size();
-    //   if(PrintDebug_) {
-    // 	cout << "TP Normal collection size=" << ecal_tp_->product()->size() << endl ;
-    // 	cout << "is gonna get the TP data" << endl;
-    //   }
+      _trig_tower_N = ecal_tp_->product()->size();
+      if(PrintDebug_) {
+	cout << "TP Normal collection size=" << ecal_tp_->product()->size() << endl ;
+	cout << "is gonna get the TP data" << endl;
+      }
   
-    //   for (int i=0 ; i<_trig_tower_N ; i++) {
-    // 	if(PrintDebug_) cout << "loop iteration #" << i << endl;
-    // 	EcalTriggerPrimitiveDigi d_ = (*(ecal_tp_->product()))[i]; // EcalTriggerPrimitiveDigi 
-    // 	if(PrintDebug_) cout << "got the trigger primitive" << endl;
-    // 	EcalTrigTowerDetId TPtowid_ = d_.id(); // const EcalTrigTowerDetId TPtowid
-    // 	if(PrintDebug_) cout << "got the tower id" << endl;
-    // 	_trig_tower_iphi[i] = TPtowid_.iphi() ;
-    // 	_trig_tower_ieta[i] = TPtowid_.ieta() ;
-    // 	if(PrintDebug_) cout << "got the ieta and iphi : " << TPtowid_.ieta() << TPtowid_.iphi() << endl;
-    // 	//_trig_tower_adc[i]  = (d[0].raw()&0xfff) ;  0xfff <-> TTF(3bits)+FG(1bit)+Et(8bits)
-    // 	_trig_tower_adc[i]  = (d_[0].raw()&0xff) ;  // 0xff  <-> Et(8bits)
-    // 	if(PrintDebug_) cout << "got the adc : " << (int)(d_[0].raw()&0xff) << endl;
-    // 	//if(_trig_tower_adc[i]>0)
-    // 	//cout << _trig_tower_adc[i] << "   " ;
-    // 	_trig_tower_sFGVB[i] = d_[0].sFGVB();       // 0=spike-like / 1=EM-like
-    // 	if(PrintDebug_) cout << "got the sFGVB : " << d_[0].sFGVB() << endl;
-    // 	//_trig_tower_sFGVB[i] = d[0].l1aSpike();
-    // 	//if(d[0].l1aSpike()!=0) cout << "sFGVB=" << d[0].l1aSpike() << endl;
-    //   }
-    //   if(PrintDebug_) cout << "finished looping" << endl;
-    // }
+      for (int i=0 ; i<_trig_tower_N ; i++) {
+	if(PrintDebug_) cout << "loop iteration #" << i << endl;
+	EcalTriggerPrimitiveDigi d_ = (*(ecal_tp_->product()))[i]; // EcalTriggerPrimitiveDigi 
+	if(PrintDebug_) cout << "got the trigger primitive" << endl;
+	EcalTrigTowerDetId TPtowid_ = d_.id(); // const EcalTrigTowerDetId TPtowid
+	if(PrintDebug_) cout << "got the tower id" << endl;
+	_trig_tower_iphi[i] = TPtowid_.iphi() ;
+	_trig_tower_ieta[i] = TPtowid_.ieta() ;
+      	if(PrintDebug_) cout << "got the ieta and iphi : " << TPtowid_.ieta() << TPtowid_.iphi() << endl;
+	//_trig_tower_adc[i]  = (d[0].raw()&0xfff) ;  0xfff <-> TTF(3bits)+FG(1bit)+Et(8bits)
+	_trig_tower_adc[i]  = (d_[0].raw()&0xff) ;  // 0xff  <-> Et(8bits)
+	if(PrintDebug_) cout << "got the adc : " << (int)(d_[0].raw()&0xff) << endl;
+	//if(_trig_tower_adc[i]>0)
+	//cout << _trig_tower_adc[i] << "   " ;
+	_trig_tower_sFGVB[i] = d_[0].sFGVB();       // 0=spike-like / 1=EM-like
+	//	if(PrintDebug_) 
+	// if (d_[0].sFGVB()==1)
+	//   {
+	//     cout << "got the sFGVB : " << d_[0].sFGVB() << endl;
+	//     cout << "tauwaar "<<(d_[0].raw()&0xff)<<endl;
+	//   }
+	//_trig_tower_sFGVB[i] = d[0].l1aSpike();
+	//if(d[0].l1aSpike()!=0) cout << "sFGVB=" << d[0].l1aSpike() << endl;
+      }
+      if(PrintDebug_) cout << "finished looping" << endl;
+    }
 
-    // // ZEROING-BY-HAND TP
-    // if( nadGetTP_Modif_ ) {
-    //   edm::Handle<EcalTrigPrimDigiCollection>* ecal_tpM_ = new edm::Handle<EcalTrigPrimDigiCollection> ;
-    //   iEvent.getByLabel(tpCollectionModif_,*ecal_tpM_);
-    //   //std::cout << "TP Modifu collection size=" << tpM.product()->size() << std::endl ;
-
-    //   _trig_tower_N_modif = ecal_tpM_->product()->size(); 
-
-    //   for (int i=0 ; i<_trig_tower_N_modif ; i++) {
-    // 	EcalTriggerPrimitiveDigi dM_ = (*(ecal_tpM_->product()))[i]; // EcalTriggerPrimitiveDigi dM
-    // 	EcalTrigTowerDetId TPtowidM_ = dM_.id(); // EcalTrigTowerDetId
-    // 	_trig_tower_iphi_modif[i] = TPtowidM_.iphi() ;
-    // 	_trig_tower_ieta_modif[i] = TPtowidM_.ieta() ;
-    // 	//_trig_tower_adc_modif[i]  = (dM[0].raw()&0xfff) ;
-    // 	_trig_tower_adc_modif[i]  = (dM_[0].raw()&0xff) ;
-    // 	//if(_trig_tower_adc_modif[i]>0)
-    // 	//cout << _trig_tower_adc_modif[i] << "   " ;
-    // 	_trig_tower_sFGVB_modif[i] = dM_[0].sFGVB(); // 0=spike-like / 1=EM-like
-    // 	//_trig_tower_sFGVB_modif[i] = dM[0].l1aSpike();
-    //   }
-    // }
-
-    // // EMULATOR TPs
-    // if( nadGetTP_Emul_ ) {
+    // ZEROING-BY-HAND TP
+    if( nadGetTP_Modif_ ) {
+      edm::Handle<EcalTrigPrimDigiCollection>* ecal_tpM_ = new edm::Handle<EcalTrigPrimDigiCollection> ;
+      iEvent.getByLabel(tpCollectionModif_,*ecal_tpM_);
+      //std::cout << "TP Modifu collection size=" << tpM.product()->size() << std::endl ;
     
-    //   edm::Handle<EcalTrigPrimDigiCollection>* ecal_tpM_ = new edm::Handle<EcalTrigPrimDigiCollection> ;
-    //   iEvent.getByLabel(tpEmulatorCollection_, *ecal_tpM_);
-    //   //if (print_) std::cout<<"TPEmulator collection size="<<tpEmul.product()->size()<<std::endl ;
+      _trig_tower_N_modif = ecal_tpM_->product()->size(); 
+
+      for (int i=0 ; i<_trig_tower_N_modif ; i++) {
+	EcalTriggerPrimitiveDigi dM_ = (*(ecal_tpM_->product()))[i]; // EcalTriggerPrimitiveDigi dM
+	EcalTrigTowerDetId TPtowidM_ = dM_.id(); // EcalTrigTowerDetId
+	_trig_tower_iphi_modif[i] = TPtowidM_.iphi() ;
+	_trig_tower_ieta_modif[i] = TPtowidM_.ieta() ;
+	//_trig_tower_adc_modif[i]  = (dM[0].raw()&0xfff) ;
+	_trig_tower_adc_modif[i]  = (dM_[0].raw()&0xff) ;
+	//if(_trig_tower_adc_modif[i]>0)
+	//cout << _trig_tower_adc_modif[i] << "   " ;
+	_trig_tower_sFGVB_modif[i] = dM_[0].sFGVB(); // 0=spike-like / 1=EM-like
+	//_trig_tower_sFGVB_modif[i] = dM[0].l1aSpike();
+      }
+    }
   
-    //   _trig_tower_N_emul = ecal_tpM_->product()->size();
-
-    //   for (int i=0 ; i<_trig_tower_N_emul ; i++) {
-    // 	EcalTriggerPrimitiveDigi dM_ = (*(ecal_tpM_->product()))[i]; //EcalTriggerPrimitiveDigi
-    // 	EcalTrigTowerDetId TPtowidM_ = dM_.id();
-    // 	_trig_tower_iphi_emul[i] = TPtowidM_.iphi() ;
-    // 	_trig_tower_ieta_emul[i] = TPtowidM_.ieta() ;
+    // EMULATOR TPs
+    if( nadGetTP_Emul_ ) {
     
-    // 	bool showit = false;
-    // 	for(int j=0 ; j<5 ; j++)
-    // 	  if( (dM_[j].raw()&0xff) > 0 ) showit = true ;
-    // 	showit = false;
+      edm::Handle<EcalTrigPrimDigiCollection>* ecal_tpM_ = new edm::Handle<EcalTrigPrimDigiCollection> ;
+      iEvent.getByLabel(tpEmulatorCollection_, *ecal_tpM_);
+      //if (print_) std::cout<<"TPEmulator collection size="<<tpEmul.product()->size()<<std::endl ;
+  
+      _trig_tower_N_emul = ecal_tpM_->product()->size();
 
-    // 	if(showit)
-    // 	  cout << "TTieta=" << TPtowidM_.ieta() << " TTiphi=" << TPtowidM_.iphi() << " adcEm=" ;
-
-    // 	for (int j=0 ; j<5 ; j++) {
-    // 	  _trig_tower_adc_emul[i][j] = (dM_[j].raw()&0xff) ;
-    // 	  //_trig_tower_sFGVB_emul[i][j] = d[j].l1aSpike(); 
-    // 	  _trig_tower_sFGVB_emul[i][j] = dM_[j].sFGVB(); 
-    // 	  if(showit)
-    // 	    cout << (dM_[j].raw()&0xff) << " " ;
-    // 	}
-    // 	if(showit)
-    // 	  cout << endl;
-    //   }
+      for (int i=0 ; i<_trig_tower_N_emul ; i++) {
+	EcalTriggerPrimitiveDigi dM_ = (*(ecal_tpM_->product()))[i]; //EcalTriggerPrimitiveDigi
+	EcalTrigTowerDetId TPtowidM_ = dM_.id();
+	_trig_tower_iphi_emul[i] = TPtowidM_.iphi() ;
+	_trig_tower_ieta_emul[i] = TPtowidM_.ieta() ;
     
-    // }
+	bool showit = false;
+	for(int j=0 ; j<5 ; j++)
+	  if( (dM_[j].raw()&0xff) > 0 ) showit = true ;
+	showit = false;
 
+	if(showit)
+	  cout << "TTieta=" << TPtowidM_.ieta() << " TTiphi=" << TPtowidM_.iphi() << " adcEm=" ;
+
+	for (int j=0 ; j<5 ; j++) {
+	  _trig_tower_adc_emul[i][j] = (dM_[j].raw()&0xff) ;
+	  //_trig_tower_sFGVB_emul[i][j] = d[j].l1aSpike(); 
+	  _trig_tower_sFGVB_emul[i][j] = dM_[j].sFGVB(); 
+	  if(showit)
+	    cout << (dM_[j].raw()&0xff) << " " ;
+	}
+	if(showit)
+	  cout << endl;
+      }
+    
+    }
+  
     int towerNb = 0 ;
     for (itTT = mapTower.begin() ; itTT != mapTower.end() ; ++itTT) {
 
@@ -1436,7 +1504,6 @@ void SimpleNtpleCustom::FillTrigger (const edm::Event& iEvent, const edm::EventS
       // 	{
       // 	  cout<<" ee mal taver "<<((itTT->second).tpgEmul_[2]&0xff)<<endl;
       // 	}
-
       for (int i=0 ; i<5 ; i++) if (((itTT->second).tpgEmul_[i]&0xff) > 0) nonZeroEmul = true ;
       if (((itTT->second).tpgADC_&0xff) <= 0 && (!nonZeroEmul) ) fill = false ;
       // if (print_ && fill) {
@@ -1471,8 +1538,7 @@ void SimpleNtpleCustom::FillTrigger (const edm::Event& iEvent, const edm::EventS
 	_sevlv[towerNb] = (itTT->second).sevlv_ ;
 	_sevlv2[towerNb] = (itTT->second).sevlv2_ ;
 	_ttFlag[towerNb] = (itTT->second).ttFlag_ ;
-	_rechit_cleaning_cut[towerNb] = (itTT->second).rechit_cleaning_cut_ ;
- 
+   
 	_spike[towerNb] = (itTT->second).spike_ ;
 	_twrADC[towerNb] =  (itTT->second).twrADC_;
 	_sFGVB[towerNb] =  (itTT->second).sFGVB_;
@@ -1489,7 +1555,7 @@ void SimpleNtpleCustom::FillTrigger (const edm::Event& iEvent, const edm::EventS
     _nbOfTowers = towerNb ;
 
 
-
+  
 
 
 
@@ -1497,7 +1563,7 @@ void SimpleNtpleCustom::FillTrigger (const edm::Event& iEvent, const edm::EventS
   // ----------------------------------
   //  Path from list given in .py file
   // ----------------------------------
-    /*    
+
   UInt_t trigger_size = triggerResultsHandle->size();
   int passEleTrigger  = 0;
   int passMuonTrigger = 0;
@@ -1518,7 +1584,7 @@ void SimpleNtpleCustom::FillTrigger (const edm::Event& iEvent, const edm::EventS
     if (passMuonTrigger==1) _trig_isMuonHLTpath = 1;
   } // for loop on HLT Muonpaths
 	
-*/
+
   if(!aod_) {
 
     // ----------------------
@@ -1529,28 +1595,32 @@ void SimpleNtpleCustom::FillTrigger (const edm::Event& iEvent, const edm::EventS
 
     edm::Handle< l1extra::L1EmParticleCollection > emNonisolColl ;
     edm::Handle< l1extra::L1EmParticleCollection > emIsolColl ;
-    edm::Handle< l1extra::L1EmParticleCollection > emNonisolColl_M ;
-    edm::Handle< l1extra::L1EmParticleCollection > emIsolColl_M ;  
 
-    if( !nadGetL1M_ ) {      
+    /*   if( !nadGetL1M_ ) {      
       // standard collection ALONE
-      iEvent.getByLabel("l1extraParticles","NonIsolated", emNonisolColl ) ;
-      iEvent.getByLabel("l1extraParticles","Isolated", emIsolColl ) ;
+      iEvent.getByLabel(l1extraNonIsol_, emNonisolColl ) ;
+      iEvent.getByLabel(l1extraIsol_, emIsolColl ) ;
     } else {
       // standard collection
-      iEvent.getByLabel("l1extraParticlesOnline","NonIsolated", emNonisolColl ) ;
-      iEvent.getByLabel("l1extraParticlesOnline","Isolated", emIsolColl ) ;
+      iEvent.getByLabel(l1extraonlineNonIsol_, emNonisolColl ) ;
+      iEvent.getByLabel(l1extraonlineIsol_, emIsolColl ) ;
       // modified collection
-      iEvent.getByLabel("l1extraParticles","NonIsolated", emNonisolColl_M ) ;
-      iEvent.getByLabel("l1extraParticles","Isolated", emIsolColl_M ) ;
+      iEvent.getByLabel(l1extraNonIsol_, emNonisolColl_M ) ;
+      iEvent.getByLabel(l1extraIsol_, emIsolColl_M ) ;
     }
+    */
+
+
+    iEvent.getByToken(l1extraonlineNonIsolT_,emNonisolColl);
+    iEvent.getByToken(l1extraonlineIsolT_,emIsolColl);
+
 
     ///// STANDARD COLLECTION ALONE
     
     // Isolated candidates
     _trig_L1emIso_N = emIsolColl->size();
     //    if(PrintDebug_) cout << "N L1 candidate iso : " << _trig_L1emIso_N << endl;
-    //  cout << "N L1 candidate iso : " << _trig_L1emIso_N << endl;
+    if (PrintDebug_) cout << "N L1 candidate iso : " << _trig_L1emIso_N << endl;
     int counter = 0;
     for( l1extra::L1EmParticleCollection::const_iterator emItr = emIsolColl->begin(); emItr != emIsolColl->end() ;++emItr) {
       // Used by Clemy
@@ -1581,11 +1651,12 @@ void SimpleNtpleCustom::FillTrigger (const edm::Event& iEvent, const edm::EventS
       _trig_L1emNonIso_et[counter]     = emItr->et();
       counter++;
     } // for loop on Non Iso cand
-	  
+
+    /*	  
     if( nadGetL1M_ ) {
       _trig_L1emIso_N_M = emIsolColl_M->size();
       //      if(PrintDebug_) cout << "_trig_L1emIso_N_M =" << _trig_L1emIso_N_M << endl;
-      //cout << "_trig_L1emIso_N_M =" << _trig_L1emIso_N_M << endl;
+      cout << "_trig_L1emIso_N_M =" << _trig_L1emIso_N_M << endl;
       counter=0;
       for( l1extra::L1EmParticleCollection::const_iterator emItr = emIsolColl_M->begin();
            emItr != emIsolColl_M->end() ;++emItr) {
@@ -1598,19 +1669,6 @@ void SimpleNtpleCustom::FillTrigger (const edm::Event& iEvent, const edm::EventS
            _trig_L1emIso_et_M[counter]     = emItr->et();
            counter++;
       }
-    ///// MODIFIED COLLECTION IF ASKED
-//      if( nadGetL1M_ ) {
-
-      // Isolated candidates
-//      _trig_L1emIso_N_M = emIsolColl_M->size();
-//      if(PrintDebug_) cout << "_trig_L1emIso_N_M =" << _trig_L1emIso_N_M << endl;
-//      counter=0;
-//      for( l1extra::L1EmParticleCollection::const_iterator emItr = emIsolColl_M->begin(); 
-//	   emItr != emIsolColl_M->end() ;++emItr) {
-	// Used by Clemy
-//	_trig_L1emIso_ieta_M[counter] = emItr->gctEmCand()->regionId().ieta();
-	//_trig_L1emcounter++;
-//      }
       
       // Non Isolated candidates
       _trig_L1emNonIso_N_M = emNonisolColl_M->size();
@@ -1630,11 +1688,14 @@ void SimpleNtpleCustom::FillTrigger (const edm::Event& iEvent, const edm::EventS
 	counter++;
       } // for loop on Non Iso cand
     }
+    */
+
+
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-	  
+
+    /*	  
     // --- PRE- AND POST-FIRING ---
-	  
     edm::Handle< L1GlobalTriggerReadoutRecord > gtRecord;
     iEvent.getByLabel( edm::InputTag(gtRecordCollectionTag_), gtRecord);
     //PRE-FIRING
@@ -1740,15 +1801,20 @@ void SimpleNtpleCustom::FillTrigger (const edm::Event& iEvent, const edm::EventS
       }
     }//loop Iso
     _trig_postL1emIso_N = counter;
+    */
+
 	  
   }   // if AOD
+
+
+
 	
   // ----------------------
   //  get HLT EM candidate
   // ----------------------
-  /*  edm::Handle<trigger::TriggerEvent> trigEvent;
-  iEvent.getByLabel(triggerEventTag_, trigEvent);
-	
+  edm::Handle<trigger::TriggerEvent> trigEvent;
+  iEvent.getByToken( triggerEventTagT_, trigEvent);
+
   const Int_t N_filter(trigEvent->sizeFilters());
   std::vector<Int_t> ID_filter; 
 	
@@ -1787,14 +1853,245 @@ void SimpleNtpleCustom::FillTrigger (const edm::Event& iEvent, const edm::EventS
 
   _trig_HLT_N = hlt_counter;
   if(hlt_counter>19) { _trig_HLT_N = 20; cout << "Number of HLT Objects>20, trig_HLT_N set to 20" << endl;}
-  */
+  
+
+  /////////////////////////////////////////////////////////
+  ///                 Stage 2 Level 1                   ///
+  /////////////////////////////////////////////////////////
+ 
+  Handle< BXVector<l1t::CaloTower> > towers;
+  iEvent.getByToken(m_towerToken_,towers);
+  //
+  Handle< BXVector<l1t::EGamma> > mpegs;
+  iEvent.getByToken(m_mpEGToken_,mpegs);
+  //
+  Handle< BXVector<l1t::EGamma> > egs;
+  iEvent.getByToken(m_egToken_,egs);
+  //// Multi-plexed
+  int i_mpeg=0;
+  for ( auto itr = mpegs->begin(0); itr != mpegs->end(0); ++itr ) {
+    if (PrintDebug_) cout << "Stage 2 MP EG : " << " BX=" << 0 << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
+    if(itr->hwPt() > 0){
+      _Stage2_mpeg_hwPt[i_mpeg] = itr->hwPt();
+      _Stage2_mpeg_hwEta[i_mpeg] = itr->hwEta();
+      _Stage2_mpeg_hwPhi[i_mpeg] = itr->hwPhi();
+      i_mpeg++;
+    }	  
+  }
+  _Stage2_mpeg_n = i_mpeg;
+
+  //// Global 
+  int i_eg=0;
+  for ( auto itr = egs->begin(0); itr != egs->end(0); ++itr ) {
+    if (PrintDebug_) cout << "Stage 2 EG : " << " BX=" << 0 << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;	  
+    if(itr->hwPt() > 0){
+      _Stage2_eg_hwPt[i_eg] = itr->hwPt();
+      _Stage2_eg_hwEta[i_eg] = itr->hwEta();
+      _Stage2_eg_hwPhi[i_eg] = itr->hwPhi();
+      
+      //Physical units
+      _Stage2_eg_et[i_eg] = itr->pt();
+      _Stage2_eg_eta[i_eg] = itr->eta();
+      _Stage2_eg_phi[i_eg] = itr->phi();
+      i_eg++;
+    }
+   
+  }
+  _Stage2_eg_n = i_eg;
+
+
+
+  
+  //// Towers
+ 
+  int i_tow=0;
+  for ( int ibx=towers->getFirstBX(); ibx<=towers->getLastBX(); ++ibx) {
+    for ( auto itr = towers->begin(ibx); itr !=towers->end(ibx); ++itr ) {
+      if (itr->hwPt()<=0) continue;
+      if (PrintDebug_) cout << "Stage 2 Tower : " << " BX=" << 0 << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
+      
+      
+      _Stage2_tower_hwPt[i_tow] = itr->hwPt();
+      _Stage2_tower_hwEta[i_tow] = itr->hwEta();
+      _Stage2_tower_hwPhi[i_tow] = itr->hwPhi();
+      i_tow++;
+    }
+  }
+  
+  _Stage2_tower_n=i_tow;
+
+  
+  if(trigger_stage2_emul_){
+    
+    Handle< BXVector<l1t::CaloTower> > towers_emul;
+    iEvent.getByToken(m_towerToken_emul_,towers_emul);
+    vector<l1t::CaloTower> twrs;
+    cout << " Tower_emul handle size " << towers_emul->size() << endl;
+    
+
+    int i_tow_emul=0;
+    int n_tow=0;
+    for ( auto itr = towers_emul->begin(0); itr !=towers_emul->end(0); ++itr ) {
+
+
+      twrs.push_back(*itr);
+      
+      if (itr->hwPt()<=0) continue;
+      n_tow++;      
+      if ( PrintDebug_) cout << "Stage 2 Tower Emul: " << " BX=" << 0 << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
+      //cout << "E=" << itr->hwEtEm() << " H=" << itr->hwEtHad() << std::endl;
+      _Stage2_tower_emul_hwEtHad[i_tow_emul] = itr->hwEtHad();
+      _Stage2_tower_emul_hwPt[i_tow_emul] = itr->hwPt();
+      _Stage2_tower_emul_hwEta[i_tow_emul] = itr->hwEta();
+      _Stage2_tower_emul_hwPhi[i_tow_emul] = itr->hwPhi();
+      _Stage2_tower_emul_hwEtEm[i_tow_emul] = itr->hwEtEm();
+      
+      i_tow_emul++;
+      
+    }
+    if (PrintDebug_) cout << " n_tow " << n_tow << endl;
+
+    _Stage2_tower_emul_n=i_tow_emul;
+
+    
+    int nrTowers = l1t::CaloTools::calNrTowers(-4,4,1,72,twrs,1,999,l1t::CaloTools::CALO);
+    if (PrintDebug_) cout << " nrTowers " << nrTowers << endl;    
+
+    Handle< BXVector<l1t::CaloCluster> > cls;
+    iEvent.getByToken(m_clusterToken_emul_,cls);
+    vector<l1t::CaloCluster> clusters;
+    for ( auto itr = cls->begin(0); itr != cls->end(0); ++itr ) 
+      {
+	clusters.push_back(*itr);
+	
+      }
+
+   
+
+    Handle< BXVector<l1t::EGamma> > mpegs_emul;
+    iEvent.getByToken(m_mpEGToken_emul_,mpegs_emul);
+    
+    int i_mpeg_emul=0;
+    
+    for ( auto itr = mpegs_emul->begin(0); itr != mpegs_emul->end(0); ++itr ) {
+   
+
+   
+      if (PrintDebug_) cout << "Stage 2 MP EG Emul: " << " BX=" << 0 << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
+      
+      if(itr->hwPt() > 0){
+	_Stage2_mpeg_emul_hwPt[i_mpeg_emul] = itr->hwPt();
+	_Stage2_mpeg_emul_hwEta[i_mpeg_emul] = itr->hwEta();
+	_Stage2_mpeg_emul_hwPhi[i_mpeg_emul] = itr->hwPhi();
+	
+	const l1t::CaloCluster& clus = l1t::CaloTools::getCluster(clusters, itr->hwEta(), itr->hwPhi());
+	int shape = 0;
+	if( (clus.checkClusterFlag(l1t::CaloCluster::INCLUDE_N)) ) shape |= (0x1);
+	if( (clus.checkClusterFlag(l1t::CaloCluster::INCLUDE_S)) ) shape |= (0x1<<1);
+	if( clus.checkClusterFlag(l1t::CaloCluster::TRIM_LEFT)  && (clus.checkClusterFlag(l1t::CaloCluster::INCLUDE_E))  ) shape |= (0x1<<2);
+	if( !clus.checkClusterFlag(l1t::CaloCluster::TRIM_LEFT) && (clus.checkClusterFlag(l1t::CaloCluster::INCLUDE_W))  ) shape |= (0x1<<2);
+	if( clus.checkClusterFlag(l1t::CaloCluster::TRIM_LEFT)  && (clus.checkClusterFlag(l1t::CaloCluster::INCLUDE_NE)) ) shape |= (0x1<<3);
+	if( !clus.checkClusterFlag(l1t::CaloCluster::TRIM_LEFT) && (clus.checkClusterFlag(l1t::CaloCluster::INCLUDE_NW)) ) shape |= (0x1<<3);
+	if( clus.checkClusterFlag(l1t::CaloCluster::TRIM_LEFT)  && (clus.checkClusterFlag(l1t::CaloCluster::INCLUDE_SE)) ) shape |= (0x1<<4);
+	if( !clus.checkClusterFlag(l1t::CaloCluster::TRIM_LEFT) && (clus.checkClusterFlag(l1t::CaloCluster::INCLUDE_SW)) ) shape |= (0x1<<4);
+	if( clus.checkClusterFlag(l1t::CaloCluster::INCLUDE_NN) ) shape |= (0x1<<5);
+	if( clus.checkClusterFlag(l1t::CaloCluster::INCLUDE_SS) ) shape |= (0x1<<6);
+	
+	_Stage2_mpeg_emul_shape[i_mpeg_emul] = shape;
+	
+	int qual = itr->hwQual();
+	_Stage2_mpeg_emul_shapeID[i_mpeg_emul] = qual>>2 & (0x1);
+	
+	
+	int isoLeftExtension = 2;
+	int isoRightExtension = 2;
+	
+	if(clus.checkClusterFlag(l1t::CaloCluster::TRIM_LEFT))
+	  isoRightExtension++;
+	else
+	  isoLeftExtension++;
+	
+	int E9x6 = l1t::CaloTools::calHwEtSum(itr->hwEta(), itr->hwPhi(), twrs,
+					      -isoLeftExtension,isoRightExtension, //localEtaMin, localEtaMax
+					      -4,4, //localPhiMin, localPhiMax
+					      32); //iEtaAbsMax
+	
+	int etaSide = clus.checkClusterFlag(l1t::CaloCluster::TRIM_LEFT) ? 1 : -1;
+	int phiSide = itr->hwEta()>0 ? 1 : -1;
+	
+	int ecalHwFootPrint = l1t::CaloTools::calHwEtSum(itr->hwEta(),itr->hwPhi(),twrs,
+							 0,0,
+							 -2,2,
+							 32,l1t::CaloTools::ECAL) +
+	  l1t::CaloTools::calHwEtSum(itr->hwEta(),itr->hwPhi(),twrs,
+				     etaSide,etaSide,
+				     -2,2,
+				     32,l1t::CaloTools::ECAL);
+	int hcalHwFootPrint = l1t::CaloTools::calHwEtSum(itr->hwEta(),itr->hwPhi(),twrs,
+							 0,0,
+							 0,0,
+							 32,l1t::CaloTools::HCAL) +
+	  l1t::CaloTools::calHwEtSum(itr->hwEta(),itr->hwPhi(),twrs,
+				     0,0,
+				     phiSide,phiSide,
+				     32,l1t::CaloTools::HCAL);
+	int FootPrint = ecalHwFootPrint+hcalHwFootPrint;
+	
+	_Stage2_mpeg_emul_hwIsoSum[i_mpeg_emul] = E9x6-FootPrint;
+	_Stage2_mpeg_emul_nTT[i_mpeg_emul] = nrTowers;
+	_Stage2_mpeg_emul_hOverERatio[i_mpeg_emul] = clus.hOverE();
+	
+	_Stage2_mpeg_emul_isoflag[i_mpeg_emul] = itr->hwIso() & (0x1);
+	
+	i_mpeg_emul++;
+	
+      }
+      
+    }
+    
+    _Stage2_mpeg_emul_n = i_mpeg_emul;
+    
+    
+
+    Handle< BXVector<l1t::EGamma> > egs_emul;
+    iEvent.getByToken(m_egToken_emul_,egs_emul);
+    
+    int i_eg_emul=0;
+    
+    for ( auto itr = egs_emul->begin(0); itr != egs_emul->end(0); ++itr ) {
+      
+      if (PrintDebug_) cout << "Stage 2 EG Emul: " << " BX=" << 0 << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;	  
+      
+      if(itr->hwPt() > 0){
+      
+	_Stage2_eg_emul_hwPt[i_eg_emul] = itr->hwPt();
+	_Stage2_eg_emul_hwEta[i_eg_emul] = itr->hwEta();
+	_Stage2_eg_emul_hwPhi[i_eg_emul] = itr->hwPhi();
+	
+	//Physical units
+	_Stage2_eg_emul_et[i_eg_emul] = itr->pt();
+	_Stage2_eg_emul_eta[i_eg_emul] = itr->eta();
+	_Stage2_eg_emul_phi[i_eg_emul] = itr->phi();
+	
+	i_eg_emul++;
+	
+      }
+      
+    }
+    
+    _Stage2_eg_emul_n = i_eg_emul;
+
+  }   //if stage2      
+  
+
+
 } // end of FillTrigger
 
 // ====================================================================================
 void SimpleNtpleCustom::FillMET (const edm::Event& iEvent, const edm::EventSetup& iSetup)
 // ====================================================================================
 {
-	
+
   // caloMET object (negative vector sum of calorimeter towers)
   edm::Handle< edm::View<reco::CaloMET> > caloMEThandle;
   iEvent.getByLabel("met", caloMEThandle);
@@ -1849,10 +2146,10 @@ void SimpleNtpleCustom::FillMET (const edm::Event& iEvent, const edm::EventSetup
 // ====================================================================================
 void SimpleNtpleCustom::FillEle(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 // ====================================================================================
-{
+{  
   edm::Handle<reco::GsfElectronCollection> EleHandle ;
   iEvent.getByLabel (EleTag_.label(),EleHandle) ;
- // std::cout<<"what is the tag in the actually EleTag saveed "<<EleTag_.label()<<std::endl;	
+  if(PrintDebug_) std::cout<<"what is the tag in the actually EleTag saveed "<<EleTag_.label()<<std::endl;	
   edm::Handle<reco::PFCandidateCollection> PfEleHandle;
   iEvent.getByLabel("particleFlow", PfEleHandle);
   
@@ -1941,7 +2238,7 @@ void SimpleNtpleCustom::FillEle(const edm::Event& iEvent, const edm::EventSetup&
   // magnet current from DcsStatus
   // otherwise take it from the IdealMagneticFieldRecord
   if(PrintDebug_) std::cout << "B Field" << std::endl;
-  if(type_ == "DATA" ) 
+  if(typeData_) 
     {
       // scale factor = 3.801/18166.0 which are
       // average values taken over a stable two
@@ -2012,7 +2309,7 @@ void SimpleNtpleCustom::FillEle(const edm::Event& iEvent, const edm::EventSetup&
   edm::ESHandle<EcalTPGTowerStatus> theEcalTPGTowerStatus_handle;
   iSetup.get<EcalTPGTowerStatusRcd>().get(theEcalTPGTowerStatus_handle);
   const EcalTPGTowerStatus * ecaltpgTowerStatus=theEcalTPGTowerStatus_handle.product();
-	
+  	
   const EcalTPGTowerStatusMap &towerMap=ecaltpgTowerStatus->getMap();
   EcalTPGTowerStatusMapIterator  ittpg;
 	
@@ -2038,7 +2335,7 @@ void SimpleNtpleCustom::FillEle(const edm::Event& iEvent, const edm::EventSetup&
   if(!aod_){
     edm::Handle<reco::ElectronSeedCollection> elSeeds;
     iEvent.getByLabel(SeedTag_,elSeeds);
-	
+    	
     if(elSeeds.product()->size() < 100) ele_nSeed = elSeeds.product()->size();
     else ele_nSeed = 100;
 	
@@ -2068,20 +2365,20 @@ void SimpleNtpleCustom::FillEle(const edm::Event& iEvent, const edm::EventSetup&
     } // if nSeed>0
   }
 
-  //std::cout << " FillEle Get MC information " << std::endl;
+  std::cout << " FillEle Get MC information " << std::endl;
 
   // ----------------------------------------------
   //  Get MC information
   // ----------------------------------------------
   edm::Handle<edm::HepMCProduct> HepMCEvt;
-  if(type_ == "MC" && aod_ == false) iEvent.getByLabel(MCTag_, HepMCEvt);
+  if( !typeData_ && aod_ == false) iEvent.getByLabel(MCTag_, HepMCEvt);
   const HepMC::GenEvent* MCEvt = 0; 
   HepMC::GenParticle* genPc = 0;
   HepMC::FourVector pAssSim;
-  if(type_ == "MC" && aod_ == false) { MCEvt = HepMCEvt->GetEvent();
+  if(!typeData_ && aod_ == false) { MCEvt = HepMCEvt->GetEvent();
     _MC_pthat =  HepMCEvt -> GetEvent() -> event_scale();}
 	
-  if(type_ == "MC" && aod_ == true) {
+  if( !typeData_  && aod_ == true) {
     edm::Handle< GenEventInfoProduct > HepMCEvt;
     iEvent.getByLabel(MCTag_, HepMCEvt);
     if(HepMCEvt->hasBinningValues()) _MC_pthat = (HepMCEvt->binningValues())[0];
@@ -2089,15 +2386,16 @@ void SimpleNtpleCustom::FillEle(const edm::Event& iEvent, const edm::EventSetup&
   }
 
   edm::Handle<reco::GenParticleCollection> genParticlesColl;
-  if(aod_ == true && type_ == "MC") iEvent.getByLabel("genParticles", genParticlesColl);
-
-  //std::cout << " FillEle Get TrackingParticles info " << std::endl;
+  if(aod_ == true && !typeData_ ) iEvent.getByLabel("genParticles", genParticlesColl);
 
   // ----------------------------------------------
   //  Get TrackingParticles info   
   // ----------------------------------------------
+
+
 	
   /*
+  std::cout << " FillEle Get TrackingParticles info " << std::endl;
   // Get simulated       
   edm::Handle<TrackingParticleCollection> simCollection;
   if(type_ == "MC" && simulation_ == true) iEvent.getByLabel(TkPTag_, simCollection);
@@ -2135,7 +2433,7 @@ void SimpleNtpleCustom::FillEle(const edm::Event& iEvent, const edm::EventSetup&
   //if(!aod_) iEvent.getByLabel(EleIso_TdrHzzHcalMapTag_, isoHadelemap);
 	  
   // for H/E
- // std::cout<<"the potencial error for EgammaTowerIsolation may come here +2"<<std::endl;
+  std::cout<<"the potencial error for EgammaTowerIsolation may come here +2"<<std::endl;
   towersH_ = new edm::Handle<CaloTowerCollection>() ;
   if (!iEvent.getByLabel(hcalTowers_,*towersH_))
     { edm::LogError("ElectronHcalHelper::readEvent")<<"failed to get the hcal towers of label "<<hcalTowers_ ; }
@@ -2501,7 +2799,7 @@ void SimpleNtpleCustom::FillEle(const edm::Event& iEvent, const edm::EventSetup&
     //}
     //SumPt/Pt normalization
 		
-    double pT_new = (*EleHandle)[i].p4().Pt(); //* ele_newmom[counter] / (*EleHandle)[i].p4().P();
+    //    double pT_new = (*EleHandle)[i].p4().Pt(); //* ele_newmom[counter] / (*EleHandle)[i].p4().P();
 
     //if(!aod_){
     //ele_tkSumPtoPtTdrHzz_dr025[counter]    = (*isoTkelemap)[electronEdmRef]/pT_new;
@@ -2819,9 +3117,9 @@ void SimpleNtpleCustom::FillEle(const edm::Event& iEvent, const edm::EventSetup&
 	GlobalPoint orig(bs.position().x(), bs.position().y(), bs.position().z()) ;
 	GlobalPoint scpos(sclRef->position().x(), sclRef->position().y(), sclRef->position().z()) ;
 	GlobalPoint scposCorr=scpos;
-	if(type_ == "DATA" && (*EleHandle)[i].isEE() && sclRef->eta() > 0) 
+	if(typeData_ && (*EleHandle)[i].isEE() && sclRef->eta() > 0) 
 	  scposCorr = GlobalPoint(sclRef->position().x()+0.52, sclRef->position().y()-0.81, sclRef->position().z()+0.81) ;
-	if(type_ == "DATA" && (*EleHandle)[i].isEE() && sclRef->eta() < 0) 
+	if(typeData_  && (*EleHandle)[i].isEE() && sclRef->eta() < 0) 
 	  scposCorr = GlobalPoint(sclRef->position().x()-0.02, sclRef->position().y()-0.83, sclRef->position().z()-0.94) ;
 	GlobalVector scvect(scpos-orig) ;
 	GlobalVector scvectCorr(scposCorr-orig) ;
@@ -2924,7 +3222,7 @@ void SimpleNtpleCustom::FillEle(const edm::Event& iEvent, const edm::EventSetup&
       if(fabs(MyS->dRz1()) < 100.)  ele_seedDrz1Neg[counter]  = double(MyS->dRz1());
     }
 		
-    if(type_ == "MC"){
+    if( !typeData_){
       //		bool okeleFound_conv = false; 
       //		bool okeleFound = false; 
 			
@@ -3123,7 +3421,7 @@ void SimpleNtpleCustom::FillEle(const edm::Event& iEvent, const edm::EventSetup&
 // ====================================================================================
 void SimpleNtpleCustom::FillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 // ====================================================================================
-{
+{ 
   // Beam spot
   //Handle<reco::BeamSpot> beamSpotHandle;
   //iEvent.getByLabel(InputTag("offlineBeamSpot"), beamSpotHandle);
@@ -3252,7 +3550,7 @@ void SimpleNtpleCustom::FillMuons(const edm::Event& iEvent, const edm::EventSetu
 void SimpleNtpleCustom::FillJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 // ====================================================================================
 {
-	
+
   // --------------------------------------------------
   // Calo Jets
   // --------------------------------------------------
@@ -3354,6 +3652,7 @@ void SimpleNtpleCustom::FillJets(const edm::Event& iEvent, const edm::EventSetup
 void SimpleNtpleCustom::FillSuperClusters(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 // ====================================================================================
 {
+
   //std::cout << "FillSuperClusters  geometry " << std::endl;
   // geometry
   ///const CaloGeometry * geometry;
@@ -3817,7 +4116,7 @@ void SimpleNtpleCustom::FillSuperClusters(const edm::Event& iEvent, const edm::E
   
   if(index_sc>24) { _sc_hybrid_N = 25; cout << "Number of SuperCluster > 25; _sc_hybrid_N set to 25" << endl;}
   
-  //	std::cout << "FillSuperClusters  EE SuperCluster  " << std::endl;
+   if(PrintDebug_) std::cout << "FillSuperClusters  EE SuperCluster  " << std::endl;
   
   // -----------------
   //  EE SuperCluster
@@ -3827,7 +4126,7 @@ void SimpleNtpleCustom::FillSuperClusters(const edm::Event& iEvent, const edm::E
   
   _sc_multi55_N = sc_coll_EE->size();
   
-  //std::cout << " size EE = " << sc_coll_EE->size() << std::endl;
+   if(PrintDebug_) std::cout << " size EE = " << sc_coll_EE->size() << std::endl;
   
   int index_sc_EE = 0;
   
@@ -4057,6 +4356,8 @@ void SimpleNtpleCustom::FillSuperClusters(const edm::Event& iEvent, const edm::E
 void SimpleNtpleCustom::FillTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 // ====================================================================================
 {
+  cout<<"118"<<endl;
+
   // get gen particle candidates
   edm::Handle<GenParticleCollection> genCandidatesCollection;
   iEvent.getByLabel("genParticles", genCandidatesCollection);
@@ -4109,6 +4410,8 @@ void SimpleNtpleCustom::FillTruth(const edm::Event& iEvent, const edm::EventSetu
 void  SimpleNtpleCustom::FillTipLipIp(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 // ====================================================================================
 {
+
+
   //Get the B-field
   edm::ESHandle<MagneticField> magneticField;
   iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
@@ -4470,7 +4773,8 @@ void  SimpleNtpleCustom::FillTipLipIp(const edm::Event& iEvent, const edm::Event
 void SimpleNtpleCustom::Init()
 // ====================================================================================
 {
-	
+
+
   ele_N = 0;
   ele_nSeed = 0;
   nEvent = 0;
@@ -4518,36 +4822,84 @@ void SimpleNtpleCustom::Init()
 	
   // Trigger towers
   
-  // _trig_tower_N = 0;
-  // _trig_tower_N_modif = 0;
-  // _trig_tower_N_emul = 0;
+  _trig_tower_N = 0;
+  _trig_tower_N_modif = 0;
+  _trig_tower_N_emul = 0;
 
-  // for(int i=0 ; i<4032 ; i++) 
-  //   {
-  //     _trig_tower_ieta[i]=-999;
-  //     _trig_tower_iphi[i]=-999;
-  //     _trig_tower_adc[i]=-999;
-  //     _trig_tower_sFGVB[i]=-999;
+  for(int i=0 ; i<4032 ; i++) {
+    _trig_tower_ieta[i]=-999;
+    _trig_tower_iphi[i]=-999;
+    _trig_tower_adc[i]=-999;
+    _trig_tower_sFGVB[i]=-999;
 
-  //     _trig_tower_ieta_modif[i]=-999;
-  //     _trig_tower_iphi_modif[i]=-999;
-  //     _trig_tower_adc_modif[i]=-999;
-  //     _trig_tower_sFGVB_modif[i]=-999;
+    _trig_tower_ieta_modif[i]=-999;
+    _trig_tower_iphi_modif[i]=-999;
+    _trig_tower_adc_modif[i]=-999;
+    _trig_tower_sFGVB_modif[i]=-999;
 
-  //     _trig_tower_ieta_emul[i]=-999;
-  //     _trig_tower_iphi_emul[i]=-999;
-   
-  //     for(int j=0 ; j<5 ; j++) 
-  // 	{
-  // 	  _trig_tower_adc_emul[i][j]=-999;
-  // 	  _trig_tower_sFGVB_emul[i][j]=-999;
-  // 	}
-  //   }
+    _trig_tower_ieta_emul[i]=-999;
+    _trig_tower_iphi_emul[i]=-999;
+    for(int j=0 ; j<5 ; j++) {
+      _trig_tower_adc_emul[i][j]=-999;
+      _trig_tower_sFGVB_emul[i][j]=-999;
+    }
+  }
   //nab
   
   
-
+  
   // Trigger
+  ////// Stage 2 ////
+  _Stage2_tower_n      =0;
+  _Stage2_mpeg_n       =0;
+  _Stage2_eg_n         =0;
+  _Stage2_tower_emul_n =0;
+  _Stage2_mpeg_emul_n  =0;	
+  _Stage2_eg_emul_n    =0;
+
+  for ( int i=0; i<2736; i++) {
+    _Stage2_tower_hwPt[i]  =0;
+    _Stage2_tower_hwEta[i] =0;
+    _Stage2_tower_hwPhi[i] =0;
+    //
+    _Stage2_tower_emul_hwPt[i]   = 0; 
+    _Stage2_tower_emul_hwEta[i]  = 0;
+    _Stage2_tower_emul_hwPhi[i]  = 0;
+    _Stage2_tower_emul_hwEtEm[i] = 0;
+    _Stage2_tower_emul_hwEtHad[i]= 0;
+  }
+  
+
+  for ( int i=0; i<12; i++) {
+    _Stage2_mpeg_hwPt[i] =0;
+    _Stage2_mpeg_hwEta[i]=0;
+    _Stage2_mpeg_hwPhi[i]=0;
+    _Stage2_eg_hwPt[i]   =0;
+    _Stage2_eg_hwEta[i] =0;
+    _Stage2_eg_hwPhi[i] =0;
+    _Stage2_eg_et[i]  =0.;
+    _Stage2_eg_eta[i] =0.;
+    _Stage2_eg_phi[i] =0.;
+    _Stage2_mpeg_emul_hwPt[i] =0;
+    _Stage2_mpeg_emul_hwEta[i] =0;
+    _Stage2_mpeg_emul_hwPhi[i] =0;
+    _Stage2_mpeg_emul_shape[i] =0;
+    _Stage2_mpeg_emul_shapeID[i] =0;
+    _Stage2_mpeg_emul_hwIsoSum[i] =0;
+    _Stage2_mpeg_emul_nTT[i] =0;
+    _Stage2_mpeg_emul_hOverERatio[i] =0;
+    _Stage2_mpeg_emul_isoflag[i] =0;
+    _Stage2_eg_emul_hwPt[i]  =0;
+    _Stage2_eg_emul_hwEta[i] =0;
+    _Stage2_eg_emul_hwPhi[i] =0;
+    _Stage2_eg_emul_et[i]  =0.;
+    _Stage2_eg_emul_eta[i] =0.;
+    _Stage2_eg_emul_phi[i] =0.;
+  }
+
+  //////////
+
+
   for (int i=0;i<250;i++) 
     trig_hltInfo[i] = 0;
 	
@@ -5119,12 +5471,15 @@ void SimpleNtpleCustom::Init()
     ele_Error3D[i] = -999. ;
   }
 	
+  cout  << " I am at the end of Init() " << endl;
+
 }
 
 // ====================================================================================
 void SimpleNtpleCustom::beginJob(const edm::ParameterSet& conf)
 // ====================================================================================
 {
+  cout<<"121"<<endl;
   //hcalhelper_ = new ElectronHcalHelper(conf);
   //edm::Ref<reco::GsfElectronCollection> electronEdmRef(EleHandle,i);
   
