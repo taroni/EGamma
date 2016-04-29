@@ -42,33 +42,33 @@ process.GlobalTag.toGet = cms.VPSet( #sFGVB thresholds.
 # ---------------------------------------------------------------------
 # Unpack Ecal Digis
 # ---------------------------------------------------------------------
-process.load("EventFilter.EcalRawToDigi.EcalUnpackerMapping_cfi");
-process.load("EventFilter.EcalRawToDigi.EcalUnpackerData_cfi");
+#process.load("EventFilter.EcalRawToDigi.EcalUnpackerMapping_cfi");
+#process.load("EventFilter.EcalRawToDigi.EcalUnpackerData_cfi");
 #process.ecalEBunpacker.InputLabel = cms.InputTag('rawDataCollector');
 
 # ECAL TPG Producer                                                                                                                                                                
-process.load("Geometry.EcalMapping.EcalMapping_cfi")
-process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
+#process.load("Geometry.EcalMapping.EcalMapping_cfi")
+#process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
 #process.load("CalibCalorimetry.Configuration.Ecal_FakeConditions_cff")                                                                                                            
 # ECAL TPG Analyzer                                                                                                                                                                
 #process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
-process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
+#process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
+#process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 
-process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
-   InstanceEB = cms.string('ebDigis'),
-   InstanceEE = cms.string('eeDigis'),
-   Label = cms.string('ecalDigis'),
+#process.ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
+#   InstanceEB = cms.string('ebDigis'),
+#   InstanceEE = cms.string('eeDigis'),
+#   Label = cms.string('ecalDigis'),
 
-   BarrelOnly = cms.bool(False),
-   Famos = cms.bool(False),
-   TcpOutput = cms.bool(False),
+#   BarrelOnly = cms.bool(False),
+#   Famos = cms.bool(False),
+#   TcpOutput = cms.bool(False),
 
-   Debug = cms.bool(False),
+#   Debug = cms.bool(False),
 
-   binOfMaximum = cms.int32(6), ## optional from release 200 on, from 1-10                                                                   
+#   binOfMaximum = cms.int32(6), ## optional from release 200 on, from 1-10                                                                   
 
-)
+#)
 
 
 
@@ -85,21 +85,19 @@ process.simEcalTriggerPrimitiveDigis.InstanceEE =  'eeDigis'
 process.simEcalTriggerPrimitiveDigis.BarrelOnly = False
 
 
-
-
-
 # ----------------------------------------------------------------------
 # ECAL rechits and co                                                   
 # ----------------------------------------------------------------------                                                                                                           
 #process.load('Configuration.StandardSequences.Reconstruction_Data_cff')
+
 process.load("Configuration/StandardSequences/Reconstruction_cff")
-import RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi
-process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi.ecalGlobalUncalibRecHit.clone()
-process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
+#import RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi
+#process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi.ecalGlobalUncalibRecHit.clone()
+#process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
 #process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
-process.load("RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi")
-process.ecalRecHit.EBuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEB'
-process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEE'
+#process.load("RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi")
+#process.ecalRecHit.EBuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEB'
+#process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEE'
 
 
 # ---------------------------------------------------------------------
@@ -301,8 +299,8 @@ process = L1TReEmulFromRAW(process)
 
 process.p = cms.Path (
 
-    process.ecalEBunpacker +
-    process.ecalDigis + 
+#    process.ecalEBunpacker +
+#    process.ecalDigis + 
     process.simEcalTriggerPrimitiveDigis +
 #    process.rawCaloStage2Digis   +
 #    process.ecalTriggerPrimitiveDigis + This is in the input file 
