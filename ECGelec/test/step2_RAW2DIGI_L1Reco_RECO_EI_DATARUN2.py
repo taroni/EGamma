@@ -28,13 +28,14 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.Geometry.GeometryExtended2016Reco_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(5)
 )
 
 # Input source
 process.source = cms.Source("PoolSource",
 #    fileNames = cms.untracked.vstring('file:myDIGIs.root'),
-    fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/n/ndev/public/for_nancy/splash_events_2016_run267996.root'),
+#    fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/n/ndev/public/for_nancy/splash_events_2016_run267996.root'),
+    fileNames = cms.untracked.vstring('root://cmsxrootd.fnal.gov//store/data/Run2016A/ZeroBias1/RAW/v1/000/271/195/00000/AA165F77-170A-E611-A554-02163E01440F.root' ),
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -57,7 +58,7 @@ process.RAWoutput = cms.OutputModule("PoolOutputModule",
         filterName = cms.untracked.string('')
     ),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-    fileName = cms.untracked.string('file:MyRECO.root'),
+    fileName = cms.untracked.string('file:MyRawOutput.root'),
     outputCommands = process.RAWEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )
@@ -68,7 +69,7 @@ process.RECOoutput = cms.OutputModule("PoolOutputModule",
         filterName = cms.untracked.string('')
     ),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-    fileName = cms.untracked.string('file:MyRECOSplahes.root'),
+    fileName = cms.untracked.string('file:MyRECOZeroBias2016.root'),
     outputCommands = process.RECOEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )
@@ -133,6 +134,9 @@ process.RECOoutput.outputCommands.append('keep recoSuperClusters_*_*_*')
 process.RECOoutput.outputCommands.append('keep *_towerMaker_*_*')
 process.RECOoutput.outputCommands.append('keep *_generalTracks_*_*')
 process.RECOoutput.outputCommands.append('keep recoCaloClusters_*_*_*')
+process.RECOoutput.outputCommands.append('keep *_offlineBeamSpot_*_*')
+
+
 
 
 
