@@ -25,7 +25,6 @@ vector<string> globVector(const string& pattern){
   glob(pattern.c_str(),GLOB_TILDE,NULL,&glob_result);
   vector<string> files;
   for(unsigned int i=0;i<glob_result.gl_pathc;++i){
-    //cout << string(glob_result.gl_pathv[i]) << endl;
     files.push_back(string(glob_result.gl_pathv[i]));
   }
   globfree(&glob_result);
@@ -33,44 +32,43 @@ vector<string> globVector(const string& pattern){
 }
 
 
-void process(TChain* myChain, string dirOut, int iEff, int iEff_M, TString tagCuts, double tagEt, TString probeCuts, double probeEt, double massCut1, double massCut2,int nEntries, ofstream& outlog, TString tag_hlt , bool checkCharge, bool data2011,  TString eg_menu, bool debug, string fileName);
+void process(TChain* myChain, string dirOut, int iEff, int iEff_M, TString tagCuts, double tagEt, TString probeCuts, double probeEt, double massCut1, double massCut2,int nEntries, ofstream& outlog, TString tag_hlt , bool checkCharge, bool data2011,  TString eg_menu, bool debug, string fileName, bool isMC, bool isStage2);
 
-void selectPairs(int nEntries, int iEff, int iEff_M, TString eg_menu, string dirOut, string dirIn, TString tagCuts, double tagEt, TString probeCuts, double probeEt, double massCut1, double massCut2, TString tag_hlt, TString nameChain, bool checkCharge, bool data2011, bool debug);
+void selectPairs(int nEntries, int iEff, int iEff_M, TString eg_menu, string dirOut, string dirIn, TString tagCuts, double tagEt, TString probeCuts, double probeEt, double massCut1, double massCut2, TString tag_hlt, TString nameChain, bool checkCharge, bool data2011, bool debug, bool isMC, bool isStage2);
 
 using namespace std;
 string myjobid;
-
-
 //-------
 int main(int argc, char**argv){
   myjobid=argv[1];
   stringstream inputDir, outputDir;
   inputDir.str("");
   outputDir.str(""); 
-  //inputDir << "~/eos/cms/store/caf/user/taroni/TestTriggerOptimization/"<< myjobid<<"/"<< "pairs";
-  inputDir << "~/eos/cms/store/user/taroni/SingleEle_run2012D/DoubleElectron/crab_ECAL_LASER_CORRECTION_D_new";
-  
-     //inputDir << myjobid<<"/"<<"makePairsDir";
+  inputDir << myjobid<<"/"<<"makePairsDir";
   outputDir<< myjobid<<"/"<<"selectPairsDir";
-  selectPairs(-1,1,1, "L1_EG_MENU_2011",
+  selectPairs(-1,1,1 , "L1_EG_MENU_2011",
 	      outputDir.str(),
 	      inputDir.str(),
-	      "WP80", 20, "WP95", 5, //RunI ID
-	      //"Medium", 20, "Veto", 5, //RunII ID
+	      "Medium", 30, "Loose", 5, //RunII ID
+	      //"WP80", 20, "WP95", 5, 
 	      60, 120, "noHLT", "ElePairs",
-	      true, true,false);
+	      true, true, false,false,true);
   
   return 0;
 }
-
-
 //------
-void selectPairs(int nEntries=-1, int iEff=0, int iEff_M=0, TString eg_menu="L1_EG_MENU_2011",
+
+
+
+
+
+void selectPairs(int nEntries=-1, int iEff=1, int iEff_M=1, TString eg_menu="L1_EG_MENU_2011",
 		 string dirOut="selectPairsDir",
 		 string dirIn="makePairsDir",
-		 TString tagCuts="Medium", double tagEt=20, TString probeCuts="Veto", double probeEt=5, 
+		 //TString tagCuts="WP80", double tagEt=20, TString probeCuts="WP95", double probeEt=5,
+		 TString tagCuts="Medium", double tagEt=20, TString probeCuts="Veto", double probeEt=5,  
 		 double massCut1=60, double massCut2=120, TString tag_hlt="noHLT", TString nameChain="ElePairs",
-		 bool checkCharge=true, bool data2011=true, bool debug=false)
+		 bool checkCharge=true, bool data2011=true, bool debug=false, bool isMC=false, bool isStage2=true)
 {
   // Output Log
   stringstream logfile; 
@@ -81,9 +79,8 @@ void selectPairs(int nEntries=-1, int iEff=0, int iEff_M=0, TString eg_menu="L1_
   vector<string> filenames; 
   stringstream dirname;
   dirname.str("");
-  dirname<< dirIn.c_str()<< "/elepairs_tree_2012D.root"; 
+  dirname<< dirIn.c_str()<< "/*.root"; 
   filenames= globVector(dirname.str().c_str());
-  cout << filenames[0] << endl;
   cout << "number of files: " << filenames.size()<< endl; 
   for (int i =0 ; i< filenames.size() ; i++){
     cout << filenames[i] << endl;
@@ -92,10 +89,8 @@ void selectPairs(int nEntries=-1, int iEff=0, int iEff_M=0, TString eg_menu="L1_
     TChain * myChain = new TChain(nameChain);
     stringstream myfile; 
     myfile.str("");
-    // myfile << "elepairs_" << ifile << ".root"; 
     
     TString file = filenames[ifile].c_str();
-    // myfile << dirIn.c_str() <<  "/" << file;
 
     myChain->Add(file); 
     
@@ -105,18 +100,16 @@ void selectPairs(int nEntries=-1, int iEff=0, int iEff_M=0, TString eg_menu="L1_
     if(debug) cout << "process the tree" << endl;
     
     process(myChain, dirOut, iEff, iEff_M, tagCuts, tagEt, probeCuts, probeEt, massCut1, massCut2,
-	    nEntries, outlog, tag_hlt, checkCharge, data2011, eg_menu, debug, filenames[ifile]);
+	    nEntries, outlog, tag_hlt, checkCharge, data2011, eg_menu, debug, filenames[ifile], isMC, isStage2);
     
     cout << "DONE, file " << ifile << endl;
   }
 }
 
-
-//------
 void process(TChain* myChain, string dirOut, int iEff, int iEff_M,
 	     TString tagCuts, double tagEt, TString probeCuts, double probeEt, double massCut1, double massCut2,
 	     int nEntries, ofstream& outlog, TString tag_hlt , bool checkCharge, bool data2011, 
-	     TString eg_menu, bool debug, string fileName)  {
+	     TString eg_menu, bool debug, string fileName, bool isMC, bool isStage2)  {
 
   stringstream outlogstr; 
   outlogstr.str(""); 
@@ -153,7 +146,7 @@ void process(TChain* myChain, string dirOut, int iEff, int iEff_M,
       menu.push_back(EG_2010[i]);
   }
   else if(eg_menu=="L1_EG_MENU_2011") {
-    for(int i=0; i<41 ; i++)
+    for(int i=0; i<61 ; i++)
       menu.push_back(i);
   }
   const int nEG=menu.size();
@@ -167,18 +160,23 @@ void process(TChain* myChain, string dirOut, int iEff, int iEff_M,
   }
   ////
 
-  const int nECAL = 2; // EB / EE
-  const int nColl = 2; // _N / _M
+  const int nECAL = 3; // EB / EE / EBEE
+  const int nColl = 9; // _N / _M / _S2 / _S2E /_S2EI / _S1I / _S1E / _S1EI / _S2I
 
-  TString name_ecal[nECAL] = {"_EB","_EE"};
-  TString name_coll[nColl] = {"_N","_M"};  
+  TString name_ecal[nECAL] = {"_EB","_EE", "_EBEE"};
+  TString name_coll[nColl] = {"_N","_M", "_S2", "_S2E", "_S2EI", "_S1I", "_S1E", "_S1EI", "_S2I"};  
 
   TTree* treenew[nECAL][nColl];
-  TTree* treenew1;
-  float resolution[4];
-  float etabinreso[4];
   float sc_et[nECAL][nColl];
+  float ele_pt[nECAL][nColl];
+  float sc_eta[nECAL][nColl];
   float sc_dr[nECAL][nColl];
+  int n_vtx;
+  double PU_rhoCorr;
+  int PU_N;
+  int sc_L1_nTT[nECAL][nColl];
+
+
   Int_t l1_bin[nECAL][nColl][nEG];
 
   int nHLT;
@@ -198,16 +196,9 @@ void process(TChain* myChain, string dirOut, int iEff, int iEff_M,
       HLT_names.push_back(HLT_names_2010[i]);
   }
 
-      //treenew[iECAL][iColl]->Branch(name_resolution, &resolution[iECAL][iColl],name_resolution+"/F");
-  TString name, name_scet, name_scdr, name_l1bin;
-  
-  name="resolution_plot";
-  treenew1=new TTree(name,name);
-  treenew1->Branch("resolution_TagEB", &resolution[0],"resolution_TagEB/F");
-  treenew1->Branch("resolution_ProbeEB", &resolution[1],"resolution_ProbeEB/F");
-  treenew1->Branch("resolution_TagEE", &resolution[2],"resolution_TagEE/F");
-  treenew1->Branch("resolution_ProbeEE", &resolution[3],"resolution_ProbeEE/F");
-  treenew1->Branch("resolution_etabin", etabinreso,"etabinreso[4]/F");
+
+
+  TString name, name_scet, name_pt, name_sceta, name_scdr, name_vtx_N, name_PU, name_PU_MC, name_sc_L1_nTT, name_l1bin;
   for(int iECAL=0 ; iECAL<nECAL ; iECAL++ ) {
     for(int iColl=0 ; iColl<nColl ; iColl++) {
 
@@ -215,10 +206,25 @@ void process(TChain* myChain, string dirOut, int iEff, int iEff_M,
       treenew[iECAL][iColl] = new TTree(name,name);
 
       name_scet = "sc_et"+name_ecal[iECAL]+name_coll[iColl];
+      name_pt = "ele_pt"+name_ecal[iECAL]+name_coll[iColl];
+      name_sceta = "sc_eta"+name_ecal[iECAL]+name_coll[iColl];
       name_scdr = "sc_dr"+name_ecal[iECAL]+name_coll[iColl]; 
+      name_vtx_N = "n_vtx";
+      name_PU = "PU_rhoCorr";
+      name_PU_MC = "PU_N";
+      name_sc_L1_nTT = "sc_L1_nTT"+name_ecal[iECAL]+name_coll[iColl];
+
 
       treenew[iECAL][iColl]->Branch(name_scet, &sc_et[iECAL][iColl], name_scet+"/F");
+      treenew[iECAL][iColl]->Branch(name_pt, &ele_pt[iECAL][iColl], name_pt+"/F");
       treenew[iECAL][iColl]->Branch(name_scdr, &sc_dr[iECAL][iColl], name_scdr+"/F");	
+      treenew[iECAL][iColl]->Branch(name_sceta, &sc_eta[iECAL][iColl], name_sceta+"/F");
+      treenew[iECAL][iColl]->Branch(name_vtx_N, &n_vtx, name_vtx_N+"/I");
+      treenew[iECAL][iColl]->Branch(name_PU, &PU_rhoCorr, name_PU+"/D");
+      treenew[iECAL][iColl]->Branch(name_PU_MC, &PU_N, name_PU_MC+"/I");      
+      treenew[iECAL][iColl]->Branch(name_sc_L1_nTT, &sc_L1_nTT[iECAL][iColl], name_sc_L1_nTT+"/I");
+
+
 
       for(int iEG=0 ; iEG<nEG ; iEG++) {
 	name_l1bin = "l1_"+EGval[iEG]+name_ecal[iECAL]+name_coll[iColl];
@@ -231,11 +237,13 @@ void process(TChain* myChain, string dirOut, int iEff, int iEff_M,
 
   // INPUT TREE //
   int nEvent, nRun, nLumi ;
+  double _PU_rhoCorr;
+  int _PU_N;
+  int vtx_N;
   int trig_isUnbiased, trig_isL1SingleEG2, trig_isL1SingleEG5, trig_isL1SingleEG8, 
     trig_isL1SingleEG12, trig_isL1SingleEG12_old, trig_is_HLT_Ele15, trig_is_HLT_Ele17, trig_is_HLT_Ele8_calIso, trig_is_HLT_Ele8_tkIso ;   
   
-  trig_isUnbiased =  trig_isL1SingleEG2 =  trig_isL1SingleEG5 =  trig_isL1SingleEG8 =  
-    trig_isL1SingleEG12 =  trig_isL1SingleEG12_old =  trig_is_HLT_Ele15 =  trig_is_HLT_Ele17 =  trig_is_HLT_Ele8_calIso =  trig_is_HLT_Ele8_tkIso = 0;
+  trig_isUnbiased =  trig_isL1SingleEG2 =  trig_isL1SingleEG5 =  trig_isL1SingleEG8 =  trig_isL1SingleEG12 =  trig_isL1SingleEG12_old =  trig_is_HLT_Ele15 =  trig_is_HLT_Ele17 =  trig_is_HLT_Ele8_calIso =  trig_is_HLT_Ele8_tkIso = 0;
   
   // TP info
   int trig_tower_N,trig_tower_ieta[4032],trig_tower_iphi[4032],trig_tower_adc[4032],trig_tower_sFGVB[4032];
@@ -276,12 +284,21 @@ void process(TChain* myChain, string dirOut, int iEff, int iEff_M,
 
   // Pairs info
   double pair_M;
-  double pair_eta[2], pair_sclEta[2],pair_sclPhi[2], pair_sclEt[2], pair_phi[2], pair_pT[2], pair_eT[2], pair_E[2];
-  int  pair_cuts[2],pair_Run2IdLevel[2], pair_HLT_Ele27_cut[2], pair_fidu[2], pair_charge[2], pair_RCTeta[2], pair_RCTphi[2], 
+  double pair_eta[2],pair_sclPhi[2], pair_sclEta[2], pair_sclEt[2], pair_phi[2], pair_pT[2], pair_eT[2], pair_E[2];
+  int pair_Run2IdLevel[2], pair_HLT_Ele27_cut[2], pair_fidu[2], pair_charge[2], pair_RCTeta[2], pair_RCTphi[2], 
+    //int pair_cuts[2], pair_HLT_Ele27_cut[2], pair_fidu[2], pair_charge[2], pair_RCTeta[2], pair_RCTphi[2], 
     pair_L1iso[2], pair_L1noniso[2], pair_L1iso_M[2], pair_L1noniso_M[2];
+  int pair_L1Stage2[2], pair_L1Stage2_emul[2];
+  int pair_L1Stage2_isoflag[2], pair_L1Stage2_emul_isoflag[2];
+  int pair_L1Stage2_emul_nTT[2];
+
+  int pair_L1Stage1_emul[2];
+  int pair_L1Stage1_emul_isoflag[2];
+
   int pair_RCTetaVect[2][10], pair_RCTphiVect[2][10], 
     pair_L1isoVect[2][10], pair_L1nonisoVect[2][10], 
-    pair_L1isoVect_M[2][10], pair_L1nonisoVect_M[2][10];
+    pair_L1isoVect_M[2][10], pair_L1nonisoVect_M[2][10],
+    pair_L1Stage1_emul_isoVect[2][10], pair_L1Stage1_emul_nonisoVect[2][10];
   int pair_TTetaVect[2][50], pair_TTphiVect[2][50];
   double pair_TTetVect[2][50];
   double pair_RCTetVect[2][10];
@@ -291,21 +308,11 @@ void process(TChain* myChain, string dirOut, int iEff, int iEff_M,
   myChain->SetBranchAddress("nRun",&nRun);
   myChain->SetBranchAddress("nLumi",&nLumi);
 
-  // Trigger
-  /*
-  myChain->SetBranchAddress("trig_isUnbiased",&trig_isUnbiased);
-  myChain->SetBranchAddress("trig_isL1SingleEG2",&trig_isL1SingleEG2);
-  myChain->SetBranchAddress("trig_isL1SingleEG5",&trig_isL1SingleEG5);
-  myChain->SetBranchAddress("trig_isL1SingleEG8",&trig_isL1SingleEG8);
-  */
-//   if( data2011 ) {
-//     myChain->SetBranchAddress("trig_isL1SingleEG12",&trig_isL1SingleEG12);
-//     myChain->SetBranchAddress("trig_isL1SingleEG12_old",&trig_isL1SingleEG12_old);
-//     myChain->SetBranchAddress("trig_is_HLT_Ele15",&trig_is_HLT_Ele15);
-//     myChain->SetBranchAddress("trig_is_HLT_Ele17",&trig_is_HLT_Ele17);
-//     myChain->SetBranchAddress("trig_is_HLT_Ele8_calIso",&trig_is_HLT_Ele8_calIso);
-//     myChain->SetBranchAddress("trig_is_HLT_Ele8_tkIso",&trig_is_HLT_Ele8_tkIso);
-//   }
+  myChain->SetBranchAddress("PU_rhoCorr",&_PU_rhoCorr);
+  myChain->SetBranchAddress("PU_N",&_PU_N);
+
+  myChain->SetBranchAddress("vtx_N",&vtx_N);
+
   // L1 candidates
   myChain->SetBranchAddress("trig_L1emIso_N", &trig_L1emIso_N);
   myChain->SetBranchAddress("trig_L1emIso_ieta", &trig_L1emIso_ieta);
@@ -352,29 +359,7 @@ void process(TChain* myChain, string dirOut, int iEff, int iEff_M,
 
 
   // Trigger Towers
-  // normal collection
-  /*
-  myChain->SetBranchAddress("trig_tower_N", &trig_tower_N);
-  myChain->SetBranchAddress("trig_tower_ieta",  &trig_tower_ieta);
-  myChain->SetBranchAddress("trig_tower_iphi",  &trig_tower_iphi);
-  myChain->SetBranchAddress("trig_tower_adc",  &trig_tower_adc);
-  myChain->SetBranchAddress("trig_tower_sFGVB",  &trig_tower_sFGVB);
  
-  // modified collection
-  myChain->SetBranchAddress("trig_tower_N_emul", &trig_tower_N_emul);
-  myChain->SetBranchAddress("trig_tower_ieta_emul",  &trig_tower_ieta_emul);
-  myChain->SetBranchAddress("trig_tower_iphi_emul",  &trig_tower_iphi_emul);
-  myChain->SetBranchAddress("trig_tower_adc_emul",  &trig_tower_adc_emul);
-  myChain->SetBranchAddress("trig_tower_sFGVB_emul",  &trig_tower_sFGVB_emul);
-
-  // emulated collection
-  myChain->SetBranchAddress("trig_tower_N_emul", &trig_tower_N_emul);
-  myChain->SetBranchAddress("trig_tower_ieta_emul",  &trig_tower_ieta_emul);
-  myChain->SetBranchAddress("trig_tower_iphi_emul",  &trig_tower_iphi_emul);
-  myChain->SetBranchAddress("trig_tower_adc_emul",  &trig_tower_adc_emul);
-  myChain->SetBranchAddress("trig_tower_sFGVB_emul",  &trig_tower_sFGVB_emul);
-  */
-
   // Masking
   myChain->SetBranchAddress("trig_nMaskedRCT",      &trig_nMaskedRCT);      
   myChain->SetBranchAddress("trig_iMaskedRCTeta",   &trig_iMaskedRCTeta);                                          
@@ -388,9 +373,10 @@ void process(TChain* myChain, string dirOut, int iEff, int iEff_M,
   // Pair Info
   myChain->SetBranchAddress("pair_M",&pair_M);
   //
-  //myChain->SetBranchAddress("pair_cuts",&pair_cuts); 
   myChain->SetBranchAddress("pair_Run2IdLevel",&pair_Run2IdLevel); 
   // 0 : notID | 1 : Veto | 2 : Loose | 3 : Medium | 4 : Tight
+  //myChain->SetBranchAddress("pair_cuts",&pair_cuts); 
+  // 0 : noCut | 1 : VBTF 95 | 2 : VBTF 80 | 3 : VBTF 60
   myChain->SetBranchAddress("pair_HLT_Ele27_cut",&pair_HLT_Ele27_cut); 
   myChain->SetBranchAddress("pair_fidu",&pair_fidu);
   //
@@ -415,6 +401,14 @@ void process(TChain* myChain, string dirOut, int iEff, int iEff_M,
   myChain->SetBranchAddress("pair_L1noniso",&pair_L1noniso);
   myChain->SetBranchAddress("pair_L1iso_M",&pair_L1iso_M);
   myChain->SetBranchAddress("pair_L1noniso_M",&pair_L1noniso_M);
+  myChain->SetBranchAddress("pair_L1Stage2",&pair_L1Stage2);
+  myChain->SetBranchAddress("pair_L1Stage2_isoflag",&pair_L1Stage2_isoflag);
+  myChain->SetBranchAddress("pair_L1Stage2_emul",&pair_L1Stage2_emul);
+  myChain->SetBranchAddress("pair_L1Stage2_emul_isoflag",&pair_L1Stage2_emul_isoflag);
+  myChain->SetBranchAddress("pair_L1Stage2_emul_nTT",&pair_L1Stage2_emul_nTT);
+  myChain->SetBranchAddress("pair_L1Stage1_emul",&pair_L1Stage1_emul);
+  myChain->SetBranchAddress("pair_L1Stage1_emul_isoflag",&pair_L1Stage1_emul_isoflag);
+
   //
   myChain->SetBranchAddress("pair_RCTetVect",&pair_RCTetVect);
   myChain->SetBranchAddress("pair_RCTetaVect",&pair_RCTetaVect);
@@ -423,32 +417,37 @@ void process(TChain* myChain, string dirOut, int iEff, int iEff_M,
   myChain->SetBranchAddress("pair_L1nonisoVect",&pair_L1nonisoVect);
   myChain->SetBranchAddress("pair_L1isoVect_M",&pair_L1isoVect_M);
   myChain->SetBranchAddress("pair_L1nonisoVect_M",&pair_L1nonisoVect_M);
-
+  myChain->SetBranchAddress("pair_L1Stage1_emul_isoVect",&pair_L1Stage1_emul_isoVect);
+  myChain->SetBranchAddress("pair_L1Stage1_emul_nonisoVect",&pair_L1Stage1_emul_nonisoVect);
 
   if (debug) cout << "DEFINITION OF THE TAG AND THE BE" << endl;
   // DEFINITION OF THE TAG AND THE PROBE //
   int iTag, iProbe;
   vector<int> goodTags, goodProbes;
   int askedIdLevelIndex[2]; // 0:tag ; 1:probe //previously 'cutsDef'
-  int cutsDef[2]; // 0:tag ; 1:probe
-
+  //int cutsDef[2]; // 0:tag ; 1:probe
   bool passingCuts[2][2]; // [iEle][iTPDefCuts] iTPDefCuts=0(1) <-> Tag(Probe)
-  // TString idLevels[5] = {"notID","Veto","Loose","Medium","Tight"}; //previously 'cutsName'
-  TString cutsName[5] = {"noCuts","WP95","WP80","WP60","HLT_Ele27"};
+  //TString cutsName[5] = {"noCuts","WP95","WP80","WP60","HLT_Ele27"};
+  TString idLevels[5] = {"notID","Veto","Loose","Medium","Tight"}; //previously 'cutsName'
   double etDef[2] = {tagEt,probeEt};
   TString askedIdLevel[2] = {tagCuts,probeCuts}; //previously 'asked'
   for(int iEle=0 ; iEle<2 ; iEle++) {
     for(int iCut=0 ; iCut<5 ; iCut++) {
-      //if(askedIdLevel[iEle]==idLevels[iCut]) askedIdLevelIndex[iEle] = iCut ;
-      if(askedIdLevel[iEle]==cutsName[iCut]) askedIdLevelIndex[iEle] = iCut ;
+      if(askedIdLevel[iEle]==idLevels[iCut]) askedIdLevelIndex[iEle] = iCut ;
     }
   }
+
+  /*TString asked[2] = {tagCuts,probeCuts};
+  for(int iEle=0 ; iEle<2 ; iEle++) {
+    for(int iCut=0 ; iCut<5 ; iCut++) {
+      if(asked[iEle]==cutsName[iCut]) cutsDef[iEle] = iCut ;
+    }
+    }*/
 
   if (debug) cout << "USEFUL VARIABLES"<< endl;
   // USEFUL VARIABLES //
   int b_hlt, nCurrentRun,nCurrentEvt;
   nCurrentRun = nCurrentEvt = 0;
-  //bool isGoodRun,isGoodEvent,b_notToZero;
   TString filename = "";
   TString flag = "";
   vector<int> IdxPt;
@@ -458,18 +457,20 @@ void process(TChain* myChain, string dirOut, int iEff, int iEff_M,
   MAPTT::iterator iterTT;
   pair<int,int> coords;
   vector<int> ietaTT, iphiTT;
-  //int tOri, tM, adc, sFGVB;
-  //int sFGVB_M[5], adc_emul[5];
+
 
   // TRIGGERING PROPERTIES //
   vector<int> trigHLT;
-  vector<int> firedEG[2][2]; // [N/M][tag/probe]
-  int iTrig[2][2]; // [N/M][tag/probe]
-  int tagEG;
+  vector<int> firedEG[nColl][2]; // [N/M/S2/S2E/S2EI/S1I/S1E/S1EI/S2I][tag/probe]
+  int iTrig[nColl][2]; // [N/M/S2/S2E/S2EI/S1I/S1E/S1EI/S2I][tag/probe]
+  int tagEG, tagIsoEG, tagIsoEGer;
 
   // COUNTERS //
   int nCases[3] = {0,0,0}; // all ; same ; different
-  int ntagele=0,nprobeele=0;
+  int nCases0=0; // all ; same ; different
+  int nCases1=0; // all ; same ; different
+  int nCases2=0; // all ; same ; different
+  int nCases3=0; // all ; same ; different
   int nZeroStatus[3] = {0,0,0}; // ToBeZeroed ; Zeroed ; NotZeroed
   int nEB_NotToZero_Zeroed = 0;
   int nEE_NotToZero_Zeroed = 0;
@@ -544,15 +545,22 @@ void process(TChain* myChain, string dirOut, int iEff, int iEff_M,
 
   if (debug) cout << __PRETTY_FUNCTION__ << " " << __LINE__ << endl;
   
+
+
+
+
+
   // LOOP OVER PAIRS //
   
   int numEntries = myChain->GetEntries () ;
   int nProcess = numEntries;
   if(nEntries>=0 && nEntries<numEntries)
     nProcess = nEntries;
-  if (debug) cout << "will process " << nProcess << "/" << numEntries << " pairs" << endl;
+  cout << "will process " << nProcess << "/" << numEntries << " pairs" << endl;
 
   for (int iPair = 0 ; iPair < nProcess ; iPair++ ) { 
+
+    if (iPair > 0 && iPair/1000. ==  int(iPair/1000.) ) cout << "processing " << iPair << "th entry" << endl;
     
     if(debug) cout << "is getting the entry #" << iPair << endl;
     myChain->GetEntry (iPair) ;
@@ -565,12 +573,15 @@ void process(TChain* myChain, string dirOut, int iEff, int iEff_M,
     int trigHLT_2010[4] = {trig_isUnbiased, trig_isL1SingleEG2, trig_isL1SingleEG5, trig_isL1SingleEG8} ;
 
     trigHLT.clear();
+
+  
     for(int iHLT=0 ; iHLT<nHLT ; iHLT++) {
       if(data2011) 
 	trigHLT.push_back( trigHLT_2011[iHLT] ) ;
       else 
 	trigHLT.push_back( trigHLT_2010[iHLT] ) ;
     }
+
 
     // LOG : FILE / RUN / EVENT / HLT / L1 //
     if( iPair==0 || filename != myChain->GetFile()->GetName() ) {
@@ -596,10 +607,7 @@ void process(TChain* myChain, string dirOut, int iEff, int iEff_M,
       b_hlt = trig_isUnbiased ;
     if(tag_hlt=="noHLT")
       b_hlt = 1;
-    if(b_hlt != 1) {
-      //if( iPair==0 || nEvent!=nCurrentEvt ) { 
-      //outlog << "-- nEvent=" << nEvent << " failed HLT selection" << endl;
-      //}
+    if(b_hlt != 1) {      
       continue;
     }
 
@@ -612,17 +620,17 @@ void process(TChain* myChain, string dirOut, int iEff, int iEff_M,
     else {
       if( pair_M < massCut2 || pair_M > massCut1 ) continue;
     }
+    
 
     if(debug) cout << "passed mass cut" << endl;
 
     // CHARGE OPPOSITION //
     if( checkCharge )
       if( pair_charge[0]*pair_charge[1] != -1 )
-      {
-//             std::cout<<"pair of different charge"<<std::endl; 
-             continue;
-      }
-
+	{
+	  continue;
+	}
+    
     if(debug) cout << "passed opposite-charge selection" << endl;
     
     // CHECK TRIGGERING PROPERTIES //
@@ -633,27 +641,70 @@ void process(TChain* myChain, string dirOut, int iEff, int iEff_M,
       }
     }
 
-    //pair<int,int> pair_trig_coords_N[2], pair_trig_coords_M[2];
-    //int iL1cand_trig_N, iL1cand_trig_M;
-
+  
     for(int iEle=0 ; iEle<2 ; iEle++) {
       for(int iR=0 ; iR < 10 ; iR++) {
-      //  bool menubool=!!menu;
 	globalFireL1_Normal( pair_RCTetVect[iEle][iR] , pair_L1nonisoVect[iEle][iR],
 			     pair_L1isoVect[iEle][iR], firedEG[0][iEle], menu);  //menu); 
 	
 	globalFireL1_Normal( pair_RCTetVect[iEle][iR] , pair_L1nonisoVect_M[iEle][iR],
 			     pair_L1isoVect_M[iEle][iR], firedEG[1][iEle], menu);//menu); 
-	
-	//if(debug) cout << "the pairRCTvalue "<<pair_RCTetVect[iEle][iR] << " " << pair_L1nonisoVect[iEle][iR] << " " << pair_L1isoVect[iEle][iR] << endl;
 
-	if(debug) cout << "the pairRCTvalue for emul*****"<<endl<<pair_RCTetVect[iEle][iR] << " " << pair_L1nonisoVect_M[iEle][iR] << " " << pair_L1isoVect_M[iEle][iR] << endl;
+	globalFireL1_Normal( pair_RCTetVect[iEle][iR] , pair_L1Stage1_emul_nonisoVect[iEle][iR],
+			     pair_L1Stage1_emul_isoVect[iEle][iR], firedEG[6][iEle], menu);//menu); 
+	
+
+	//if(debug) cout << "the pairRCTvalue for emul*****"<<endl<<pair_RCTetVect[iEle][iR] << " " << pair_L1nonisoVect_M[iEle][iR] << " " << pair_L1isoVect_M[iEle][iR] << endl;
+
+	//T&P with isolated candidates, iso only for probe
+	if(iEle==0)
+	  globalFireL1_Normal( pair_RCTetVect[iEle][iR] , pair_L1nonisoVect[iEle][iR],
+			       pair_L1isoVect[iEle][iR], firedEG[5][iEle], menu);
+	else
+	  globalFireL1_Normal( pair_RCTetVect[iEle][iR] , 0,
+			       pair_L1isoVect[iEle][iR], firedEG[5][iEle], menu);
+
+	if(iEle==0)
+	  globalFireL1_Normal( pair_RCTetVect[iEle][iR] , pair_L1Stage1_emul_nonisoVect[iEle][iR],
+			       pair_L1Stage1_emul_isoVect[iEle][iR], firedEG[7][iEle], menu);
+	else
+	  globalFireL1_Normal( pair_RCTetVect[iEle][iR] , 0,
+			       pair_L1Stage1_emul_isoVect[iEle][iR], firedEG[7][iEle], menu);
+
+
       }
+
+      globalFireL1_Normal( 20 , pair_L1Stage2[iEle],
+			 pair_L1Stage2[iEle], firedEG[2][iEle], menu); //No reason to use RCT energy for Stage 2, 20 dummy instead? No Iso, non iso for now
+
+      globalFireL1_Normal( 20 , pair_L1Stage2_emul[iEle],
+			   pair_L1Stage2_emul[iEle], firedEG[3][iEle], menu);
+
+
+
+      //T&P with isolated candidates, iso only for probe
+      if(iEle==0){
+	globalFireL1_Normal( 20 , 0,
+			     pair_L1Stage2_emul[iEle], firedEG[4][iEle], menu);
+	globalFireL1_Normal( 20 , 0,
+			     pair_L1Stage2[iEle], firedEG[8][iEle], menu);
+      }
+      else{
+	globalFireL1_Normal( 20 , 0,
+			     (pair_L1Stage2_emul_isoflag[iEle]==1)*pair_L1Stage2_emul[iEle], firedEG[4][iEle], menu);
+	globalFireL1_Normal( 20 , 0,
+			     (pair_L1Stage2_isoflag[iEle]==1)*pair_L1Stage2[iEle], firedEG[8][iEle], menu);
+      }
+
+
     }
 
+    
+
+
     if(debug) {
-     // for(int iColl=0 ; iColl<nColl ; iColl++) {
-      for(int iColl=1 ; iColl<nColl ; iColl++) {
+      //for(int iColl=1 ; iColl<nColl ; iColl++) {
+      int iColl=6;
 	for(int iEle=0 ; iEle<2 ; iEle++) {
 	  cout << "Ele" << iEle << " :: " ;
 	  for(int i=0 ; i<(int)firedEG[iColl][iEle].size() ; i++) {
@@ -661,8 +712,8 @@ void process(TChain* myChain, string dirOut, int iEff, int iEff_M,
 	  }
 	  cout << endl;
 	}      
+	//}
       }
-    }
 
     for(int iColl=0 ; iColl<nColl ; iColl++)
       for(int iEle=0 ; iEle<2 ; iEle++)
@@ -675,60 +726,52 @@ void process(TChain* myChain, string dirOut, int iEff, int iEff_M,
 
     if(debug) cout << "TRIG emul fanbo------********* : ele0=" << iTrig[1][0] << " | ele1=" << iTrig[1][1] << endl;
 
-    // EG that the tag have to trigger
-    /*
-    if(nRun==161217) tagEG = 6; // min L1 seed in HLT menu : EG12
-    else tagEG = 7;             // ... : EG15
-    */
-    tagEG=25; // EG15
+    
+    tagEG=40, tagIsoEG=24, tagIsoEGer=22; // EG40, IsoEG24, IsoEG22er
+    //tagEG=15, tagIsoEG=24, tagIsoEGer=22; // EG40, IsoEG24, IsoEG22er
 
     // DECIDE WHO IS THE TAG/PROBE //
     iTag = iProbe = -1 ;
     goodTags.clear();
     goodProbes.clear();
     
-    //bool passingCuts[2][2]; // [iEle][iTPDefCuts] iTPDefCuts=0(1) <-> Tag(Probe)
     for(int i=0 ; i<2 ; i++)
       for(int j=0 ; j<2 ; j++)
 	passingCuts[i][j] = false;
-    // //Run2
-    // for(int iEle=0 ; iEle<2 ; iEle++) {
-    //   for(int iTP=0 ; iTP<2 ; iTP++) {
-    // 	if( pair_Run2IdLevel[iEle] >= askedIdLevelIndex[iTP] ) { 
-    // 	  if (debug) cout << "pair_Run2IdLevel"<< pair_Run2IdLevel[iEle] << " " << askedIdLevelIndex[iTP] << endl;
-    // 	  if( pair_fidu[iEle]==1 ) {
-    // 	    passingCuts[iEle][iTP]=true; 
-    // 	    if(debug) cout<<"pass cuts"<<endl; 
-    // 	  }
-    // 	}
-    //   }
-    // }
-    ///Run1
+
     for(int iEle=0 ; iEle<2 ; iEle++) {
       for(int iTP=0 ; iTP<2 ; iTP++) {
-    	if( cutsDef[iTP]==4 ) {
-    	  if( pair_HLT_Ele27_cut[iEle]==1 ) { 
-    	    if( pair_fidu[iEle]==1 ) {
-    	      passingCuts[iEle][iTP]=true; 
-    	      if(debug) cout<<" cutsdef4 pass cuts" << endl; 
-    	    }
-    	  }
-    	}
-    	else {
-    	  if( pair_cuts[iEle] >= cutsDef[iTP] ) { 
-    	    if( pair_fidu[iEle]==1 ) {
-    	      passingCuts[iEle][iTP]=true; 
-    	      if(debug) cout<<"pass cuts"<<endl; 
-    	    }
-    	  }
-    	}
+	if( pair_Run2IdLevel[iEle] >= askedIdLevelIndex[iTP] ) { 
+	  if( pair_fidu[iEle]==1 ) {
+	    passingCuts[iEle][iTP]=true; 
+	    if(debug) cout<<"pass cuts"<<endl; 
+	  }
+	}
       }
     }
 
-//     for( int iEle=0 ; iEle<2 ; iEle++ ) {
-//       if ( passingCuts[iEle][0] && pair_sclEt[iEle] >= etDef[0] && iTrig[iEle] >= tagEG ) goodTags.push_back(iEle);
-//       if ( passingCuts[iEle][1] && pair_sclEt[iEle] >= etDef[1] ) goodProbes.push_back(iEle);
-//     }
+    /*for(int iEle=0 ; iEle<2 ; iEle++) {
+      for(int iTP=0 ; iTP<2 ; iTP++) {
+	if( cutsDef[iTP]==4 ) {
+	  if( pair_HLT_Ele27_cut[iEle]==1 ) { 
+	    if( pair_fidu[iEle]==1 ) {
+	      passingCuts[iEle][iTP]=true; 
+	      if(debug) cout<<"pass cuts" << endl; 
+	    }
+	  }
+	}
+	else {
+	  if( pair_cuts[iEle] >= cutsDef[iTP] ) { 
+	    if( pair_fidu[iEle]==1 ) {
+	      passingCuts[iEle][iTP]=true; 
+	      if(debug) cout<<"pass cuts"<<endl; 
+	    }
+	  }
+	}
+      }
+      }*/
+
+
 
     for( int iEle=0 ; iEle<2 ; iEle++ ) {
       if ( passingCuts[iEle][0] ) {
@@ -736,10 +779,23 @@ void process(TChain* myChain, string dirOut, int iEff, int iEff_M,
 	if(pair_sclEt[iEle] >= etDef[0]) {
 	  if(debug) cout << "et is ok : " << pair_sclEt[iEle] << endl; 
 	  if (debug) cout << __LINE__ << " "<< iTrig[0][iEle] << " " << tagEG << endl; 
-	  if(iTrig[0][iEle] >= tagEG ) {
+	  if(isMC && isStage2 && (iTrig[3][iEle] >= tagEG || iTrig[4][iEle] >= tagIsoEG || (iTrig[4][iEle] >= tagIsoEGer && abs(pair_sclEta[iEle])<2.1) ) )
+	    //T&P with Stage-2 in MC
+	    goodTags.push_back(iEle);
+	  else if(isMC && !isStage2 && iTrig[6][iEle] >= tagEG)
+	    //T&P with Stage-1 in MC
+	    goodTags.push_back(iEle);
+	  else if(!isMC && !isStage2 && iTrig[0][iEle] >= tagEG ) {
+	    //This requirement has to be applied to the trigger used to take data
 	    if(debug) cout << "triggering " << iTrig[0][iEle] << endl;
 	    goodTags.push_back(iEle);
 	  }
+	  else if(!isMC && isStage2 && (iTrig[2][iEle] >= tagEG || iTrig[8][iEle] >= tagIsoEG || (iTrig[8][iEle] >= tagIsoEGer && abs(pair_sclEta[iEle])<2.1) ) ) {
+	    //This requirement has to be applied to the trigger used to take data
+	    if(debug) cout << "triggering " << iTrig[2][iEle] << endl;
+	    goodTags.push_back(iEle);
+	  }
+
 	}
       }
       
@@ -755,499 +811,304 @@ void process(TChain* myChain, string dirOut, int iEff, int iEff_M,
     if(debug) cout << "goodTags.size()=" << goodTags.size() << " | goodProbes.size()=" << goodProbes.size() << endl;
 
     if( goodTags.size()==0 || goodProbes.size()==0 ) continue; // no tag or no probe
-
+ 
+    
     // Look every cases
     for(int iCaseT=0 ; iCaseT<(int)goodTags.size() ; iCaseT++) {
-
-      iTag = goodTags[iCaseT];
-
-      for(int iCaseP=0 ; iCaseP<(int)goodProbes.size() ; iCaseP++) {
-	iProbe = goodProbes[iCaseP];
-	if(iProbe==iTag) continue;
-	
-	// CUSTOM ELEPAIRS JSON
-	if( nRun!=nCurrentRun_elepairs ) {
-	  if(nCurrentRun_elepairs!=-1) {
-	    out_elepairs_json << "]," << endl;
-	  }
-	  nCurrentLumi_elepairs=-1;
-	  out_elepairs_json << '"' << nRun << '"' << ": [" ;
-	  nCurrentRun_elepairs = nRun;
-	}
-	if( nLumi!=nCurrentLumi_elepairs ) {
-	  if( nCurrentLumi_elepairs!=-1 ) {
-	    out_elepairs_json << "," ;
-	  }
-	  out_elepairs_json << "[" << nLumi << "," << nLumi << "]" ;
-	  nCurrentLumi_elepairs=nLumi;
-	}
-
-    
-	// FILL TRIGGER TREE FOR EFFICIENCY ///////////////////////
-	int idxECAL=-1;
-	if( abs( pair_eta[iProbe]) <1.479 ) idxECAL=0;
-	else idxECAL = 1;
-	
-	for(int iColl=0 ; iColl<nColl ; iColl++) {
-	  sc_et[idxECAL][iColl] = pair_sclEt[iProbe];
-	  sc_dr[idxECAL][iColl] = 0;
-	  
-	  if(pair_L1iso[iProbe]>0 || pair_L1noniso[iProbe]>0)
-	    sc_dr[idxECAL][iColl] = 1;
-	  
-	  for(int iEG=0 ; iEG<nEG ; iEG++)
-	    l1_bin[idxECAL][iColl][iEG]  = firedEG[iColl][iProbe][iEG];
-	}
-	
-	for(int iColl=0 ; iColl<nColl ; iColl++)
-	  treenew[idxECAL][iColl]->Fill();
-	////////////////////////////////////////////////////////////
-
-	// FILL EFFICIENCY MAP TOOLS
-	h_map_all->Fill( pair_eta[iProbe] , pair_phi[iProbe] );
-	for(int iEG=0 ; iEG<nEG ; iEG++) {
-	  if( firedEG[0][iProbe][iEG]==1 ) {
-	    h_map_trig[iEG]->Fill( pair_eta[iProbe] , pair_phi[iProbe] );
-	  }
-	}
-
-	// Z MASS PEAK PLOT // EBEB EEEE EBEE
-	if( abs(pair_eta[iProbe])<1.479 && abs(pair_eta[iTag])<1.479 ) h_Mee[0]->Fill(pair_M);
-	if( abs(pair_eta[iProbe])>1.479 && abs(pair_eta[iTag])>1.479 ) h_Mee[1]->Fill(pair_M);
-	else h_Mee[2]->Fill(pair_M);
-
-	// OUTPUT JSON //
-	if( nRun!=nCurrentRun_ineff ) {
-	  if(nCurrentRun_ineff!=-1) {
-	    out_custom_json << "]," << endl;
-	  }
-	  nCurrentLumi_ineff=-1;
-	  out_custom_json << '"' << nRun << '"' << ": [" ;
-	  nCurrentRun_ineff = nRun;
-	}
-	if( nLumi!=nCurrentLumi_ineff ) {
-	  if( nCurrentLumi_ineff!=-1 ) {
-	    out_custom_json << "," ;
-	  }
-	  out_custom_json << "[" << nLumi << "," << nLumi << "]" ;
-	  nCurrentLumi_ineff=nLumi;
-	}
-
-
-	// LOG PROBES RUN:EVENT //
-	if( pair_sclEt[iProbe]>10. && firedEG[0][iProbe][20]==iEff ) {
-	  out_probes_trigEG15 << "'" << nRun << ":" << nEvent << "'" ;
-	  //out_probes_trigEG15 << "'" << nRun ;
-	  if(iPair < nProcess-1 ) out_probes_trigEG15 << "," ;
-	  nProbesTrig15++ ;
-    
-	  //else if( pair_sclEt[iProbe]>15. && firedEG_N[iProbe][7]==0) {
       
-	  //       if( nRun!=nCurrentRun_ineff ) {
-	  // 	if(nCurrentRun_ineff!=-1) {
-	  // 	  out_custom_json << "]," << endl;
-	  // 	}
-	  // 	nCurrentLumi_ineff=-1;
-	  // 	out_custom_json << '"' << nRun << '"' << ": [" ;
-	  // 	nCurrentRun_ineff = nRun;
-	  //       }
-	  //       if( nLumi!=nCurrentLumi_ineff ) {
-	  // 	if( nCurrentLumi_ineff!=-1 ) {
-	  // 	  out_custom_json << "," ;
-	  // 	}
-	  // 	out_custom_json << "[" << nLumi << "," << nLumi << "]" ;
-	  // 	nCurrentLumi_ineff=nLumi;
-	  //       }
-
-	  out_probes_notrigEG15 << "'" << nRun << ":" << nEvent << "'" ;
-	  out_notrigEG15_RLE << "'" << nRun << ":" << nLumi << ":" << nEvent << "'" ;
-	  out_notrigEG15_R  << nRun ;
-	  //out_probes_notrigEG15 << "'" << nRun ;
-	  if(iPair < nProcess-1 ) {
-	    out_probes_notrigEG15 << "," ;
-	    out_notrigEG15_RLE << "," ;
-	    out_notrigEG15_R << "," ;
+      iTag = goodTags[iCaseT];
+      
+	for(int iCaseP=0 ; iCaseP<(int)goodProbes.size() ; iCaseP++) {
+	  iProbe = goodProbes[iCaseP];
+	  if(iProbe==iTag) continue;
+	  
+	  // CUSTOM ELEPAIRS JSON
+	  if( nRun!=nCurrentRun_elepairs ) {
+	    if(nCurrentRun_elepairs!=-1) {
+	      out_elepairs_json << "]," << endl;
+	    }
+	    nCurrentLumi_elepairs=-1;
+	    out_elepairs_json << '"' << nRun << '"' << ": [" ;
+	    nCurrentRun_elepairs = nRun;
 	  }
-	  nProbesNoTrig15++ ;
-	}
-
-	// COUNTING //
-	flag = "" ;
-	for(int iECAL=0 ; iECAL<nECAL ; iECAL++ ) {
+	  if( nLumi!=nCurrentLumi_elepairs ) {
+	    if( nCurrentLumi_elepairs!=-1 ) {
+	      out_elepairs_json << "," ;
+	    }
+	    out_elepairs_json << "[" << nLumi << "," << nLumi << "]" ;
+	    nCurrentLumi_elepairs=nLumi;
+	  }
+	  
+	  
+	  // FILL TRIGGER TREE FOR EFFICIENCY ///////////////////////
+	  int idxECAL=-1;
+	  if( fabs(pair_eta[iProbe])<1.479 ) idxECAL=0;
+	  else idxECAL = 1;
+	  
 	  for(int iColl=0 ; iColl<nColl ; iColl++) {
-	    nEle[iECAL][iColl]++ ;
-	    for(int iEG=0 ; iEG<nEG ; iEG++) {
-	      if(firedEG[0][iProbe][iEG]==1)  nMatched[iECAL][0][iEG]++ ;
-	      /*
-	      if(firedEG_M[iProbe][iEG]==1) nMatched_M[IdxPt[k]][iEG]++ ;
-	      if(firedEG_N[iProbe][iEG]==1 && firedEG_M[iProbe][iEG]==0) {
-	      nLost[IdxPt[k]][iEG]++ ;
-	      if(k==0)
-	      flag += " lostEG"+EGval[iEG];
-	      }
-	      if(firedEG_N[iProbe][iEG]==0 && firedEG_M[iProbe][iEG]==1) {
-	      nAppeared[IdxPt[k]][iEG]++ ;
-	      if(k==0)
-	      flag += " appearedEG"+EGval[iEG];
-	      }
-	    */
+	    sc_et[idxECAL][iColl] = pair_sclEt[iProbe];
+	    ele_pt[idxECAL][iColl] = pair_pT[iProbe];	    
+	    sc_eta[idxECAL][iColl] = pair_sclEta[iProbe];
+	    sc_dr[idxECAL][iColl] = 0;
+	    sc_L1_nTT[idxECAL][iColl] = pair_L1Stage2_emul_nTT[iProbe];
+	    
+	    PU_rhoCorr = _PU_rhoCorr;
+	    PU_N = _PU_N;
+	    n_vtx = vtx_N;
+	    
+	    if(iColl<2){
+	      if(pair_L1iso[iProbe]>0 || pair_L1noniso[iProbe]>0)
+		sc_dr[idxECAL][iColl] = 1;
+	    }
+	    else if(iColl==2){
+	    if(pair_L1Stage2[iProbe]>0)
+	      sc_dr[idxECAL][iColl] = 1;
+	    }
+	    else if(iColl==3){
+	      if(pair_L1Stage2_emul[iProbe]>0)
+		sc_dr[idxECAL][iColl] = 1;
+	    }
+	    else if(iColl==4){
+	      if(pair_L1Stage2_emul[iProbe]>0)
+		sc_dr[idxECAL][iColl] = 1;
+	    }
+	    else if(iColl==5){
+	      if(pair_L1iso[iProbe]>0 || pair_L1noniso[iProbe]>0)
+		sc_dr[idxECAL][iColl] = 1;
+	    }
+	    else if(iColl>5 && iColl<8){
+	      if(pair_L1Stage1_emul[iProbe]>0)
+		sc_dr[idxECAL][iColl] = 1;
+	    }
+	    else if(iColl==8){
+	      if(pair_L1Stage2[iProbe]>0)
+		sc_dr[idxECAL][iColl] = 1;
+	    }
+	    
+	    for(int iEG=0 ; iEG<nEG ; iEG++)
+	      l1_bin[idxECAL][iColl][iEG]  = firedEG[iColl][iProbe][iEG];
+	    
+	    
+	  }
+//Fanbo
+          if(sc_et[0][2]>30){
+             nCases0++ ;
+             if(l1_bin[0][2][20]==1)
+                nCases1++; 
+          }	  
+          if(sc_et[0][2]>20){
+             nCases2++ ;
+             if(l1_bin[0][2][20]==1)
+                nCases3++; 
+          }	  
+	  for(int iColl=0 ; iColl<nColl ; iColl++)
+	    treenew[idxECAL][iColl]->Fill();
+	  ////////////////////////////////////////////////////////////
+	  //EBEE tree
+	  for(int iColl=0 ; iColl<nColl ; iColl++) {
+	    sc_et[2][iColl] = pair_sclEt[iProbe];
+	    sc_eta[2][iColl] = pair_sclEta[iProbe];
+	    ele_pt[2][iColl] = pair_pT[iProbe];
+	    sc_dr[2][iColl] = 0;
+	    sc_L1_nTT[2][iColl] = pair_L1Stage2_emul_nTT[iProbe];
+	    
+	    PU_rhoCorr = _PU_rhoCorr;
+	    PU_N = _PU_N;
+	    n_vtx = vtx_N;
+	    
+	    if(iColl<2){
+	      if(pair_L1iso[iProbe]>0 || pair_L1noniso[iProbe]>0)
+		sc_dr[2][iColl] = 1;
+	    }
+	    else if(iColl==2){
+	    if(pair_L1Stage2[iProbe]>0)
+	      sc_dr[2][iColl] = 1;
+	    }
+	    else if(iColl==3){
+	      if(pair_L1Stage2_emul[iProbe]>0)
+		sc_dr[2][iColl] = 1;
+	    }
+	    else if(iColl==4){
+	      if(pair_L1Stage2_emul[iProbe]>0)
+		sc_dr[2][iColl] = 1;
+	    }
+	    else if(iColl==5){
+	      if(pair_L1iso[iProbe]>0 || pair_L1noniso[iProbe]>0)
+		sc_dr[2][iColl] = 1;
+	    }
+	    else if(iColl>5 && iColl<8){
+	      if(pair_L1Stage1_emul[iProbe]>0)
+		sc_dr[2][iColl] = 1;
+	    }
+	    else if(iColl==8){
+	      if(pair_L1Stage2[iProbe]>0)
+		sc_dr[2][iColl] = 1;
+	    }
+	    
+	    for(int iEG=0 ; iEG<nEG ; iEG++)
+	      l1_bin[2][iColl][iEG]  = firedEG[iColl][iProbe][iEG];
+	    
+	    
+	  }
+	  
+	  for(int iColl=0 ; iColl<nColl ; iColl++)
+	    treenew[2][iColl]->Fill();
+
+
+
+	  ////////////////////////////////////////////////////////////
+
+	  
+	  // FILL EFFICIENCY MAP TOOLS
+	  h_map_all->Fill( pair_eta[iProbe] , pair_phi[iProbe] );
+	  for(int iEG=0 ; iEG<nEG ; iEG++) {
+	    if( firedEG[0][iProbe][iEG]==1 ) {
+	      h_map_trig[iEG]->Fill( pair_eta[iProbe] , pair_phi[iProbe] );
 	    }
 	  }
-	}
-  
-	// MAP THE TP //
-	adcTT.clear();
-	for(int t=0 ; t<trig_tower_N ; t++) {
-	  coords = make_pair( trig_tower_ieta[t] , trig_tower_iphi[t] );
-	  adcTT[coords].first = t ;
-	}
-	for(int t=0 ; t<trig_tower_N_emul ; t++) {
-	  coords = make_pair( trig_tower_ieta_emul[t] , trig_tower_iphi_emul[t] );
-	  iterTT = adcTT.find( coords );
-	  if( iterTT != adcTT.end() )
-	    adcTT[coords].second = t;
-	  else {
-	    outlog << "mapping problem" << endl;
-	    adcTT[coords].first = -777;
-	    adcTT[coords].second = t;
+	  
+	  // Z MASS PEAK PLOT // EBEB EEEE EBEE
+	  if( abs(pair_eta[iProbe])<1.479 && abs(pair_eta[iTag])<1.479 ) h_Mee[0]->Fill(pair_M);
+	  if( abs(pair_eta[iProbe])>1.479 && abs(pair_eta[iTag])>1.479 ) h_Mee[1]->Fill(pair_M);
+	  else h_Mee[2]->Fill(pair_M);
+	  
+	  // OUTPUT JSON //
+	  if( nRun!=nCurrentRun_ineff ) {
+	    if(nCurrentRun_ineff!=-1) {
+	      out_custom_json << "]," << endl;
+	    }
+	    nCurrentLumi_ineff=-1;
+	    out_custom_json << '"' << nRun << '"' << ": [" ;
+	    nCurrentRun_ineff = nRun;
 	  }
-	}
+	  if( nLumi!=nCurrentLumi_ineff ) {
+	    if( nCurrentLumi_ineff!=-1 ) {
+	      out_custom_json << "," ;
+	    }
+	    out_custom_json << "[" << nLumi << "," << nLumi << "]" ;
+	    nCurrentLumi_ineff=nLumi;
+	  }
+	  
+	  
+	  // LOG PROBES RUN:EVENT //
+	  if( pair_sclEt[iProbe]>10. && firedEG[0][iProbe][20]==iEff ) {
+	    out_probes_trigEG15 << "'" << nRun << ":" << nEvent << "'" ;
+	    //out_probes_trigEG15 << "'" << nRun ;
+	    if(iPair < nProcess-1 ) out_probes_trigEG15 << "," ;
+	    nProbesTrig15++ ;
+	    
+	    
+	    
+	    out_probes_notrigEG15 << "'" << nRun << ":" << nEvent << "'" ;
+	    out_notrigEG15_RLE << "'" << nRun << ":" << nLumi << ":" << nEvent << "'" ;
+	    out_notrigEG15_R  << nRun ;
+	    if(iPair < nProcess-1 ) {
+	      out_probes_notrigEG15 << "," ;
+	      out_notrigEG15_RLE << "," ;
+	      out_notrigEG15_R << "," ;
+	    }
+	    nProbesNoTrig15++ ;
+	  }
 
-        for(int j=0;j<4;j++){
-           resolution[j]=-10; 
-           etabinreso[j]=-10;
-        } 
-//        iTag=goodTags.push_back(iEle);
+	  // COUNTING //
+	  flag = "" ;
+	  for(int iECAL=0 ; iECAL<nECAL ; iECAL++ ) {
+	    for(int iColl=0 ; iColl<nColl ; iColl++) {
+	      nEle[iECAL][iColl]++ ;
+	      for(int iEG=0 ; iEG<nEG ; iEG++) {
+		if(firedEG[0][iProbe][iEG]==1)  nMatched[iECAL][0][iEG]++ ;
+		
+	      }
+	    }
+	  }
+	  
+	  // MAP THE TP //
+	  adcTT.clear();
+	  for(int t=0 ; t<trig_tower_N ; t++) {
+	    coords = make_pair( trig_tower_ieta[t] , trig_tower_iphi[t] );
+	    adcTT[coords].first = t ;
+	  }
+	  for(int t=0 ; t<trig_tower_N_emul ; t++) {
+	    coords = make_pair( trig_tower_ieta_emul[t] , trig_tower_iphi_emul[t] );
+	    iterTT = adcTT.find( coords );
+	    if( iterTT != adcTT.end() )
+	      adcTT[coords].second = t;
+	    else {
+	      outlog << "mapping problem" << endl;
+	      adcTT[coords].first = -777;
+	      adcTT[coords].second = t;
+	    }
+	  }
+	  
 
-       // resolution[0]
-        if(fabs(pair_sclEta[iProbe]) > 1.566&&fabs(pair_sclEta[iProbe]) <2.5){
-           
-           if(fabs(pair_sclEt[iProbe]-pair_L1iso[iProbe])<=fabs(pair_sclEt[iProbe]-pair_L1noniso[iProbe])){
-              resolution[3]=(pair_sclEt[iProbe]-pair_L1iso[iProbe])/pair_sclEt[iProbe];
-              etabinreso[2]=pair_sclEta[iProbe];
-              etabinreso[3]=resolution[3];
-           }
-           else{
-              resolution[3]=(pair_sclEt[iProbe]-pair_L1noniso[iProbe])/pair_sclEt[iProbe];
-              etabinreso[2]=pair_sclEta[iProbe];
-              etabinreso[3]=resolution[3];
-            //  resolution[3]=-10;
-           }
-        }
-        if(fabs(pair_sclEta[iProbe]) <1.4442){
-           if(fabs(pair_sclEt[iProbe]-pair_L1iso[iProbe])<=fabs(pair_sclEt[iProbe]-pair_L1noniso[iProbe])){
-              resolution[1]=(pair_sclEt[iProbe]-pair_L1iso[iProbe])/pair_sclEt[iProbe];
-              etabinreso[2]=pair_sclEta[iProbe];
-              etabinreso[3]=resolution[1];
-           }
-           else{
-              resolution[1]=(pair_sclEt[iProbe]-pair_L1noniso[iProbe])/pair_sclEt[iProbe];
-              etabinreso[2]=pair_sclEta[iProbe];
-              etabinreso[3]=resolution[1];
-           }
-       
-        }
-
-
-
-        if(fabs(pair_sclEta[iTag]) > 1.566&&fabs(pair_sclEta[iTag]) <2.5){
-           
-           if(fabs(pair_sclEt[iTag]-pair_L1iso[iTag])<=fabs(pair_sclEt[iTag]-pair_L1noniso[iTag])){
-              resolution[2]=(pair_sclEt[iTag]-pair_L1iso[iTag])/pair_sclEt[iTag];
-              etabinreso[0]=pair_sclEta[iTag];
-              etabinreso[1]=resolution[2];
-      
-           }
-           else{
-              resolution[2]=(pair_sclEt[iTag]-pair_L1noniso[iTag])/pair_sclEt[iTag];
-              etabinreso[0]=pair_sclEta[iTag];
-              etabinreso[1]=resolution[2];
-           }
-        }
-        if(fabs(pair_sclEta[iTag]) <1.4442){
-           if(fabs(pair_sclEt[iTag]-pair_L1iso[iTag])<=fabs(pair_sclEt[iTag]-pair_L1noniso[iTag])){
-              resolution[0]=(pair_sclEt[iTag]-pair_L1iso[iTag])/pair_sclEt[iTag];
-              etabinreso[0]=pair_sclEta[iTag];
-              etabinreso[1]=resolution[0];
-           }
-           else{
-              resolution[0]=(pair_sclEt[iTag]-pair_L1noniso[iTag])/pair_sclEt[iTag];
-              etabinreso[0]=pair_sclEta[iTag];
-              etabinreso[1]=resolution[0];
-           }
-       
-        }
-
-
-
-        treenew1->Fill();
-//	if( (pair_sclEt[iProbe]>85.&&pair_sclEt[iProbe]<150.) &&  firedEG[0][iProbe][20]==0) {
-	if( (pair_sclEt[iProbe]>30.&&pair_sclEt[iProbe]<500.) &&  (pair_sclEt[iTag]>30.&&pair_sclEt[iTag]<500.) && firedEG[1][iProbe][20]==1&& firedEG[1][iTag][20]==1) {
-	//if( (pair_eT[iProbe]>20.&&pair_eT[iProbe]<30.) &&  (pair_eT[iTag]>20.&&pair_eT[iTag]<30.) && firedEG[1][iProbe][20]==1&& firedEG[1][iTag][20]==1&&fabs(pair_sclEta[iProbe])<1.4442 ) {
-//	if( (pair_eT[iProbe]>20.&&pair_eT[iProbe]<30.) &&  (pair_eT[iTag]>20.&&pair_eT[iTag]<30.) && firedEG[0][iProbe][20]&&fabs(pair_sclEta[iProbe])<1.4442 ) {
-//	if( (pair_sclEt[iProbe]>95.&&pair_sclEt[iProbe]<120.) && firedEG[0][iProbe][20]==iEff && firedEG[1][iProbe][20]==iEff_M&&fabs(pair_sclEta[iProbe]) > 1.566||fabs(pair_sclEta[iProbe]) <2.5) {
-
-	 // if( iPair==0 || nEvent!=nCurrentEvt ) {
-
-//	    outlog << "-----------------------------------------------------------------------------------------"
-//		   << endl;
-//	    outlog << "---------------------*********FANBO********--------------------------------------------------"
-//		   << endl;
-
-	    //nCurrentEvt = nEvent ;
-//	    outlog << endl
-//		   << "-- nEvent=" << nEvent << " -- nLumi=" << nLumi << " --" << endl
-//		   << "HLT : " ;
+	  if( (pair_sclEt[iProbe]>9.&&pair_sclEt[iProbe]<18.) && firedEG[0][iProbe][20]==iEff && firedEG[1][iProbe][20]==iEff_M&&fabs(pair_sclEta[iProbe]) > 1.566&&fabs(pair_sclEta[iProbe]) <2.5) {
+	    
+	    
             outlog<<"******------"<<endl;
             outlog<<"The Pair Number   "<<iPair<<endl;
-        //    if(firedEG[0][iProbe][20]==1)
-//            std::cout<< "fired EG20 trigger"<<std::endl;
-            outlog<<"TAG   SCL(ET,ETA,PHI)    "<<"L1ISO(ET,ETA,PHi)     "<<"L1NONISO(ET,ETA,PHi)    "<<"ELECAN(ET,ETA,PHi)"<<endl
-                  <<"("<<pair_sclEt[iTag]<<", "<<pair_sclEta[iTag]<<","<<pair_sclPhi[iTag]<<")"<<"      "
-                  <<"("<<pair_L1iso[iTag]<<", "<<pair_RCTeta[iTag]<<", "<<pair_RCTphi[iTag]<<")"<<"      " 
-                  <<"("<<pair_L1noniso[iTag]<<", "<<pair_RCTeta[iTag]<<", "<<pair_RCTphi[iTag]<<")"<<"      " 
-                  <<"("<<pair_eT[iTag]<<", "<<", "<<pair_eta[iTag]<<", "<<pair_phi[iTag]<<")"<<"  "
-                  <<"---------"<<endl;
-            outlog<<"Prob   SCL(ET,ETA,PHI)    "<<"L1ISO(ET,ETA,PHi)     "<<"L1NONISO(ET,ETA,PHi)    "<<"ELECAN(ET,ETA,PHi)"<<endl
-                  <<"("<<pair_sclEt[iProbe]<<", "<<pair_sclEta[iProbe]<<","<<pair_sclPhi[iProbe]<<")"<<"      "
-                  <<"("<<pair_L1iso[iProbe]<<", "<<pair_RCTeta[iProbe]<<", "<<pair_RCTphi[iProbe]<<")"<<"      " 
-                  <<"("<<pair_L1noniso[iProbe]<<", "<<pair_RCTeta[iProbe]<<", "<<pair_RCTphi[iProbe]<<")"<<"      " 
-                  <<"("<<pair_eT[iProbe]<<", "<<", "<<pair_eta[iProbe]<<", "<<pair_phi[iProbe]<<")"<<endl;
-            outlog<<"emul_L1_emul_prob  "<<pair_L1iso_M[iProbe]<<endl;
-            if(fabs(pair_sclEta[iProbe])<1.4442)
-               nprobeele++;
-            if(fabs(pair_sclEta[iTag])<1.4442)
-               ntagele++;
-
-
-
-//ntagele=0,nprobeele=0;
-//	    for(int iHLT=0 ; iHLT<nHLT ; iHLT++) {
-//	      outlog << HLT_names[iHLT] << ":" << trigHLT[iHLT] << " | " ;
-//	    }
-
-
-//	    outlog << endl
-//		   << "ISO            NONISO        ISO_M         NONISO_M         preISO       preNonIso       postIso       postNonIso" 
-//		   << endl;
-//	    for(int iL1=0 ; iL1<4 ; iL1++) {
-//	      outlog << "(" << trig_L1emIso_ieta[iL1]      << ";" << trig_L1emIso_iphi[iL1]      << ")=" << trig_L1emIso_rank[iL1]      << "      "
-//		     << "(" << trig_L1emNonIso_ieta[iL1]   << ";" << trig_L1emNonIso_iphi[iL1]   << ")=" << trig_L1emNonIso_rank[iL1]   << "      "
-//		     << "(" << trig_L1emIso_ieta_M[iL1]    << ";" << trig_L1emIso_iphi_M[iL1]    << ")=" << trig_L1emIso_rank_M[iL1]    << "      "
-//		     << "(" << trig_L1emNonIso_ieta_M[iL1] << ";" << trig_L1emNonIso_iphi_M[iL1] << ")=" << trig_L1emNonIso_rank_M[iL1] << "      ";
-
-//	      if(trig_preL1emIso_N>0)
-//		outlog << "(" << trig_preL1emIso_ieta[iL1]   << ";" << trig_preL1emIso_iphi[iL1]   << ")=" << trig_preL1emIso_rank[iL1]   << "      ";
-
-//	      if(trig_preL1emNonIso_N>0)
-//		outlog << "(" << trig_preL1emNonIso_ieta[iL1]<< ";" << trig_preL1emNonIso_iphi[iL1]<< ")=" << trig_preL1emNonIso_rank[iL1]<< "      ";
-
-//	      if(trig_postL1emIso_N>0)
-//		outlog << "(" << trig_postL1emIso_ieta[iL1]   << ";" << trig_postL1emIso_iphi[iL1]   << ")=" << trig_postL1emIso_rank[iL1]<< "      ";
-
-//	      if(trig_postL1emNonIso_N>0)
-//		outlog << "(" << trig_postL1emNonIso_ieta[iL1]<< ";" << trig_postL1emNonIso_iphi[iL1]<< ")=" << trig_postL1emNonIso_rank[iL1] << "      ";
-	    
-//	      outlog  << endl;
-//	    }
-	
-//	    if( trig_preL1emIso_N>0 || trig_preL1emNonIso_N>0 || trig_postL1emIso_N>0 || trig_postL1emNonIso_N>0 )
-//	      outlog << "PRE-POST-FIRING" << endl;
-           
-	  // PAIR INFORMATION
-	  //outlog << "PPPPPPPPPPPPPPPPP" << endl;
-	  outlog << "Pair M=" << pair_M << endl;
-
-
-
-
-
-
-
-
-
-
-
-
-	// PUT DETAILS AND COUNTERS IN LOGS //    
-	//if( pair_sclEt[iProbe]>15. && firedEG[0][iProbe][7]==iEff && firedEG[1][iProbe][7]==iEff_M) {
-//	if( (pair_sclEt[iProbe]>10.&&pair_sclEt[iProbe]<20.) && firedEG[0][iProbe][20]==iEff && firedEG[1][iProbe][20]==iEff_M) {
-
-//	  if( iPair==0 || nEvent!=nCurrentEvt ) {
-
-//	    outlog << "-----------------------------------------------------------------------------------------"
-//		   << endl;
-//	    outlog << "---------------------*********FANBO********--------------------------------------------------"
-//		   << endl;
-
-//	    nCurrentEvt = nEvent ;
-//	    outlog << endl
-//		   << "-- nEvent=" << nEvent << " -- nLumi=" << nLumi << " --" << endl
-//		   << "HLT : "<<endl;
-	  //  for(int iHLT=0 ; iHLT<nHLT ; iHLT++) {
-	  //    outlog << HLT_names[iHLT] << ":" << trigHLT[iHLT] << " | " ;
-	  //  }
-
-       //    outlog<<"--------------------****FANBO****Pair_scEt-------(eta, phi)----------******"<<endl 
-//                outlog<<"which number of candidate "<<iProbe<<endl
- //                  <<pair_sclEt[iProbe]<<";   "<<"("<<pair_sclEta[iProbe]<<","<<pair_sclPhi[iProbe]<<")"<<endl;
-
-
-
-//	    outlog << endl
-//		   << "ISO            NONISO        ISO_M         NONISO_M         preISO       preNonIso       postIso       postNonIso" 
-//		   << endl;
-//	    for(int iL1=0 ; iL1<4 ; iL1++) {
-//	      outlog << "(" << trig_L1emIso_ieta[iL1]      << ";" << trig_L1emIso_iphi[iL1]      << ")=" << trig_L1emIso_rank[iL1]      << "      "
-//		     << "(" << trig_L1emNonIso_ieta[iL1]   << ";" << trig_L1emNonIso_iphi[iL1]   << ")=" << trig_L1emNonIso_rank[iL1]   << "      "
-//		     << "(" << trig_L1emIso_ieta_M[iL1]    << ";" << trig_L1emIso_iphi_M[iL1]    << ")=" << trig_L1emIso_rank_M[iL1]    << "      "
-//		     << "(" << trig_L1emNonIso_ieta_M[iL1] << ";" << trig_L1emNonIso_iphi_M[iL1] << ")=" << trig_L1emNonIso_rank_M[iL1] << "      ";
-//
-//	      if(trig_preL1emIso_N>0)
-//		outlog << "(" << trig_preL1emIso_ieta[iL1]   << ";" << trig_preL1emIso_iphi[iL1]   << ")=" << trig_preL1emIso_rank[iL1]   << "      ";
-//
-//	      if(trig_preL1emNonIso_N>0)
-//		outlog << "(" << trig_preL1emNonIso_ieta[iL1]<< ";" << trig_preL1emNonIso_iphi[iL1]<< ")=" << trig_preL1emNonIso_rank[iL1]<< "      ";
-//
-//	      if(trig_postL1emIso_N>0)
-//		outlog << "(" << trig_postL1emIso_ieta[iL1]   << ";" << trig_postL1emIso_iphi[iL1]   << ")=" << trig_postL1emIso_rank[iL1]<< "      ";
-//
-//	      if(trig_postL1emNonIso_N>0)
-//		outlog << "(" << trig_postL1emNonIso_ieta[iL1]<< ";" << trig_postL1emNonIso_iphi[iL1]<< ")=" << trig_postL1emNonIso_rank[iL1] << "      ";
+//            if(firedEG[0][iProbe][20]==1)
+//	      //std::cout<< "fired EG20 trigger"<<std::endl;
+//	      outlog<<"TAG   SCL(ET,ETA,PHI)    "<<"L1ISO(ET,ETA,PHi)     "<<"L1NONISO(ET,ETA,PHi)    "<<"ELECAN(ET,ETA,PHi)"<<endl
+//		    <<"("<<pair_sclEt[iTag]<<", "<<pair_sclEta[iTag]<<","<<pair_sclPhi[iTag]<<")"<<"      "
+//		    <<"("<<pair_L1iso[iTag]<<", "<<pair_RCTeta[iTag]<<", "<<pair_RCTphi[iTag]<<")"<<"      " 
+//		    <<"("<<pair_L1noniso[iTag]<<", "<<pair_RCTeta[iTag]<<", "<<pair_RCTphi[iTag]<<")"<<"      " 
+//		    <<"("<<pair_eT[iTag]<<", "<<", "<<pair_eta[iTag]<<", "<<pair_phi[iTag]<<")"<<"  "
+//		    <<"---------"<<endl;
+//            outlog<<"Prob   SCL(ET,ETA,PHI)    "<<"L1ISO(ET,ETA,PHi)     "<<"L1NONISO(ET,ETA,PHi)    "<<"ELECAN(ET,ETA,PHi)"<<endl
+//                  <<"("<<pair_sclEt[iProbe]<<", "<<pair_sclEta[iProbe]<<","<<pair_sclPhi[iProbe]<<")"<<"      "
+//                  <<"("<<pair_L1iso[iProbe]<<", "<<pair_RCTeta[iProbe]<<", "<<pair_RCTphi[iProbe]<<")"<<"      " 
+//                  <<"("<<pair_L1noniso[iProbe]<<", "<<pair_RCTeta[iProbe]<<", "<<pair_RCTphi[iProbe]<<")"<<"      " 
+//                  <<"("<<pair_eT[iProbe]<<", "<<", "<<pair_eta[iProbe]<<", "<<pair_phi[iProbe]<<")"<<endl;
 //	    
-//	      outlog  << endl;
-	 //   outlog << "----------------------RCT***********-ET------------------------------------------------------------------"
-        //  		   << endl;
-        //      outlog<<"";
+//	    outlog << "Pair M=" << pair_M << endl;
+	    
+	    
+	    
+	    int IdxTagProbe[2] = {iTag , iProbe} ;
+	    
+	    // FILLING THE MAPS
+	    h_Map[0]->Fill( pair_eta[IdxTagProbe[1]] , pair_eT[IdxTagProbe[1]] ); // eta/et
+	    h_Map[1]->Fill( pair_phi[IdxTagProbe[1]] , pair_eT[IdxTagProbe[1]] ); // phi/et
+	    h_Map[2]->Fill( pair_eta[IdxTagProbe[1]] , pair_phi[IdxTagProbe[1]] ); // eta/phi
 
-
-//                } 
-          //    outlog<<endl;
-//	    }
-	
-//	    if( trig_preL1emIso_N>0 || trig_preL1emNonIso_N>0 || trig_postL1emIso_N>0 || trig_postL1emNonIso_N>0 )
-//	      outlog << "PRE-POST-FIRING" << endl;
-//	    outlog << endl;
-//	  }
-           
-	  // PAIR INFORMATION
-	  //outlog << "PPPPPPPPPPPPPPPPP" << endl;
-//	  outlog << "Pair M=" << pair_M << endl;
-      
-	  // COMPARISON ONLINE/EMULATOR
-	  nCases[0]++ ;
-//	  if(iTrig[0][iProbe]==iTrig[1][iProbe]) {
-//	    nCases[1]++ ;
-//	    outlog << "ONLINE/EMULATOR = SAME" << endl;
-//	  }
-//	  else {
-//	    nCases[2]++ ;
-//	    outlog << "ONLINE/EMULATOR = DIFFERENT" << endl;
-//	  }
-      
-	  int IdxTagProbe[2] = {iTag , iProbe} ;
-	  //TString nameTagProbe[2] = {"TAG","PROBE"} ;
-
-	  // FILLING THE MAPS
-	  h_Map[0]->Fill( pair_eta[IdxTagProbe[1]] , pair_eT[IdxTagProbe[1]] ); // eta/et
-	  h_Map[1]->Fill( pair_phi[IdxTagProbe[1]] , pair_eT[IdxTagProbe[1]] ); // phi/et
-	  h_Map[2]->Fill( pair_eta[IdxTagProbe[1]] , pair_phi[IdxTagProbe[1]] ); // eta/phi
-
-	  h_Map1D[0]->Fill( pair_eta[IdxTagProbe[1]] ); // eta
-	  h_Map1D[1]->Fill( pair_phi[IdxTagProbe[1]] ); // phi
-	  h_Map1D[2]->Fill( pair_eT[IdxTagProbe[1]] ); // et
-
-//	  for(int i=0 ; i<2 ; i++) {
-//	    outlog << nameTagProbe[i] << " : eta=" << pair_eta[IdxTagProbe[i]] << " phi=" << pair_phi[IdxTagProbe[i]] 
-//		   << " pT=" << pair_pT[IdxTagProbe[i]] << " eT=" << pair_eT[IdxTagProbe[i]]
-//		   << " RCTeta=" << pair_RCTeta[IdxTagProbe[i]] << " RCTphi=" << pair_RCTphi[IdxTagProbe[i]]
-//		   << " cuts=" << cutsName[ pair_cuts[IdxTagProbe[i]] ]
-//		   << endl
-//		   << "Fired EG : " ;
-//	    for(int iEG=0 ; iEG<(int)firedEG[0][IdxTagProbe[i]].size() ; iEG++) {
-//	      if(firedEG[0][IdxTagProbe[i]][iEG]==1) outlog << "EG" << EGval[iEG] << " " ;
-//	    }
-//	    outlog << endl;
-	
-//	    outlog << "Fired EG M : " ;
-//	    for(int iEG=0 ; iEG<(int)firedEG[1][IdxTagProbe[i]].size() ; iEG++) {
-//	      if(firedEG[1][IdxTagProbe[i]][iEG]==1) outlog << "EG" << EGval[iEG] << " " ;
-//	    }
-//	    outlog << endl;
-	
-//	  }
-
-	  // LOCALIZATION
-//	  if( pair_eta[IdxTagProbe[1]] < 1.479 ) outlog << "PROBE IN EB" << endl;
-//	  else outlog << "PROBE IN EE" << endl;
-//	  outlog << endl;
-
-	  // FIDUCIAL CUT
-//	  if ( fabs(pair_eta[IdxTagProbe[1]]) >= 2.5 || (fabs(pair_eta[IdxTagProbe[1]])< 1.566 && fabs(pair_eta[IdxTagProbe[1]])>1.4442)) {
-//	    outlog << "FAILS THE FIDUCIAL CUT" << endl;
-//	    n_fails_fidu++ ;
-//	  }
-
-	  // Masking Information
-//	  outlog << "MASKING" << endl;
-//	  for(int iM=0 ; iM<trig_nMaskedCh ; iM++) {
-	
-//	    outlog << "Reta="  << getGCTRegionEta(trig_iMaskedTTeta[iM])
-//		   << " Rphi=" << getGCTRegionPhi(trig_iMaskedTTphi[iM])
-//		   << " Teta=" << trig_iMaskedTTeta[iM]
-//		   << " Tphi=" << trig_iMaskedTTphi[iM]
-//		   << endl;
-//	  }
-//	  outlog << endl;
-
-//	  outlog << endl 
-//		 << "------------------------------------------------------------------------------------------------"
-//		 << endl;
-	} //endif probe inefficient
-      }
-       // loop over goodProbes
+	    h_Map1D[0]->Fill( pair_eta[IdxTagProbe[1]] ); // eta
+	    h_Map1D[1]->Fill( pair_phi[IdxTagProbe[1]] ); // phi
+	    h_Map1D[2]->Fill( pair_eT[IdxTagProbe[1]] ); // et
+	    
+	    
+	  } //endif probe inefficient
+	}
+	// loop over goodProbes
     } // loop over goodTags
     
   } // loop over pairs
+    
+
 
   // OUTPUT FILE //
   stringstream treeout; 
   treeout.str(""); 
-  treeout <<dirOut << "/effi_TagProbe_" <<  fileName.substr(fileName.find("tree")); 
+  if(debug) cout << "test" << endl;
+  cout<<"fileName="<<fileName<<endl;
+
+  treeout <<dirOut << "/effi_TagProbe_" <<  fileName.substr(fileName.find("elepairs")); 
+  if(debug) cout << "test" << endl;
+
+
   cout << "output file: " << treeout.str() << endl;
   TFile *outfile = new TFile(treeout.str().c_str(),"RECREATE");
-  // TFile *outfile = new TFile(dirOut+"tree_effi_TagProbe.root","RECREATE");
   for(int iECAL=0 ; iECAL<nECAL ; iECAL++ ) {
     for(int iColl=0 ; iColl<nColl ; iColl++) {
       treenew[iECAL][iColl]->Write();
     }
   }
-  treenew1->Write();
   outfile->Close();
   cout << "...filled !" << endl;
 
   // PLOTTING Z MASS
-///  cout << "Plotting Z mass peaks..." << endl;
-//  TCanvas* c_Mee[3];
-//  TString nameC[3] = {"c_ECAL","c_EB","c_EE"};
-  stringstream outfilestr; 
-//  for(int i=0 ; i<3 ; i++) {
-//    outfilestr.str("");
-//    outfilestr << dirOut << "/mass_Zee_"<< nameC[i]<< ".gif";
-//    c_Mee[i] = new TCanvas(nameC[i],nameC[i],0,0,800,600);
-//    if(debug) cout << "TCanvas created" << endl;
-//    h_Mee[i]->Draw();
-//    if(debug) cout << "h_Mee drawn" << endl;
-//   c_Mee[i]->Print(outfilestr.str().c_str(),"gif");
-//  }
- // cout << "...plotted !" << endl;
 
-  /*
-  TFile *outplot = new TFile(dirOut+"mass_Z_plots.root","RECREATE");
-  for(int i=0 ; i<3 ; i++)
-    h_Mee[i]->Write();
-  outplot->Close();
-  */
+  stringstream outfilestr; 
+
 
   // PLOTTING MAPS
 
@@ -1310,79 +1171,60 @@ void process(TChain* myChain, string dirOut, int iEff, int iEff_M,
 
   //for(int iEG=0 ; iEG<nEG ; iEG++) {
   int jEG=15;
-  g_effi_map[jEG] = new TGraph2D("g_effi_map_EG"+EGval[jEG],"Efficiency Eta/Phi Map : EG"+EGval[jEG],10000,bin_eta,bin_phi,effi_val);
-  c_effi_map[jEG] = new TCanvas("c_effi_map_EG"+EGval[jEG],"Efficiency Eta/Phi Map : EG"+EGval[jEG],0,0,800,600);
-  gStyle->SetPalette(1);
-  g_effi_map[jEG]->Draw("colz");
+//  g_effi_map[jEG] = new TGraph2D("g_effi_map_EG"+EGval[jEG],"Efficiency Eta/Phi Map : EG"+EGval[jEG],10000,bin_eta,bin_phi,effi_val);
+//  c_effi_map[jEG] = new TCanvas("c_effi_map_EG"+EGval[jEG],"Efficiency Eta/Phi Map : EG"+EGval[jEG],0,0,800,600);
+//  gStyle->SetPalette(1);
+//  g_effi_map[jEG]->Draw("colz");
   outfilestr.str("");
-  outfilestr << dirOut << "/g_effi_map_EG"<<EGval[jEG]<<".gif"; 
-  c_effi_map[jEG]->Print(outfilestr.str().c_str());
-  outfilestr.str("");
-  outfilestr << dirOut << "/g_effi_map_EG"<<EGval[jEG]<<".C"; 
-  c_effi_map[jEG]->Print(outfilestr.str().c_str());
+//  outfilestr << dirOut << "/g_effi_map_EG"<<EGval[jEG]<<".gif"; 
+//  c_effi_map[jEG]->Print(outfilestr.str().c_str());
+//  outfilestr.str("");
+//  outfilestr << dirOut << "/g_effi_map_EG"<<EGval[jEG]<<".C"; 
+//  c_effi_map[jEG]->Print(outfilestr.str().c_str());
     //}
 
   // OUTPUT LOGS //
   if(debug) cout << "Filling output logs..." << endl;
   outfilestr.str("");
-  outfilestr << dirOut << "/counters_selectPairs.csv";
-  ofstream outCounters(outfilestr.str().c_str(), ios::out);
+//  outfilestr << dirOut << "/counters_selectPairs.csv";
+//  ofstream outCounters(outfilestr.str().c_str(), ios::out);
 
-  for(int iECAL=0 ; iECAL<nECAL ; iECAL++ ) {
-    for(int iColl=0 ; iColl<nColl ; iColl++) {
-      outCounters << nEle[iECAL][iColl] << " | " ;
-      for(int iEG=0 ; iEG<nEG ; iEG++) {
-	outCounters << nMatched[iECAL][iColl][iEG] << "," ;
-      }
-    }
+//  for(int iECAL=0 ; iECAL<nECAL ; iECAL++ ) {
+//    for(int iColl=0 ; iColl<nColl ; iColl++) {
+//      outCounters << nEle[iECAL][iColl] << " | " ;
+//      for(int iEG=0 ; iEG<nEG ; iEG++) {
+//	outCounters << nMatched[iECAL][iColl][iEG] << "," ;
+ //     }
+ //   }
 
-    outCounters << endl;
-  }    
+//    outCounters << endl;
+ // }    
 
-  outCounters << endl << "nProbesTrig15=" << nProbesTrig15 
-	      << " | nProbesNoTrig15=" << nProbesNoTrig15 << endl;
+//  outCounters << endl << "nProbesTrig15=" << nProbesTrig15 
+//	      << " | nProbesNoTrig15=" << nProbesNoTrig15 << endl;
 
   // MASS PLOTS output
   stringstream myoutputfile;
   myoutputfile.str("");
-  myoutputfile <<dirOut<<  "/mass_Z_plot_"<< fileName.substr(fileName.find("tree"));
-  // TFile *outplot = new TFile(dirOut+"mass_Z_plot.root","RECREATE");
-  TFile *outplot = new TFile(myoutputfile.str().c_str(),"RECREATE");
-  for(int i=0 ; i<3 ; i++)
-    h_Mee[i]->Write();
-  outplot->Close();
+//  myoutputfile <<dirOut<<  "/mass_Z_plot_"<< fileName.substr(fileName.find("tree"));
+//  TFile *outplot = new TFile(myoutputfile.str().c_str(),"RECREATE");
+//  for(int i=0 ; i<3 ; i++)
+//    h_Mee[i]->Write();
+//  outplot->Close();
   
-  //int pause=0;
-  //cin >> pause;  
 
-  //outfile->Close();
+//  out_custom_json << ']' << endl << '}' ;
+//  out_elepairs_json << ']' << endl << '}' ;
 
-  out_custom_json << ']' << endl << '}' ;
-  out_elepairs_json << ']' << endl << '}' ;
-
-  outlog << endl << endl;
+//  outlog << endl << endl;
   for(int i=0 ; i<3 ; i++)
     outlog << "-----" ;
   outlog << " RESULTS " ;
-//  for(int i=0 ; i<4 ; i++)
- //   outlog << "-----" ;
   outlog << endl
-	 << "nCases = " << nCases[0] 
-	 << "nCasestag = " << ntagele 
-	 << "nCasesprobe = " << nprobeele 
-	 << "nCasestag+Probe = " << nprobeele+ntagele 
-//	 << " | nCases SAME = " << nCases[1]
-//	 << " | nCases DIFF = " << nCases[2]
-//	 << endl
-///	 << "nToBeZeroed = " << nZeroStatus[0]
-//	 << " | nZeroed = " << nZeroStatus[1]
-//	 << " | nNotZeroed = " << nZeroStatus[2]
-//	 << endl
-//	 << "nEB_NotToZero_Zeroed = " << nEB_NotToZero_Zeroed
-//	 << " | nEE_NotToZero_Zeroed = " << nEE_NotToZero_Zeroed
-//	 << endl
-//	 << "n_fails_fidu = " << n_fails_fidu
+//	 << "nCases = " << nCases[0] 
 	 << endl;
+  std::cout<<"et30number of SC=  "<<nCases0<<"  number of L1=   "<<nCases1<<"   ratio=   "<<(nCases1*1.0)/(nCases0*1.0)<<std::endl;
+  std::cout<<"et20number of SC=  "<<nCases2<<"  number of L1=   "<<nCases3<<"   ratio=   "<<(nCases3*1.0)/(nCases2*1.0)<<std::endl;
   for(int i=0 ; i<9 ; i++)
     outlog << "-----" ;
 

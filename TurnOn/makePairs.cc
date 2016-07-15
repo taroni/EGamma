@@ -21,14 +21,12 @@
 
 struct stat info;
 
-void makePairs(int nEntries, string dirOut, TString dirIn, TString data, string nameChain, TString RunPhase, bool debug);
+void makePairs(int nEntries, string dirOut, TString dirIn, TString data, string nameChain, TString RunPhase, bool debug, bool isMC);
 
-int processPairs(string nameChain, string file, int iFile, int nEntries, string dirOut, TString dirIn, ofstream& outlog,  TString RunPhase, bool debug);
+int processPairs(string nameChain, string file, int iFile, int nEntries, string dirOut, TString dirIn, ofstream& outlog,  TString RunPhase, bool debug, bool isMC);
 
 string myjobid ; 
 using namespace std;
-int startN=16,endN=71;
-
 //-------
 int main(int argc, char**argv){
 
@@ -36,88 +34,43 @@ int main(int argc, char**argv){
   cout << "JOBID: " << argv[1] << endl;
   myjobid = argv[1];
   
+  makePairs(-1, "/afs/cern.ch/work/f/fmeng/FANBOWORKINGAREA/CMSSW_8_0_12/src/TurnOn/ratioScan/makePairsDir",  "/afs/cern.ch/work/f/fmeng/FANBOWORKINGAREA/CMSSW_8_0_12/src/TurnOn/ratioScan_new/", "Run2016B", "produceNtuple/eIDSimpleTree", "2011A", false, false) ;
   
-//  makePairs(-1, "makePairsDir",
-//	    //  "/afs/cern.ch/work/f/fmeng/FANBOWORKINGAREA/CMSSW_7_4_9/src/EGamma/ECGelec/test/",
-//	    "./",
-//	    "Run2015C", "produceNtuple/eIDSimpleTree", "2015C", 0) ;
-  
-  makePairs(-1, "makePairsDir",
-	    //  "/afs/cern.ch/work/f/fmeng/FANBOWORKINGAREA/CMSSW_7_4_9/src/EGamma/ECGelec/test/",
-	    "/afs/cern.ch/work/f/fmeng/FANBOWORKINGAREA/CMSSW_7_4_12/src/spiketurnon/ratioScan/makePairsDir/",
-	    "Run2015C", "produceNtuple/eIDSimpleTree", "2015C", 0) ;
   return 0;
 }
-
-
 //------
-void makePairs(int nEntries,  string dirOut, TString dirIn, TString data, string nameChain,  TString RunPhase, bool debug){
-  // Output Log
-  // if( stat( dirOut.c_str(), &info ) == 0 ) {
-  //   boost::filesystem::path dir(dirOut.c_str());
-  //   boost::filesystem::create_directory(dir);
-  //}
-  
-  ofstream outlog(*dirOut.c_str()+"/log.txt",ios::out);
- 
-  outlog << " <--------------------------------- START --------------------------------->" << endl;
+int processPairs(string nameChain, string file, int iFile, int nEntries, string dirOut, TString dirIn, ofstream& outlog, TString RunPhase, bool debug, bool isMC)  {
 
-  // Process the tree
-  if(debug) cout << "process the tree" << endl;
-
-  vector<string> treeList;
-  string eosdir; 
-  eosdir="root://eoscms//eos/cms/store/user/taroni/SingleEle_run2015D/DoubleEG/crab_ECAL_turnon_2015D/151214_170443/0000/";
-  vector<string> files; 
-  files.push_back("tree_2015D.root");
-
-  int nFiles =files.size();
- 
-  for(int i = 0; i < nFiles; i++) {
-    
-    stringstream inputfile; 
-    inputfile.str(""); 
-//    inputfile <<files[i];
-    inputfile << eosdir<< files[i];
-    cout<<"the file exact name is "<<inputfile.str()<<endl;    
-    //if(debug) 
-    cout << "process file #" << i << " of " << nFiles << " files " << endl;
-    processPairs(nameChain,inputfile.str(),i,nEntries,dirOut,dirIn,outlog,RunPhase,debug);
-// processPairs(string nameChain, string file, int iFile, int nEntries, string dirOut, TString dirIn, ofstream& outlog,  TString RunPhase, bool debug);
-    //if(debug) 
-    cout << "processed" << endl;
-  }
-
-  outlog << " <--------------------------------- DONE --------------------------------->" << endl;
-  cout << "DONE" << endl;
-
-}
-
-
-//------
-int processPairs(string nameChain, string file, int iFile, int nEntries, string dirOut, TString dirIn, ofstream& outlog, TString RunPhase, bool debug)  {
 
   // OUTPUT FILE //
-  std::size_t pos = file.find("tree");
+  std::size_t pos = file.find("2016SK");
   std::string str2 = file.substr(pos); 
-  TString name=(TString)(myjobid+"/"+dirOut+"/elepairs_"+str2);
- // TString name=(TString)(myjobid+"/"+dirOut+"/elepairs.root");
+  TString name=(TString)(dirOut+"/elepairs_"+str2);
+  //TString name=(TString)(myjobid+"/"+dirOut+"/elepairs_"+str2);
+  //TString name=(TString)(myjobid+"/"+dirOut+"/elepairs.root");
+  //TString name=(TString)(dirOut+"/elepairs_tree.root");
   TFile *outfile = new TFile(name,"RECREATE");
   // INPUT TREE //
   TChain * myChain = new TChain(nameChain.c_str());
+
   myChain->Add(file.c_str());
   
   int nEvent, nRun, nLumi ;
+  double _PU_rhoCorr ;
+  int _PU_N;
   // Vertices //
   int _vtx_N;
   double _vtx_x[200], _vtx_y[200], _vtx_z[200];
   double _vtx_normalizedChi2[200], _vtx_ndof[200], _vtx_nTracks[200], _vtx_d0[200];
   
   // Trigger Paths //
-  int trig_hltInfo[250];
+  int trig_hltInfo[500];
   int _trig_isEleHLTpath;
   int trig_HLT_path[4]; // unbias, EG5, EG8, EG12
   char trig_fired_names[5000];
+  int trig_isHLT_Ele30WP60_Ele8_Mass55_v2, trig_isHLT_Ele30WP60_SC4_Mass55_v3;
+  int trig_isHLT_Ele27_WPLoose_Gsf_v1;
+
   //
   vector<string> m_HLT_pathsV;
   vector<string> m_HLT_triggered;
@@ -140,11 +93,22 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
   int ele_isConversion[10];
   int ele_echarge[10];
   //
-  int ele_RCTeta[10], ele_RCTphi[10], ele_RCTL1iso[10], ele_RCTL1noniso[10], ele_RCTL1iso_M[10], ele_RCTL1noniso_M[10];
+  int ele_RCTeta[10], ele_RCTphi[10], ele_RCTL1iso[10], ele_RCTL1noniso[10], ele_RCTL1iso_M[10], ele_RCTL1noniso_M[10]; 
+  int ele_L1Stage2[10], ele_L1Stage2_emul[10];
+  double ele_dR_closest_L1Stage2[10], ele_closestdR_L1Stage2_eta[10], ele_closestdR_L1Stage2_phi[10], ele_closestdR_L1Stage2_et[10];
+  double ele_dR_closest_L1Stage2_emul[10], ele_closestdR_L1Stage2_emul_eta[10], ele_closestdR_L1Stage2_emul_phi[10], ele_closestdR_L1Stage2_emul_et[10];
+  int ele_L1Stage2_isoflag[10], ele_L1Stage2_emul_isoflag[10];
+  int ele_L1Stage2_emul_nTT[10];
+
+  int ele_L1Stage1_emul[10], ele_L1Stage1_emul_isoflag[10];
+
   int ele_TTetaVect[10][50], ele_TTphiVect[10][50];
   double ele_TTetVect[10][50];
+  int ele_TTetaSeed[10], ele_TTphiSeed[10];
+  double ele_TTetSeed[10];
   int ele_RCTetaVect[10][10], ele_RCTphiVect[10][10], ele_RCTL1isoVect[10][10], 
     ele_RCTL1nonisoVect[10][10],ele_RCTL1isoVect_M[10][10], ele_RCTL1nonisoVect_M[10][10];
+  int ele_L1Stage1_emul_isoVect[10][10], ele_L1Stage1_emul_nonisoVect[10][10];
   double ele_RCTetVect[10][10];
   bool ele_VetoIdDecisions[10];
   bool ele_LooseIdDecisions[10];
@@ -158,7 +122,7 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
   int trig_tower_N_emul,trig_tower_ieta_emul[nTow],trig_tower_iphi_emul[nTow],trig_tower_adc_emul[nTow][5],trig_tower_sFGVB_emul[nTow][5];
 
   // HCAL TP
-  int trig_tower_hcal_N, trig_tower_hcal_ieta[4032], trig_tower_hcal_iphi[4032], trig_tower_hcal_FG[4032],trig_tower_hcal_et[4032];
+  //int trig_tower_hcal_N, trig_tower_hcal_ieta[4032], trig_tower_hcal_iphi[4032], trig_tower_hcal_FG[4032],trig_tower_hcal_et[4032];
   int trig_L1emIso_N, trig_L1emNonIso_N, trig_L1emIso_N_M, trig_L1emNonIso_N_M;
 
   // L1 candidates info
@@ -167,11 +131,35 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
   int trig_L1emIso_ieta_M[4], trig_L1emIso_iphi_M[4], trig_L1emIso_rank_M[4];
   int trig_L1emNonIso_ieta_M[4], trig_L1emNonIso_iphi_M[4], trig_L1emNonIso_rank_M[4];
 
+
+  // L1 Stage2
+  //MP outputs
+  int Stage2_mpeg_n;
+  int Stage2_mpeg_hwPt[12], Stage2_mpeg_hwEta[12], Stage2_mpeg_hwPhi[12];
+  //Demux outputs
+  int Stage2_eg_n;
+  int Stage2_eg_hwPt[12], Stage2_eg_hwEta[12], Stage2_eg_hwPhi[12];
+  double Stage2_eg_et[12], Stage2_eg_eta[12], Stage2_eg_phi[12];
+
+  //MP outputs
+  int Stage2_mpeg_emul_n;
+  int Stage2_mpeg_emul_hwPt[12], Stage2_mpeg_emul_hwEta[12], Stage2_mpeg_emul_hwPhi[12];
+  //Demux outputs
+  int Stage2_eg_emul_n;
+  int Stage2_eg_emul_hwPt[12], Stage2_eg_emul_hwEta[12], Stage2_eg_emul_hwPhi[12];
+  double Stage2_eg_emul_et[12], Stage2_eg_emul_eta[12], Stage2_eg_emul_phi[12];
+
+  //Demux outputs
+  int Stage1_eg_emul_n;
+  int Stage1_eg_emul_hwPt[12], Stage1_eg_emul_hwEta[12], Stage1_eg_emul_hwPhi[12];
+  double Stage1_eg_emul_et[12], Stage1_eg_emul_eta[12], Stage1_eg_emul_phi[12];
+
   // L1 prefiring
   int trig_preL1emIso_N; 
   int trig_preL1emNonIso_N;
   int trig_preL1emIso_ieta[4], trig_preL1emIso_iphi[4], trig_preL1emIso_rank[4]; 
-  int trig_preL1emNonIso_ieta[4], trig_preL1emNonIso_iphi[4],trig_preL1emNonIso_rank[4];
+  int trig_preL1emNonIso_ieta[4], trig_preL1emNonIso_iphi[4],trig_preL1emNonIso_rank[4]; 
+
   // L1 postfiring
   int trig_postL1emIso_N; 
   int trig_postL1emNonIso_N;
@@ -182,17 +170,19 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
   int trig_nMaskedRCT, trig_nMaskedCh;
   int trig_iMaskedRCTeta[100], trig_iMaskedRCTphi[100], trig_iMaskedRCTcrate[100], trig_iMaskedTTeta[100], trig_iMaskedTTphi[100];
 
-  int trig_strip_mask_N;
-  int trig_strip_mask_TTieta[1000], trig_strip_mask_TTiphi[1000], trig_strip_mask_status[1000],
-    trig_strip_mask_StripID[1000], trig_strip_mask_PseudoStripID[1000], trig_strip_mask_TccID[1000], trig_strip_mask_CCU[1000],
-    trig_strip_mask_xtal_ix[1000][5], trig_strip_mask_xtal_iy[1000][5], trig_strip_mask_xtal_iz[1000][5];
 
-  int trig_xtal_mask_N; // [EB+EE]
+  //int trig_strip_mask_N;
+  /*int trig_strip_mask_TTieta[1000], trig_strip_mask_TTiphi[1000], trig_strip_mask_status[1000],
+    trig_strip_mask_StripID[1000], trig_strip_mask_PseudoStripID[1000], trig_strip_mask_TccID[1000], trig_strip_mask_CCU[1000],
+    trig_strip_mask_xtal_ix[1000][5], trig_strip_mask_xtal_iy[1000][5], trig_strip_mask_xtal_iz[1000][5];*/
+
+  /*int trig_xtal_mask_N; // [EB+EE]
   int trig_xtal_mask_ieta[1000],trig_xtal_mask_iphi[1000], // for EE : xtal ieta->ix ; iphi -> iy
     trig_xtal_mask_TTieta[1000],trig_xtal_mask_TTiphi[1000], // but for EE towers, still ieta, iphi...
     trig_xtal_mask_Rieta[1000],trig_xtal_mask_Riphi[1000],
-    trig_xtal_mask_status[1000], trig_xtal_mask_EBEE[1000]; // EBEE = {0,1} => 0=EB ; 1=EE
+    trig_xtal_mask_status[1000], trig_xtal_mask_EBEE[1000]; // EBEE = {0,1} => 0=EB ; 1=EE*/
   //double trig_xtal_mask_eT[1000];  
+
 
   // INITIALIZATION //
   //
@@ -201,6 +191,8 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
   nRun = 0;
   nLumi = 0;
   //
+  _PU_N = 0;
+  _PU_rhoCorr = 0;
   // Vertices
   _vtx_N = 0; 
   for(int iv=0;iv<200;iv++) {
@@ -219,6 +211,7 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
   trig_preL1emIso_N   = 0; 
   trig_preL1emNonIso_N  = 0;
   trig_postL1emIso_N    = 0; 
+
   trig_postL1emNonIso_N = 0;
   //
   for(int il1=0 ; il1<4 ; il1++) {
@@ -245,6 +238,41 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
     trig_postL1emNonIso_iphi[il1] = 0; 
     trig_postL1emNonIso_rank[il1] = 0;  
   }
+
+  Stage2_mpeg_n = 0;
+  Stage2_eg_n = 0;
+  Stage2_mpeg_emul_n = 0;
+  Stage2_eg_emul_n = 0;
+  Stage1_eg_emul_n = 0;
+  for(int il1=0 ; il1<12 ; il1++) {
+    Stage2_mpeg_hwPt[il1] = 0;
+    Stage2_mpeg_hwEta[il1] = 0;
+    Stage2_mpeg_hwPhi[il1] = 0;
+    Stage2_eg_hwPt[il1] = 0;
+    Stage2_eg_hwEta[il1] = 0;
+    Stage2_eg_hwPhi[il1] = 0;
+    Stage2_eg_et[il1] = 0;
+    Stage2_eg_eta[il1] = 0;
+    Stage2_eg_phi[il1] = 0;
+    
+    Stage2_mpeg_emul_hwPt[il1] = 0;
+    Stage2_mpeg_emul_hwEta[il1] = 0;
+    Stage2_mpeg_emul_hwPhi[il1] = 0;
+    Stage2_eg_emul_hwPt[il1] = 0;
+    Stage2_eg_emul_hwEta[il1] = 0;
+    Stage2_eg_emul_hwPhi[il1] = 0;
+    Stage2_eg_emul_et[il1] = 0;
+    Stage2_eg_emul_eta[il1] = 0;
+    Stage2_eg_emul_phi[il1] = 0;
+
+    Stage1_eg_emul_hwPt[il1] = 0;
+    Stage1_eg_emul_hwEta[il1] = 0;
+    Stage1_eg_emul_hwPhi[il1] = 0;
+    Stage1_eg_emul_et[il1] = 0;
+    Stage1_eg_emul_eta[il1] = 0;
+    Stage1_eg_emul_phi[il1] = 0;
+  }
+
   // 
   // Trigger towers
   trig_tower_N = 0;
@@ -263,11 +291,11 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
     for(int i=0 ; i<5 ; i++)
       trig_tower_adc_emul[iTow][i] = trig_tower_sFGVB_emul[iTow][i] = -999;
   }
-  trig_tower_hcal_N = 0;
+  /*trig_tower_hcal_N = 0;
   for(int iTow=0 ; iTow<nTow ; iTow++) {
     trig_tower_hcal_ieta[iTow] = trig_tower_hcal_iphi[iTow]  = -999;
     trig_tower_hcal_FG[iTow]  = trig_tower_hcal_et[iTow] = -999;
-  }
+    }*/
   //
   // Masked Towers
   trig_nMaskedRCT=0;
@@ -282,7 +310,7 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
   }
   //
   // Masked strip/xtals
-  trig_strip_mask_N = 0;
+  /*trig_strip_mask_N = 0;
   trig_xtal_mask_N = 0;
   //
   for(int i=0 ; i<1000 ; i++) {
@@ -307,7 +335,12 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
     trig_xtal_mask_Riphi[i] = -999;
     trig_xtal_mask_status[i] = -999;
     trig_xtal_mask_EBEE[i] = -999;
-  }
+    }*/
+
+
+  trig_isHLT_Ele30WP60_Ele8_Mass55_v2 = 0;
+  trig_isHLT_Ele30WP60_SC4_Mass55_v3 = 0;
+  trig_isHLT_Ele27_WPLoose_Gsf_v1 = 0;
 
   // Disable useless branches
   //myChain->SetBranchStatus("spike_*",0);
@@ -325,29 +358,38 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
   //myChain->SetBranchStatus("met_*",0);
   //myChain->SetBranchStatus("muons*",0);
   //myChain->SetBranchStatus("jets*",0);
-  myChain->SetBranchStatus("sc*",0);
+  //myChain->SetBranchStatus("sc*",0);
   //myChain->SetBranchStatus("sc_hybrid_N",1);
   //myChain->SetBranchStatus("",0);
+
 
   // Global
   myChain->SetBranchAddress("nEvent",&nEvent);
   myChain->SetBranchAddress("nRun",&nRun);
   myChain->SetBranchAddress("nLumi",&nLumi);
 
+  myChain->SetBranchAddress("PU_N",&_PU_N);
+  myChain->SetBranchAddress("PU_rhoCorr",&_PU_rhoCorr);
+
+  myChain->SetBranchAddress("vtx_N",&_vtx_N);
+
+
   // Trigger
 //   myChain->SetBranchAddress ("trig_HLT_triggered", &m_HLT_triggered);
 //   myChain->SetBranchAddress ("trig_HLT_pathsV", &m_HLT_pathsV);
 //   myChain->SetBranchAddress ("trig_HLT_pathsV_check", &m_HLT_pathsV_check);
   //
-  myChain->SetBranchAddress("trig_HLT_path",&trig_HLT_path);
+  //myChain->SetBranchAddress("trig_HLT_path",&trig_HLT_path);
   // unbias, EG5, EG8, EG12
   //
   myChain->SetBranchAddress("trig_fired_names",&trig_fired_names);
   myChain->SetBranchAddress("trig_hltInfo",&trig_hltInfo);
+  myChain->SetBranchAddress("trig_isHLT_Ele30WP60_Ele8_Mass55_v2",  &trig_isHLT_Ele30WP60_Ele8_Mass55_v2);   
+  myChain->SetBranchAddress("trig_isHLT_Ele30WP60_SC4_Mass55_v3",  &trig_isHLT_Ele30WP60_SC4_Mass55_v3);  
+  myChain->SetBranchAddress("trig_isHLT_Ele27_WPLoose_Gsf_v1",  &trig_isHLT_Ele27_WPLoose_Gsf_v1); 
 
   // SC
   //myChain->SetBranchAddress("sc_hybrid_N",   &sc_hybrid_N);
-//  std::cout<<"problem here ------------------1"<<std::endl; 
   // Electrons
   myChain->SetBranchAddress("ele_N",   &ele_N);
   myChain->SetBranchAddress("electrons",&electrons);
@@ -370,11 +412,13 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
   myChain->SetBranchAddress("ele_isConversion",&ele_isConversion);
   myChain->SetBranchAddress("ele_echarge",&ele_echarge);
 
-//  std::cout<<"problem here ------------------2"<<std::endl; 
   // L1 electron informations
   myChain->SetBranchAddress("ele_TTetaVect", &ele_TTetaVect);
   myChain->SetBranchAddress("ele_TTphiVect", &ele_TTphiVect);
   myChain->SetBranchAddress("ele_TTetVect", &ele_TTetVect);
+  myChain->SetBranchAddress("ele_TTetaSeed", &ele_TTetaSeed);
+  myChain->SetBranchAddress("ele_TTphiSeed", &ele_TTphiSeed);
+  myChain->SetBranchAddress("ele_TTetSeed", &ele_TTetSeed);
   //
   myChain->SetBranchAddress("ele_RCTeta", &ele_RCTeta);
   myChain->SetBranchAddress("ele_RCTphi", &ele_RCTphi);
@@ -382,7 +426,25 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
   myChain->SetBranchAddress("ele_RCTL1noniso", &ele_RCTL1noniso);
   myChain->SetBranchAddress("ele_RCTL1iso_M", &ele_RCTL1iso_M);
   myChain->SetBranchAddress("ele_RCTL1noniso_M", &ele_RCTL1noniso_M);
+  myChain->SetBranchAddress("ele_L1Stage2", &ele_L1Stage2);
+  myChain->SetBranchAddress("ele_L1Stage2_isoflag", &ele_L1Stage2_isoflag);
+  myChain->SetBranchAddress("ele_L1Stage2_emul", &ele_L1Stage2_emul);
+  myChain->SetBranchAddress("ele_L1Stage2_emul_isoflag", &ele_L1Stage2_emul_isoflag);
+  myChain->SetBranchAddress("ele_L1Stage2_emul_nTT", &ele_L1Stage2_emul_nTT);
+  
+  myChain->SetBranchAddress("ele_L1Stage1_emul", &ele_L1Stage1_emul);
+  myChain->SetBranchAddress("ele_L1Stage1_emul_isoflag", &ele_L1Stage1_emul_isoflag);
 
+  myChain->SetBranchAddress("ele_dR_closest_L1Stage2", &ele_dR_closest_L1Stage2);
+  myChain->SetBranchAddress("ele_closestdR_L1Stage2_eta", &ele_closestdR_L1Stage2_eta);
+  myChain->SetBranchAddress("ele_closestdR_L1Stage2_phi", &ele_closestdR_L1Stage2_phi);
+  myChain->SetBranchAddress("ele_closestdR_L1Stage2_et", &ele_closestdR_L1Stage2_et);
+
+  myChain->SetBranchAddress("ele_dR_closest_L1Stage2_emul", &ele_dR_closest_L1Stage2_emul);
+  myChain->SetBranchAddress("ele_closestdR_L1Stage2_emul_eta", &ele_closestdR_L1Stage2_emul_eta);
+  myChain->SetBranchAddress("ele_closestdR_L1Stage2_emul_phi", &ele_closestdR_L1Stage2_emul_phi);
+  myChain->SetBranchAddress("ele_closestdR_L1Stage2_emul_et", &ele_closestdR_L1Stage2_emul_et);
+ 
   myChain->SetBranchAddress("ele_RCTetaVect", &ele_RCTetaVect);
   myChain->SetBranchAddress("ele_RCTphiVect", &ele_RCTphiVect);
   myChain->SetBranchAddress("ele_RCTetVect", &ele_RCTetVect);
@@ -390,6 +452,9 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
   myChain->SetBranchAddress("ele_RCTL1nonisoVect", &ele_RCTL1nonisoVect);
   myChain->SetBranchAddress("ele_RCTL1isoVect_M", &ele_RCTL1isoVect_M);
   myChain->SetBranchAddress("ele_RCTL1nonisoVect_M", &ele_RCTL1nonisoVect_M);
+  myChain->SetBranchAddress("ele_L1Stage1_emul_isoVect", &ele_L1Stage1_emul_isoVect);
+  myChain->SetBranchAddress("ele_L1Stage1_emul_nonisoVect", &ele_L1Stage1_emul_nonisoVect);
+
 
   myChain->SetBranchAddress("ele_VetoIdDecisions", &ele_VetoIdDecisions);
   myChain->SetBranchAddress("ele_LooseIdDecisions", &ele_LooseIdDecisions);
@@ -419,7 +484,41 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
   myChain->SetBranchAddress("trig_L1emNonIso_iphi_M", &trig_L1emNonIso_iphi_M);
   myChain->SetBranchAddress("trig_L1emNonIso_rank_M", &trig_L1emNonIso_rank_M);
 
-//  std::cout<<"problem here ------------------3"<<std::endl; 
+  myChain->SetBranchAddress("Stage2_mpeg_n",     &Stage2_mpeg_n);
+  myChain->SetBranchAddress("Stage2_mpeg_hwPt",  &Stage2_mpeg_hwPt);
+  myChain->SetBranchAddress("Stage2_mpeg_hwEta", &Stage2_mpeg_hwEta);
+  myChain->SetBranchAddress("Stage2_mpeg_hwPhi", &Stage2_mpeg_hwPhi);
+
+  myChain->SetBranchAddress("Stage2_eg_n",      &Stage2_eg_n);
+  myChain->SetBranchAddress("Stage2_eg_hwPt",   &Stage2_eg_hwPt);
+  myChain->SetBranchAddress("Stage2_eg_hwEta",  &Stage2_eg_hwEta);
+  myChain->SetBranchAddress("Stage2_eg_hwPhi",  &Stage2_eg_hwPhi);
+  myChain->SetBranchAddress("Stage2_eg_et",   &Stage2_eg_et);
+  myChain->SetBranchAddress("Stage2_eg_eta",  &Stage2_eg_eta);
+  myChain->SetBranchAddress("Stage2_eg_phi",  &Stage2_eg_phi);
+
+  myChain->SetBranchAddress("Stage2_mpeg_emul_n",     &Stage2_mpeg_emul_n);
+  myChain->SetBranchAddress("Stage2_mpeg_emul_hwPt",  &Stage2_mpeg_emul_hwPt);
+  myChain->SetBranchAddress("Stage2_mpeg_emul_hwEta", &Stage2_mpeg_emul_hwEta);
+  myChain->SetBranchAddress("Stage2_mpeg_emul_hwPhi", &Stage2_mpeg_emul_hwPhi);
+
+  myChain->SetBranchAddress("Stage2_eg_emul_n",      &Stage2_eg_emul_n);
+  myChain->SetBranchAddress("Stage2_eg_emul_hwPt",   &Stage2_eg_emul_hwPt);
+  myChain->SetBranchAddress("Stage2_eg_emul_hwEta",  &Stage2_eg_emul_hwEta);
+  myChain->SetBranchAddress("Stage2_eg_emul_hwPhi",  &Stage2_eg_emul_hwPhi);
+  myChain->SetBranchAddress("Stage2_eg_emul_et",   &Stage2_eg_emul_et);
+  myChain->SetBranchAddress("Stage2_eg_emul_eta",  &Stage2_eg_emul_eta);
+  myChain->SetBranchAddress("Stage2_eg_emul_phi",  &Stage2_eg_emul_phi);
+
+  myChain->SetBranchAddress("Stage1_eg_emul_n",      &Stage1_eg_emul_n);
+  myChain->SetBranchAddress("Stage1_eg_emul_hwPt",   &Stage1_eg_emul_hwPt);
+  myChain->SetBranchAddress("Stage1_eg_emul_hwEta",  &Stage1_eg_emul_hwEta);
+  myChain->SetBranchAddress("Stage1_eg_emul_hwPhi",  &Stage1_eg_emul_hwPhi);
+  myChain->SetBranchAddress("Stage1_eg_emul_et",   &Stage1_eg_emul_et);
+  myChain->SetBranchAddress("Stage1_eg_emul_eta",  &Stage1_eg_emul_eta);
+  myChain->SetBranchAddress("Stage1_eg_emul_phi",  &Stage1_eg_emul_phi);
+
+
   // Pre/post - firing L1 candidates
   myChain->SetBranchAddress("trig_preL1emIso_N",     &trig_preL1emIso_N);
   myChain->SetBranchAddress("trig_preL1emIso_ieta",  &trig_preL1emIso_ieta);
@@ -463,14 +562,14 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
   myChain->SetBranchAddress("trig_tower_sFGVB_emul", &trig_tower_sFGVB_emul);
   
   // HCAL TP
-  myChain->SetBranchAddress("trig_tower_hcal_N", &trig_tower_hcal_N);
+  /*myChain->SetBranchAddress("trig_tower_hcal_N", &trig_tower_hcal_N);
   myChain->SetBranchAddress("trig_tower_hcal_ieta",  &trig_tower_hcal_ieta);
   myChain->SetBranchAddress("trig_tower_hcal_iphi",  &trig_tower_hcal_iphi);
   myChain->SetBranchAddress("trig_tower_hcal_et",  &trig_tower_hcal_et);
-  myChain->SetBranchAddress("trig_tower_hcal_FG",  &trig_tower_hcal_FG);
+  myChain->SetBranchAddress("trig_tower_hcal_FG",  &trig_tower_hcal_FG);*/
 
   // Strip masking
-  myChain->SetBranchAddress("trig_strip_mask_N", &trig_strip_mask_N);
+  /*myChain->SetBranchAddress("trig_strip_mask_N", &trig_strip_mask_N);
   myChain->SetBranchAddress("trig_strip_mask_TTieta", &trig_strip_mask_TTieta);
   myChain->SetBranchAddress("trig_strip_mask_TTiphi", &trig_strip_mask_TTiphi);
   myChain->SetBranchAddress("trig_strip_mask_StripID", &trig_strip_mask_StripID);
@@ -479,10 +578,10 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
   myChain->SetBranchAddress("trig_strip_mask_CCU", &trig_strip_mask_CCU);
   myChain->SetBranchAddress("trig_strip_mask_xtal_ix", &trig_strip_mask_xtal_ix);
   myChain->SetBranchAddress("trig_strip_mask_xtal_iy", &trig_strip_mask_xtal_iy);
-  myChain->SetBranchAddress("trig_strip_mask_xtal_iz", &trig_strip_mask_xtal_iz);
+  myChain->SetBranchAddress("trig_strip_mask_xtal_iz", &trig_strip_mask_xtal_iz);*/
   //
   // Crystal masking
-  myChain->SetBranchAddress("trig_xtal_mask_N", &trig_xtal_mask_N);
+  /*myChain->SetBranchAddress("trig_xtal_mask_N", &trig_xtal_mask_N);
   myChain->SetBranchAddress("trig_xtal_mask_ieta", &trig_xtal_mask_ieta);
   myChain->SetBranchAddress("trig_xtal_mask_iphi", &trig_xtal_mask_iphi);
   myChain->SetBranchAddress("trig_xtal_mask_TTieta", &trig_xtal_mask_TTieta);
@@ -490,20 +589,23 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
   myChain->SetBranchAddress("trig_xtal_mask_Rieta", &trig_xtal_mask_Rieta);
   myChain->SetBranchAddress("trig_xtal_mask_Riphi", &trig_xtal_mask_Riphi);
   myChain->SetBranchAddress("trig_xtal_mask_status", &trig_xtal_mask_status);
-  myChain->SetBranchAddress("trig_xtal_mask_EBEE", &trig_xtal_mask_EBEE);
+  myChain->SetBranchAddress("trig_xtal_mask_EBEE", &trig_xtal_mask_EBEE);*/
 
   // Masking
-  myChain->SetBranchAddress("trig_nMaskedRCT",      &trig_nMaskedRCT);      
+  /*myChain->SetBranchAddress("trig_nMaskedRCT",      &trig_nMaskedRCT);      
   myChain->SetBranchAddress("trig_iMaskedRCTeta",   &trig_iMaskedRCTeta);                                          
   myChain->SetBranchAddress("trig_iMaskedRCTcrate", &trig_iMaskedRCTcrate);
   myChain->SetBranchAddress("trig_iMaskedRCTphi",   &trig_iMaskedRCTphi);
   myChain->SetBranchAddress("trig_nMaskedCh",       &trig_nMaskedCh);    
   myChain->SetBranchAddress("trig_iMaskedTTeta",    &trig_iMaskedTTeta);   
-  myChain->SetBranchAddress("trig_iMaskedTTphi",    &trig_iMaskedTTphi);      	
+  myChain->SetBranchAddress("trig_iMaskedTTphi",    &trig_iMaskedTTphi);*/      	
+
+ 
 
 
- // std::cout<<"problem here ------------------4"<<std::endl; 
+
   if(debug) cout << "got the input tree, start to define output tree" << endl;
+  if(debug) cout << "got the input tree, start to define output tree*************************--------------------------------**************" << endl;
   
   // OUTPUT TREE //
   TTree * outtree = new TTree("ElePairs","ElePairs");
@@ -512,6 +614,9 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
   outtree->Branch("nRun",&nRun,"nRun/I");
   outtree->Branch("nLumi",&nLumi,"nLumi/I");
   outtree->Branch("nEvent",&nEvent,"nEvent/I");
+
+  outtree->Branch("PU_N",&_PU_N,"PU_N/I");
+  outtree->Branch("PU_rhoCorr",&_PU_rhoCorr,"PU_rhoCorr/D");
 
   // Vertices
   outtree->Branch("vtx_N",&_vtx_N,"vtx_N/I");
@@ -528,11 +633,11 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
 //   outtree->Branch ("trig_HLT_pathsV", &m_HLT_pathsV, 256000,0);
 //   outtree->Branch ("trig_HLT_pathsV_check", &m_HLT_pathsV_check, 256000,0);
   //
-  outtree->Branch("trig_HLT_path",&trig_HLT_path,"trig_HLT_path[4]/I");
+  //outtree->Branch("trig_HLT_path",&trig_HLT_path,"trig_HLT_path[4]/I");
   // unbias, EG5, EG8, EG12
   //
   outtree->Branch("trig_fired_names",&trig_fired_names,"trig_fired_names[5000]/C");
-  outtree->Branch("trig_hltInfo",&trig_hltInfo,"trig_hltInfo[250]/I");  
+  outtree->Branch("trig_hltInfo",&trig_hltInfo,"trig_hltInfo[500]/I");  
 
   // Trigger towers
   outtree->Branch("trig_tower_N",&trig_tower_N,"trig_tower_N/I");
@@ -554,14 +659,14 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
   outtree->Branch("trig_tower_sFGVB_emul",&trig_tower_sFGVB_emul,"trig_tower_sFGVB_emul[4032][5]/I");
 
   // HCAL TP
-  outtree->Branch("trig_tower_hcal_N", &trig_tower_hcal_N, "trig_tower_hcal_N/I");
+  /*outtree->Branch("trig_tower_hcal_N", &trig_tower_hcal_N, "trig_tower_hcal_N/I");
   outtree->Branch("trig_tower_hcal_ieta",  &trig_tower_hcal_ieta,  "trig_tower_hcal_ieta[trig_tower_N]/I");
   outtree->Branch("trig_tower_hcal_iphi",  &trig_tower_hcal_iphi,  "trig_tower_hcal_iphi[trig_tower_N]/I");
   outtree->Branch("trig_tower_hcal_et",  &trig_tower_hcal_et,  "trig_tower_hcal_et[trig_tower_N]/I");
-  outtree->Branch("trig_tower_hcal_FG",  &trig_tower_hcal_FG,  "trig_tower_hcal_FG[trig_tower_N]/I");
+  outtree->Branch("trig_tower_hcal_FG",  &trig_tower_hcal_FG,  "trig_tower_hcal_FG[trig_tower_N]/I");*/
 
   // Strip masking
-  outtree->Branch("trig_strip_mask_N", &trig_strip_mask_N, "trig_strip_mask_N/I");
+  /*outtree->Branch("trig_strip_mask_N", &trig_strip_mask_N, "trig_strip_mask_N/I");
   outtree->Branch("trig_strip_mask_TTieta", &trig_strip_mask_TTieta, "trig_strip_mask_TTieta[trig_strip_mask_N]/I");
   outtree->Branch("trig_strip_mask_TTiphi", &trig_strip_mask_TTiphi, "trig_strip_mask_TTiphi[trig_strip_mask_N]/I");
   outtree->Branch("trig_strip_mask_StripID", &trig_strip_mask_StripID, "trig_strip_mask_StripID[trig_strip_mask_N]/I");
@@ -570,10 +675,10 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
   outtree->Branch("trig_strip_mask_CCU", &trig_strip_mask_CCU, "trig_strip_mask_CCU[trig_strip_mask_N]/I");
   outtree->Branch("trig_strip_mask_xtal_ix", &trig_strip_mask_xtal_ix, "trig_strip_mask_xtal_ix[trig_strip_mask_N][5]/I");
   outtree->Branch("trig_strip_mask_xtal_iy", &trig_strip_mask_xtal_iy, "trig_strip_mask_xtal_iy[trig_strip_mask_N][5]/I");
-  outtree->Branch("trig_strip_mask_xtal_iz", &trig_strip_mask_xtal_iz, "trig_strip_mask_xtal_iz[trig_strip_mask_N][5]/I");
+  outtree->Branch("trig_strip_mask_xtal_iz", &trig_strip_mask_xtal_iz, "trig_strip_mask_xtal_iz[trig_strip_mask_N][5]/I");*/
   //
   // Crystal masking
-  outtree->Branch("trig_xtal_mask_N", &trig_xtal_mask_N, "trig_xtal_mask_N/I");
+  /*outtree->Branch("trig_xtal_mask_N", &trig_xtal_mask_N, "trig_xtal_mask_N/I");
   outtree->Branch("trig_xtal_mask_ieta", &trig_xtal_mask_ieta, "trig_xtal_mask_ieta[trig_xtal_mask_N]/I");
   outtree->Branch("trig_xtal_mask_iphi", &trig_xtal_mask_iphi, "trig_xtal_mask_iphi[trig_xtal_mask_N]/I");
   outtree->Branch("trig_xtal_mask_TTieta", &trig_xtal_mask_TTieta, "trig_xtal_mask_TTieta[trig_xtal_mask_N]/I");
@@ -581,7 +686,7 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
   outtree->Branch("trig_xtal_mask_Rieta", &trig_xtal_mask_Rieta, "trig_xtal_mask_Rieta[trig_xtal_mask_N]/I");
   outtree->Branch("trig_xtal_mask_Riphi", &trig_xtal_mask_Riphi, "trig_xtal_mask_Riphi[trig_xtal_mask_N]/I");
   outtree->Branch("trig_xtal_mask_status", &trig_xtal_mask_status, "trig_xtal_mask_status[trig_xtal_mask_N]/I");
-  outtree->Branch("trig_xtal_mask_EBEE", &trig_xtal_mask_EBEE, "trig_xtal_mask_EBEE[trig_xtal_mask_N]/I");
+  outtree->Branch("trig_xtal_mask_EBEE", &trig_xtal_mask_EBEE, "trig_xtal_mask_EBEE[trig_xtal_mask_N]/I");*/
   // L1 candidates
   outtree->Branch("trig_L1emIso_N",     &trig_L1emIso_N,     "trig_L1emIso_N/I");
   outtree->Branch("trig_L1emIso_ieta",  &trig_L1emIso_ieta,  "trig_L1emIso_ieta[4]/I");
@@ -619,6 +724,41 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
 //   outtree->Branch("trig_L1emNonIso_energy_M",&trig_L1emNonIso_energy_M,"trig_L1emNonIso_energy_M[4]/D");
 //   outtree->Branch("trig_L1emNonIso_et_M", &trig_L1emNonIso_et_M, "trig_L1emNonIso_et_M[4]/D");
 
+  outtree->Branch("Stage2_mpeg_n",     &Stage2_mpeg_n,    "Stage2_mpeg_n/I");
+  outtree->Branch("Stage2_mpeg_hwPt",  &Stage2_mpeg_hwPt, "Stage2_mpeg_hwPt[12]/I" );
+  outtree->Branch("Stage2_mpeg_hwEta",  &Stage2_mpeg_hwEta, "Stage2_mpeg_hwEta[12]/I" );
+  outtree->Branch("Stage2_mpeg_hwPhi",  &Stage2_mpeg_hwPhi, "Stage2_mpeg_hwPhi[12]/I" );
+
+  outtree->Branch("Stage2_eg_n",     &Stage2_eg_n,    "Stage2_eg_n/I");
+  outtree->Branch("Stage2_eg_hwPt",  &Stage2_eg_hwPt, "Stage2_eg_hwPt[12]/I" );
+  outtree->Branch("Stage2_eg_hwEta",  &Stage2_eg_hwEta, "Stage2_eg_hwEta[12]/I" );
+  outtree->Branch("Stage2_eg_hwPhi",  &Stage2_eg_hwPhi, "Stage2_eg_hwPhi[12]/I" );
+  outtree->Branch("Stage2_eg_et",  &Stage2_eg_et, "Stage2_eg_et[12]/D" );
+  outtree->Branch("Stage2_eg_eta",  &Stage2_eg_eta, "Stage2_eg_eta[12]/D" );
+  outtree->Branch("Stage2_eg_phi",  &Stage2_eg_phi, "Stage2_eg_phi[12]/D" );
+
+  outtree->Branch("Stage2_mpeg_emul_n",     &Stage2_mpeg_emul_n,    "Stage2_mpeg_emul_n/I");
+  outtree->Branch("Stage2_mpeg_emul_hwPt",  &Stage2_mpeg_emul_hwPt, "Stage2_mpeg_emul_hwPt[12]/I" );
+  outtree->Branch("Stage2_mpeg_emul_hwEta",  &Stage2_mpeg_emul_hwEta, "Stage2_mpeg_emul_hwEta[12]/I" );
+  outtree->Branch("Stage2_mpeg_emul_hwPhi",  &Stage2_mpeg_emul_hwPhi, "Stage2_mpeg_emul_hwPhi[12]/I" );
+
+  outtree->Branch("Stage2_eg_emul_n",     &Stage2_eg_emul_n,    "Stage2_eg_emul_n/I");
+  outtree->Branch("Stage2_eg_emul_hwPt",  &Stage2_eg_emul_hwPt, "Stage2_eg_emul_hwPt[12]/I" );
+  outtree->Branch("Stage2_eg_emul_hwEta",  &Stage2_eg_emul_hwEta, "Stage2_eg_emul_hwEta[12]/I" );
+  outtree->Branch("Stage2_eg_emul_hwPhi",  &Stage2_eg_emul_hwPhi, "Stage2_eg_emul_hwPhi[12]/I" );
+  outtree->Branch("Stage2_eg_emul_et",  &Stage2_eg_emul_et, "Stage2_eg_emul_et[12]/D" );
+  outtree->Branch("Stage2_eg_emul_eta",  &Stage2_eg_emul_eta, "Stage2_eg_emul_eta[12]/D" );
+  outtree->Branch("Stage2_eg_emul_phi",  &Stage2_eg_emul_phi, "Stage2_eg_emul_phi[12]/D" );
+
+  outtree->Branch("Stage1_eg_emul_n",     &Stage1_eg_emul_n,    "Stage1_eg_emul_n/I");
+  outtree->Branch("Stage1_eg_emul_hwPt",  &Stage1_eg_emul_hwPt, "Stage1_eg_emul_hwPt[12]/I" );
+  outtree->Branch("Stage1_eg_emul_hwEta",  &Stage1_eg_emul_hwEta, "Stage1_eg_emul_hwEta[12]/I" );
+  outtree->Branch("Stage1_eg_emul_hwPhi",  &Stage1_eg_emul_hwPhi, "Stage1_eg_emul_hwPhi[12]/I" );
+  outtree->Branch("Stage1_eg_emul_et",  &Stage1_eg_emul_et, "Stage1_eg_emul_et[12]/D" );
+  outtree->Branch("Stage1_eg_emul_eta",  &Stage1_eg_emul_eta, "Stage1_eg_emul_eta[12]/D" );
+  outtree->Branch("Stage1_eg_emul_phi",  &Stage1_eg_emul_phi, "Stage1_eg_emul_phi[12]/D" );
+
+
   // pre-post firing L1 candidates
   outtree->Branch("trig_preL1emIso_N",     &trig_preL1emIso_N,     "trig_preL1emIso_N/I");
   outtree->Branch("trig_preL1emIso_ieta",  &trig_preL1emIso_ieta,  "trig_preL1emIso_ieta[4]/I");
@@ -651,20 +791,40 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
 
   // Pairs informations
   double pair_M;
-  double pair_eta[2], pair_sclEta[2],pair_sclPhi[2], pair_sclEt[2], pair_phi[2], pair_pT[2], pair_eT[2], pair_E[2];
+  double pair_eta[2],pair_sclEta[2], pair_sclPhi[2], pair_sclEt[2], pair_phi[2], pair_pT[2], pair_eT[2], pair_E[2];
+  //int pair_cuts[2], pair_HLT_Ele27_cut[2], pair_fidu[2], pair_charge[2], pair_RCTeta[2], pair_RCTphi[2], 
   int pair_Run2IdLevel[2], pair_HLT_Ele27_cut[2], pair_fidu[2], pair_charge[2], pair_RCTeta[2], pair_RCTphi[2], 
     pair_L1iso[2], pair_L1noniso[2], pair_L1iso_M[2], pair_L1noniso_M[2];
+
+  int pair_L1Stage2[2];
+  int pair_L1Stage2_isoflag[2];
+  double pair_dR_closest_L1Stage2[2];
+  double pair_closestdR_L1Stage2_eta[2], pair_closestdR_L1Stage2_phi[2], pair_closestdR_L1Stage2_et[2];
+
+  int pair_L1Stage2_emul[2];
+  double pair_dR_closest_L1Stage2_emul[2];
+  double pair_closestdR_L1Stage2_emul_eta[2], pair_closestdR_L1Stage2_emul_phi[2], pair_closestdR_L1Stage2_emul_et[2];
+  int pair_L1Stage2_emul_isoflag[2];
+  int pair_L1Stage2_emul_nTT[2];
+
+  int pair_L1Stage1_emul[2];
+  int pair_L1Stage1_emul_isoflag[2];
+
   int pair_RCTetaVect[2][10], pair_RCTphiVect[2][10], 
     pair_L1isoVect[2][10], pair_L1nonisoVect[2][10],pair_L1isoVect_M[2][10], pair_L1nonisoVect_M[2][10];
+  int pair_L1Stage1_emul_isoVect[2][10], pair_L1Stage1_emul_nonisoVect[2][10];
   double pair_RCTetVect[2][10];
   int pair_TTetaVect[2][50], pair_TTphiVect[2][50];
   double pair_TTetVect[2][50];
-
+  int pair_TTetaSeed[2], pair_TTphiSeed[2];
+  double pair_TTetSeed[2];
   //
   outtree->Branch("pair_M",&pair_M,"pair_M/D");
   //
   outtree->Branch("pair_Run2IdLevel",&pair_Run2IdLevel,"pair_Run2IdLevel[2]/I");
   // 0 : notID | 1 : Veto | 2 : Loose | 3 : Medium | 4 : Tight
+  //outtree->Branch("pair_cuts",&pair_cuts,"pair_cuts[2]/I");
+  // 0 : noCut | 1 : VBTF 95 | 2 : VBTF 80 | 3 : VBTF 60
   outtree->Branch("pair_HLT_Ele27_cut",&pair_HLT_Ele27_cut,"pair_HLT_Ele27_cut[2]/I");
   outtree->Branch("pair_fidu",&pair_fidu,"pair_fidu[2]/I");
   //
@@ -684,11 +844,33 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
   outtree->Branch("pair_TTetaVect", &pair_TTetaVect,"pair_TTetaVect[2][50]/I");
   outtree->Branch("pair_TTphiVect", &pair_TTphiVect,"pair_TTphiVect[2][50]/I");
   outtree->Branch("pair_TTetVect", &pair_TTetVect,"pair_TTetVect[2][50]/D");
+  outtree->Branch("pair_TTetaSeed", &pair_TTetaSeed,"pair_TTetaSeed[2]/I");
+  outtree->Branch("pair_TTphiSeed", &pair_TTphiSeed,"pair_TTphiSeed[2]/I");
+  outtree->Branch("pair_TTetSeed", &pair_TTetSeed,"pair_TTetSeed[2]/D");
 
   outtree->Branch("pair_L1iso",&pair_L1iso,"pair_L1iso[2]/I");
   outtree->Branch("pair_L1noniso",&pair_L1noniso,"pair_L1noniso[2]/I");
   outtree->Branch("pair_L1iso_M",&pair_L1iso_M,"pair_L1iso_M[2]/I");
   outtree->Branch("pair_L1noniso_M",&pair_L1noniso_M,"pair_L1noniso_M[2]/I");
+  
+  outtree->Branch("pair_L1Stage2",&pair_L1Stage2,"pair_L1Stage2[2]/I");
+  outtree->Branch("pair_L1Stage2_isoflag",&pair_L1Stage2_isoflag,"pair_L1Stage2_isoflag[2]/I");
+  outtree->Branch("pair_dR_closest_L1Stage2",&pair_dR_closest_L1Stage2,"pair_dR_closest_L1Stage2[2]/D");
+  outtree->Branch("pair_closestdR_L1Stage2_eta",&pair_closestdR_L1Stage2_eta,"pair_closestdR_L1Stage2_eta[2]/D");
+  outtree->Branch("pair_closestdR_L1Stage2_phi",&pair_closestdR_L1Stage2_phi,"pair_closestdR_L1Stage2_phi[2]/D");
+  outtree->Branch("pair_closestdR_L1Stage2_et",&pair_closestdR_L1Stage2_et,"pair_closestdR_L1Stage2_et[2]/D");
+
+  outtree->Branch("pair_L1Stage2_emul",&pair_L1Stage2_emul,"pair_L1Stage2_emul[2]/I");
+  outtree->Branch("pair_L1Stage2_emul_isoflag",&pair_L1Stage2_emul_isoflag,"pair_L1Stage2_emul_isoflag[2]/I");
+  outtree->Branch("pair_L1Stage2_emul_nTT",&pair_L1Stage2_emul_nTT,"pair_L1Stage2_emul_nTT[2]/I");
+
+  outtree->Branch("pair_L1Stage1_emul",&pair_L1Stage1_emul,"pair_L1Stage1_emul[2]/I");
+  outtree->Branch("pair_L1Stage1_emul_isoflag",&pair_L1Stage1_emul_isoflag,"pair_L1Stage1_emul_isoflag[2]/I");
+
+  outtree->Branch("pair_dR_closest_L1Stage2_emul",&pair_dR_closest_L1Stage2_emul,"pair_dR_closest_L1Stage2_emul[2]/D");
+  outtree->Branch("pair_closestdR_L1Stage2_emul_eta",&pair_closestdR_L1Stage2_emul_eta,"pair_closestdR_L1Stage2_emul_eta[2]/D");
+  outtree->Branch("pair_closestdR_L1Stage2_emul_phi",&pair_closestdR_L1Stage2_emul_phi,"pair_closestdR_L1Stage2_emul_phi[2]/D");
+  outtree->Branch("pair_closestdR_L1Stage2_emul_et",&pair_closestdR_L1Stage2_emul_et,"pair_closestdR_L1Stage2_emul_et[2]/D");
   //
   outtree->Branch("pair_RCTetVect",&pair_RCTetVect,"pair_RCTetVect[2][10]/D");
   outtree->Branch("pair_RCTetaVect",&pair_RCTetaVect,"pair_RCTetaVect[2][10]/I");
@@ -698,10 +880,14 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
   outtree->Branch("pair_L1isoVect_M",&pair_L1isoVect_M,"pair_L1isoVect_M[2][10]/I");
   outtree->Branch("pair_L1nonisoVect_M",&pair_L1nonisoVect_M,"pair_L1nonisoVect_M[2][10]/I");
 
+  outtree->Branch("pair_L1Stage1_emul_isoVect",&pair_L1Stage1_emul_isoVect,"pair_L1Stage1_emul_isoVect[2][10]/I");
+  outtree->Branch("pair_L1Stage1_emul_nonisoVect",&pair_L1Stage1_emul_nonisoVect,"pair_L1Stage1_emul_nonisoVect[2][10]/I");
+
   if(debug) cout << "output tree defined" << endl;
 
   // USEFUL VARIABLES //
   vector<int> pairIdx;
+  //int cutEle[2], fidu[2];
   int idLevelEle[2], fidu[2];
   bool cut_HLT_Ele27[2];
   TLorentzVector* cand[2];
@@ -715,6 +901,8 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
   if(debug) cout << "gonna loop over events" << endl;
 
   int numEntries = myChain->GetEntries () ;
+
+  cout<<"numEntries="<<numEntries<<endl;
   int nProcess = numEntries;
   if(nEntries>=0 && nEntries<numEntries)
     nProcess = nEntries;
@@ -725,13 +913,13 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
   for (int iEvent = 0 ; iEvent < nProcess ; iEvent++ )
     { 
       if (iEvent > 0 && iEvent/1000. ==  int(iEvent/1000.) ) cout << "processing " << iEvent << "th entry" << endl;
-      // if( iEvent>1000) break; 
+
       // HLT information
-      for(int i=0 ; i<4 ; i++)
-	trig_HLT_path[i]=0;
+      //for(int i=0 ; i<4 ; i++)
+      //trig_HLT_path[i]=0;
       
-      for(int i=0 ; i<250 ; i++)
-	trig_hltInfo[i]=0;
+      //for(int i=0 ; i<500 ; i++)
+      //trig_hltInfo[i]=0;
 
       // TP Initialization
       trig_tower_N = 0;
@@ -752,7 +940,17 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
       }
 
       myChain->GetEntry (iEvent) ;
-     
+
+
+      //HLT check
+      if(!isMC){
+	if(!(trig_isHLT_Ele30WP60_Ele8_Mass55_v2 || trig_isHLT_Ele30WP60_SC4_Mass55_v3))
+	//if(!trig_isHLT_Ele27_WPLoose_Gsf_v1)
+	  continue;
+      }
+
+
+
       // show processed file
       if(iEvent==0) {
         filename = myChain->GetFile()->GetName() ;
@@ -769,8 +967,6 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
 	outlog << "nRun=" << nRun << endl;
       }
       else if(nRun!=nCurrentRun) {
-	nCurrentRun=nRun ;
-	outlog << "nRun=" << nRun << endl;
       }
 
       // at least 2 electrons
@@ -798,22 +994,28 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
 				     ele_conv_dist[iEle1], ele_conv_dcot[iEle1], ele_fbrem[iEle1], ele_isConversion[iEle1] ) ;
     //    std::cout<<"debug----------*****************3"<<std::endl;
 
-	// check if ele is a good tag candidate : pass Veto ID and has pT>5 GeV
+	// check if ele is a good tag candidate : pass VBTF 95 and has pT>5 GeV
+	/*cutEle[0] = 0;
+	cutEle[0] = whichCuts( RunPhase, cand[0]->Pt(), cand[0]->Et(), ele_sclEta[iEle1], cand[0]->Eta(), ele_tkSumPt_dr03[iEle1], ele_ecalRecHitSumEt_dr03[iEle1], 
+			       ele_hcalDepth1TowerSumEt_dr03[iEle1], ele_hcalDepth2TowerSumEt_dr03[iEle1], ele_expected_inner_hits[iEle1],
+			       ele_deltaphiin[iEle1], ele_deltaetain[iEle1], ele_he[iEle1], ele_sigmaietaieta[iEle1],
+			       ele_conv_dist[iEle1], ele_conv_dcot[iEle1], ele_fbrem[iEle1], ele_isConversion[iEle1] ) ;*/
+
+
 	idLevelEle[0] = 0;
 	if(ele_VetoIdDecisions  [iEle1]) idLevelEle[0] = 1;
 	if(ele_LooseIdDecisions [iEle1]) idLevelEle[0] = 2;
 	if(ele_MediumIdDecisions[iEle1]) idLevelEle[0] = 3;
 	if(ele_TightIdDecisions [iEle1]) idLevelEle[0] = 4;
-// 	cutEle[0] = whichCuts( RunPhase, cand[0]->Pt(), cand[0]->Et(), ele_sclEta[iEle1], cand[0]->Eta(), ele_tkSumPt_dr03[iEle1], ele_ecalRecHitSumEt_dr03[iEle1], 
-// 			       ele_hcalDepth1TowerSumEt_dr03[iEle1], ele_hcalDepth2TowerSumEt_dr03[iEle1], ele_expected_inner_hits[iEle1],
-// 			       ele_deltaphiin[iEle1], ele_deltaetain[iEle1], ele_he[iEle1], ele_sigmaietaieta[iEle1],
-// 			       ele_conv_dist[iEle1], ele_conv_dcot[iEle1], ele_fbrem[iEle1], ele_isConversion[iEle1] ) ;
-      //  std::cout<<"debug----------*****************4"<<std::endl;
 
+
+
+      //  std::cout<<"debug----------*****************4"<<std::endl;
 	fidu[0] = 0;
 	if ( fabs(ele_sclEta[iEle1]) < 2.5 && ( fabs(ele_sclEta[iEle1]) > 1.566 || fabs(ele_sclEta[iEle1])<1.4442 ) ) 
 	  fidu[0] = 1 ;
 
+	//if( cutEle[0]>0 && cand[0]->Et()>=5. ) {
 	if( idLevelEle[0]>0 && cand[0]->Et()>=5. ) {
 	  if(debug) cout << "--- ele #" << iEle1 << " is a good tag candidate" << endl;
 	  
@@ -836,21 +1038,24 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
 	    
 
 	    // check cuts passed by probe candidate
+	    /*cutEle[1] = whichCuts( RunPhase, cand[1]->Pt(), cand[0]->Et(), ele_sclEta[iEle2], cand[1]->Eta(), ele_tkSumPt_dr03[iEle2], ele_ecalRecHitSumEt_dr03[iEle2], 
+				   ele_hcalDepth1TowerSumEt_dr03[iEle2], ele_hcalDepth2TowerSumEt_dr03[iEle2], ele_expected_inner_hits[iEle2],
+				   ele_deltaphiin[iEle2], ele_deltaetain[iEle2], ele_he[iEle2], ele_sigmaietaieta[iEle2],
+				   ele_conv_dist[iEle2], ele_conv_dcot[iEle2], ele_fbrem[iEle2], ele_isConversion[iEle2] ) ;*/
+
 	    idLevelEle[1] = 0;
 	    if(ele_VetoIdDecisions  [iEle2]) idLevelEle[1] = 1;
 	    if(ele_LooseIdDecisions [iEle2]) idLevelEle[1] = 2;
 	    if(ele_MediumIdDecisions[iEle2]) idLevelEle[1] = 3;
 	    if(ele_TightIdDecisions [iEle2]) idLevelEle[1] = 4;
-// 	    cutEle[1] = whichCuts( RunPhase, cand[1]->Pt(), cand[0]->Et(), ele_sclEta[iEle2], cand[1]->Eta(), ele_tkSumPt_dr03[iEle2], ele_ecalRecHitSumEt_dr03[iEle2], 
-// 				   ele_hcalDepth1TowerSumEt_dr03[iEle2], ele_hcalDepth2TowerSumEt_dr03[iEle2], ele_expected_inner_hits[iEle2],
-// 				   ele_deltaphiin[iEle2], ele_deltaetain[iEle2], ele_he[iEle2], ele_sigmaietaieta[iEle2],
-// 				   ele_conv_dist[iEle2], ele_conv_dcot[iEle2], ele_fbrem[iEle2], ele_isConversion[iEle2] ) ;
+
 
 	    fidu[1] = 0;
 	    if ( fabs(ele_sclEta[iEle2]) < 2.5 && ( fabs(ele_sclEta[iEle2]) > 1.566 || fabs(ele_sclEta[iEle2])<1.4442 ) ) 
 	      fidu[1] = 1 ;
+
             if( iEle2==iEle1 || (idLevelEle[1]>0 && cand[1]->Et()>=5. && iEle2<iEle1)) continue;
-	  //  if( idLevelEle[1]>0 && iEle2<=iEle1 ) continue; // prevents to create several times the same pair
+	    //if( cutEle[1]>0 && iEle2<=iEle1 ) continue; // prevents to create several times the same pair
 
 	    if(debug) cout << "---> OK to form a pre-selected pair <--" << endl;
 
@@ -868,6 +1073,7 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
 
 	    for(int iP=0 ; iP<2 ; iP++) {
 
+	      //pair_cuts[iP] = cutEle[iP];
 	      pair_Run2IdLevel[iP] = idLevelEle[iP];
 	      pair_fidu[iP] = fidu[iP];
 	      pair_HLT_Ele27_cut[iP] = cut_HLT_Ele27[iP];
@@ -889,6 +1095,26 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
 	      pair_L1noniso[iP] = ele_RCTL1noniso[pairIdx[iP]];
 	      pair_L1iso_M[iP] = ele_RCTL1iso_M[pairIdx[iP]];
  	      pair_L1noniso_M[iP] = ele_RCTL1noniso_M[pairIdx[iP]];
+	      
+	      pair_L1Stage2[iP] = ele_L1Stage2[pairIdx[iP]];
+	      pair_L1Stage2_isoflag[iP] = ele_L1Stage2_isoflag[pairIdx[iP]];
+	      pair_dR_closest_L1Stage2[iP] = ele_dR_closest_L1Stage2[pairIdx[iP]];
+	      pair_closestdR_L1Stage2_eta[iP] = ele_closestdR_L1Stage2_eta[pairIdx[iP]];
+	      pair_closestdR_L1Stage2_phi[iP] = ele_closestdR_L1Stage2_phi[pairIdx[iP]];
+	      pair_closestdR_L1Stage2_et[iP] = ele_closestdR_L1Stage2_et[pairIdx[iP]];
+
+	      pair_L1Stage2_emul[iP] = ele_L1Stage2_emul[pairIdx[iP]];
+	      pair_L1Stage2_emul_isoflag[iP] = ele_L1Stage2_emul_isoflag[pairIdx[iP]];
+	      pair_L1Stage2_emul_nTT[iP] = ele_L1Stage2_emul_nTT[pairIdx[iP]];
+
+	      pair_dR_closest_L1Stage2_emul[iP] = ele_dR_closest_L1Stage2_emul[pairIdx[iP]];
+	      pair_closestdR_L1Stage2_emul_eta[iP] = ele_closestdR_L1Stage2_emul_eta[pairIdx[iP]];
+	      pair_closestdR_L1Stage2_emul_phi[iP] = ele_closestdR_L1Stage2_emul_phi[pairIdx[iP]];
+	      pair_closestdR_L1Stage2_emul_et[iP] = ele_closestdR_L1Stage2_emul_et[pairIdx[iP]];
+
+	      pair_L1Stage1_emul[iP] = ele_L1Stage1_emul[pairIdx[iP]];
+	      pair_L1Stage1_emul_isoflag[iP] = ele_L1Stage1_emul_isoflag[pairIdx[iP]];
+
 	      //
 	      for(int iV=0 ; iV<10 ; iV++) {
 		pair_RCTetVect[iP][iV] = ele_RCTetVect[pairIdx[iP]][iV];
@@ -898,6 +1124,9 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
 		pair_L1nonisoVect[iP][iV] = ele_RCTL1nonisoVect[pairIdx[iP]][iV];
  		pair_L1isoVect_M[iP][iV] = ele_RCTL1isoVect_M[pairIdx[iP]][iV];
  		pair_L1nonisoVect_M[iP][iV] = ele_RCTL1nonisoVect_M[pairIdx[iP]][iV];
+
+		pair_L1Stage1_emul_isoVect[iP][iV] = ele_L1Stage1_emul_isoVect[pairIdx[iP]][iV]; 
+		pair_L1Stage1_emul_nonisoVect[iP][iV] = ele_L1Stage1_emul_nonisoVect[pairIdx[iP]][iV];
 	      } 
 	      //
 	      for(int iV=0 ; iV<50 ; iV++) {
@@ -905,6 +1134,11 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
 		pair_TTphiVect[iP][iV] = ele_TTphiVect[pairIdx[iP]][iV];
 		pair_TTetVect[iP][iV] = ele_TTetVect[pairIdx[iP]][iV];
 	      }
+	      pair_TTetaSeed[iP] = ele_TTetaSeed[pairIdx[iP]];
+	      pair_TTphiSeed[iP] = ele_TTphiSeed[pairIdx[iP]];
+	      pair_TTetSeed[iP] = ele_TTetSeed[pairIdx[iP]];
+	      
+
 	    }
 	    if(debug) cout << "outtree->Fill();" << endl;
 	    outtree->Fill();
@@ -933,5 +1167,51 @@ int processPairs(string nameChain, string file, int iFile, int nEntries, string 
   outlog << "file closed." << endl;
 
   return 1;
+
+}
+void makePairs(int nEntries,  string dirOut, TString dirIn, TString data, string nameChain,  TString RunPhase, bool debug, bool isMC){
+  // Output Log
+  // if( stat( dirOut.c_str(), &info ) == 0 ) {
+  //   boost::filesystem::path dir(dirOut.c_str());
+  //   boost::filesystem::create_directory(dir);
+  //}
+  
+  ofstream outlog(*dirOut.c_str()+"/log.txt",ios::out);
+ 
+  outlog << " <--------------------------------- START --------------------------------->" << endl;
+
+  // Process the tree
+  if(debug) cout << "process the tree" << endl;
+
+  vector<string> treeList;
+  string eosdir; 
+ // eosdir="root://eoscms//eos/cms/store/caf/user/taroni/TestTriggerOptimization/";
+  eosdir=dirIn;
+  vector<string> files; 
+  files.push_back("2016SK_16_22.root");
+  files.push_back("2016SK_17_22.root");
+  files.push_back("2016SK_18_22.root");
+  //files.push_back("tree_Stage2_Run260627_test.root");
+
+  
+  int nFiles =files.size();
+ 
+  for(int i = 0; i < nFiles; i++) {
+    
+    stringstream inputfile; 
+    inputfile.str(""); 
+   // inputfile << eosdir << myjobid<< "/"<< files[i];
+    inputfile << eosdir << "/"<< files[i];
+    cout<<"the file exact name is "<<inputfile.str()<<endl;    
+    //if(debug) 
+    cout << "process file #" << i << " of " << nFiles << " files " << endl;
+    processPairs(nameChain,inputfile.str(),i,nEntries,dirOut,dirIn,outlog,RunPhase,debug,isMC);
+// processPairs(string nameChain, string file, int iFile, int nEntries, string dirOut, TString dirIn, ofstream& outlog,  TString RunPhase, bool debug);
+    //if(debug) 
+    cout << "processed" << endl;
+  }
+
+  outlog << " <--------------------------------- DONE --------------------------------->" << endl;
+  cout << "DONE" << endl;
 
 }
