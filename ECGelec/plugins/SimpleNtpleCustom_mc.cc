@@ -10,6 +10,7 @@ class CaloSubdetectorGeometry;
 SimpleNtpleCustom_mc::SimpleNtpleCustom_mc(const edm::ParameterSet& iConfig) :
 
   // Nadir study
+  //EcalRecHitCollectionEB_ (iConfig.getParameter<edm::InputTag>("EcalRecHitCollectionEB")),
   hcalTowers_ (iConfig.getParameter<edm::InputTag>("hcalTowers")),
   hOverEConeSize_ (iConfig.getParameter<double>("hOverEConeSize")),
   hOverEPtMin_ (iConfig.getParameter<double>("hOverEPtMin")),
@@ -22,6 +23,8 @@ SimpleNtpleCustom_mc::SimpleNtpleCustom_mc(const edm::ParameterSet& iConfig) :
   tpCollectionNormal_ (iConfig.getParameter<edm::InputTag> ("TPCollectionNormal") ),
   tpCollectionModif_ (iConfig.getParameter<edm::InputTag> ("TPCollectionModif") ),
   tpEmulatorCollection_ (iConfig.getParameter<edm::InputTag> ("TPEmulatorCollection") ),
+  // chumba_ (iConfig.getParameter<std::string> ("jaasala")),
+  // hidimba_ (iConfig.getParameter<std::string> ("bokaC")),
   EcalRecHitCollectionEB_ (iConfig.getParameter<edm::InputTag>("EcalRecHitCollectionEB") ) ,
   EcalRecHitCollectionEE_ (iConfig.getParameter<edm::InputTag>("EcalRecHitCollectionEE")) ,
   EleIso_TdrHzzTkMapTag_ (iConfig.getParameter<edm::InputTag>("eleIso_TdrHzzTkMapTag")),
@@ -47,7 +50,6 @@ SimpleNtpleCustom_mc::SimpleNtpleCustom_mc(const edm::ParameterSet& iConfig) :
   PFJetTag_(iConfig.getParameter<edm::InputTag> ("PFJetTag")),
   VerticesTag_(iConfig.getParameter<edm::InputTag> ("VerticesTag")),
   dcsTag_ (iConfig.getUntrackedParameter<edm::InputTag>("dcsTag")),
-
   // Trigger Stuff
 
   //
@@ -114,63 +116,27 @@ SimpleNtpleCustom_mc::SimpleNtpleCustom_mc(const edm::ParameterSet& iConfig) :
 //  mytree_->Branch("skim_is2leptons",&_skim_is2leptons,"skim_is2leptons/I");
 //  mytree_->Branch("skim_is3leptons",&_skim_is3leptons,"skim_is3leptons/I");
 
-  // // Towers (original collection)
-  // mytree_->Branch("trig_tower_N", &_trig_tower_N, "trig_tower_N/I");
-  // mytree_->Branch("trig_tower_ieta",  &_trig_tower_ieta,  "trig_tower_ieta[trig_tower_N]/I");
-  // mytree_->Branch("trig_tower_iphi",  &_trig_tower_iphi,  "trig_tower_iphi[trig_tower_N]/I");
-  // mytree_->Branch("trig_tower_adc",  &_trig_tower_adc,  "trig_tower_adc[trig_tower_N]/I");
-  // mytree_->Branch("trig_tower_sFGVB",  &_trig_tower_sFGVB,  "trig_tower_sFGVB[trig_tower_N]/I");
+  // Towers (original collection)
+  mytree_->Branch("trig_tower_N", &_trig_tower_N, "trig_tower_N/I");
+  mytree_->Branch("trig_tower_ieta",  &_trig_tower_ieta,  "trig_tower_ieta[trig_tower_N]/I");
+  mytree_->Branch("trig_tower_iphi",  &_trig_tower_iphi,  "trig_tower_iphi[trig_tower_N]/I");
+  mytree_->Branch("trig_tower_adc",  &_trig_tower_adc,  "trig_tower_adc[trig_tower_N]/I");
+  mytree_->Branch("trig_tower_sFGVB",  &_trig_tower_sFGVB,  "trig_tower_sFGVB[trig_tower_N]/I");
 	
-  // // Towers (cleaned collection)
-  // mytree_->Branch("trig_tower_N_modif", &_trig_tower_N_modif, "trig_tower_N_modif/I");
-  // mytree_->Branch("trig_tower_ieta_modif",  &_trig_tower_ieta_modif,  "trig_tower_ieta_modif[trig_tower_N_modif]/I");
-  // mytree_->Branch("trig_tower_iphi_modif",  &_trig_tower_iphi_modif,  "trig_tower_iphi_modif[trig_tower_N_modif]/I");
-  // mytree_->Branch("trig_tower_adc_modif",  &_trig_tower_adc_modif,  "trig_tower_adc_modif[trig_tower_N_modif]/I");
-  // mytree_->Branch("trig_tower_sFGVB_modif",  &_trig_tower_sFGVB_modif,  "trig_tower_sFGVB_modif[trig_tower_N_modif]/I");
+  // Towers (cleaned collection)
+  mytree_->Branch("trig_tower_N_modif", &_trig_tower_N_modif, "trig_tower_N_modif/I");
+  mytree_->Branch("trig_tower_ieta_modif",  &_trig_tower_ieta_modif,  "trig_tower_ieta_modif[trig_tower_N_modif]/I");
+  mytree_->Branch("trig_tower_iphi_modif",  &_trig_tower_iphi_modif,  "trig_tower_iphi_modif[trig_tower_N_modif]/I");
+  mytree_->Branch("trig_tower_adc_modif",  &_trig_tower_adc_modif,  "trig_tower_adc_modif[trig_tower_N_modif]/I");
+  mytree_->Branch("trig_tower_sFGVB_modif",  &_trig_tower_sFGVB_modif,  "trig_tower_sFGVB_modif[trig_tower_N_modif]/I");
 	
-  // // Towers (emulated)
-  // mytree_->Branch("trig_tower_N_emul", &_trig_tower_N_emul, "trig_tower_N_emul/I");
-  // mytree_->Branch("trig_tower_ieta_emul",  &_trig_tower_ieta_emul,  "trig_tower_ieta_emul[trig_tower_N_emul]/I");
-  // mytree_->Branch("trig_tower_iphi_emul",  &_trig_tower_iphi_emul,  "trig_tower_iphi_emul[trig_tower_N_emul]/I");
-  // mytree_->Branch("trig_tower_adc_emul",  &_trig_tower_adc_emul,  "trig_tower_adc_emul[trig_tower_N_emul][5]/I");
-  // mytree_->Branch("trig_tower_sFGVB_emul",  &_trig_tower_sFGVB_emul,  "trig_tower_sFGVB_emul[trig_tower_N_emul][5]/I");
+  // Towers (emulated)
+  mytree_->Branch("trig_tower_N_emul", &_trig_tower_N_emul, "trig_tower_N_emul/I");
+  mytree_->Branch("trig_tower_ieta_emul",  &_trig_tower_ieta_emul,  "trig_tower_ieta_emul[trig_tower_N_emul]/I");
+  mytree_->Branch("trig_tower_iphi_emul",  &_trig_tower_iphi_emul,  "trig_tower_iphi_emul[trig_tower_N_emul]/I");
+  mytree_->Branch("trig_tower_adc_emul",  &_trig_tower_adc_emul,  "trig_tower_adc_emul[trig_tower_N_emul][5]/I");
+  mytree_->Branch("trig_tower_sFGVB_emul",  &_trig_tower_sFGVB_emul,  "trig_tower_sFGVB_emul[trig_tower_N_emul][5]/I");
 		
-  //rechits with bad (sev_level=3,4) crystals
-  mytree_->Branch("n_bad_crystals", &_n_bad_crystals, "n_bad_crystals/I");
-  mytree_->Branch("erec_eta_sevlv3_4", &_erec_eta_sevlv3_4, "erec_eta_sevlv3_4[n_bad_crystals]/D");
-  mytree_->Branch("erec_Et_sevlv3_4", &_erec_Et_sevlv3_4, "erec_Et_sevlv3_4[n_bad_crystals]/I");
-  mytree_->Branch("erec_phi_sevlv3_4", &_erec_phi_sevlv3_4, "erec_phi_sevlv3_4[n_bad_crystals]/D");
-  mytree_->Branch("erec_theta_sevlv3_4", &_erec_theta_sevlv3_4, "erec_theta_sevlv3_4[n_bad_crystals]/D");
-
-
-  //all rechits
-
-  mytree_->Branch("num_all_rechits", &_num_all_rechits, "num_all_rechits/I");
-  mytree_->Branch("all_rechits_time", &_all_rechits_time, "all_rechits_time[num_all_rechits]/F");
-  mytree_->Branch("all_rechits_eta", &_all_rechits_eta, "all_rechits_eta[num_all_rechits]/D");
-  mytree_->Branch("all_rechits_Et", &_all_rechits_Et, "all_rechits_Et[num_all_rechits]/I");
-  mytree_->Branch("all_rechits_theta", &_all_rechits_theta, "all_rechits_theta[num_all_rechits]/D");
-  mytree_->Branch("all_rechits_phi", &_all_rechits_phi, "all_rechits_phi[num_all_rechits]/D");
-
-
-  //intime rechits: abs(time)<15
-  mytree_->Branch("num_intime_rechits", &_num_intime_rechits, "num_intime_rechits/I");
-  mytree_->Branch("intime_rechits_eta", &_intime_rechits_eta, "intime_rechits_eta[num_intime_rechits]/D");
-  mytree_->Branch("intime_rechits_Et", &_intime_rechits_Et, "intime_rechits_Et[num_intime_rechits]/I");
-  mytree_->Branch("intime_rechits_theta", &_intime_rechits_theta, "intime_rechits_theta[num_intime_rechits]/D");
-  mytree_->Branch("intime_rechits_phi", &_intime_rechits_phi, "intime_rechits_phi[num_intime_rechits]/D");
-
-
-  //intime rechits: abs(time)<15 with severity level 3 or 4
-  mytree_->Branch("num_intime_rechits_sevlv3_4", &_num_intime_rechits_sevlv3_4, "num_intime_rechits_sevlv3_4/I");
-  mytree_->Branch("intime_rechits_sevlv3_4_eta", &_intime_rechits_sevlv3_4_eta, "intime_rechits_sevlv3_4_eta[num_intime_rechits_sevlv3_4]/D");
-  mytree_->Branch("intime_rechits_sevlv3_4_Et", &_intime_rechits_sevlv3_4_Et, "intime_rechits_sevlv3_4_Et[num_intime_rechits_sevlv3_4]/I");
-  mytree_->Branch("intime_rechits_sevlv3_4_theta", &_intime_rechits_sevlv3_4_theta, "intime_rechits_sevlv3_4_theta[num_intime_rechits_sevlv3_4]/D");
-  mytree_->Branch("intime_rechits_sevlv3_4_phi", &_intime_rechits_sevlv3_4_phi, "intime_rechits_sevlv3_4_phi[num_intime_rechits_sevlv3_4]/D");
- 
-
-
-
   //nab
 
   mytree_->Branch("nbOfTowers",&_nbOfTowers,"nbOfTowers/i");
@@ -191,8 +157,6 @@ SimpleNtpleCustom_mc::SimpleNtpleCustom_mc(const edm::ParameterSet& iConfig) :
   mytree_->Branch("ttFlag", &_ttFlag,"ttFlag[nbOfTowers]/I");
   mytree_->Branch("sevlv", &_sevlv,"sevlv[nbOfTowers]/I");
   mytree_->Branch("sevlv2", &_sevlv2,"sevlv2[nbOfTowers]/I");
-  mytree_->Branch("rechit_cleaning_cut", &_rechit_cleaning_cut,"rechit_cleaning_cut[nbOfTowers]/I");
-  mytree_->Branch("twrADC", &_twrADC,"twrADC[nbOfTowers]/I");
   mytree_->Branch("spike", &_spike,"spike[nbOfTowers]/I");
   mytree_->Branch("sFVGB", &_sFGVB,"sFGVB[nbOfTowers]/I");
   mytree_->Branch("rawTPEmulsFGVB1", &_rawTPEmulsFGVB1,"rawTPEmulsFGVB1[nbOfTowers]/I");
@@ -911,7 +875,7 @@ void SimpleNtpleCustom_mc::FillEvent (const edm::Event& iEvent, const edm::Event
 
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   ///iEvent.getByType(recoBeamSpotHandle);
-  const reco::BeamSpot bs = *recoBeamSpotHandle;
+  //const reco::BeamSpot bs = *recoBeamSpotHandle;
 	
   int vtx_counter=0;
   _vtx_N = recoPrimaryVertexCollection->size();
@@ -1108,17 +1072,17 @@ void SimpleNtpleCustom_mc::FillTrigger (const edm::Event& iEvent, const edm::Eve
   //     }                                                                                                                                                                     
   // }                                                                                                                                                                         
     tE.sFGVB_ = (d[0].sFGVB());
-    // if (tE.twrADC_>6)
-    //   {
-    // 	cout<<tE.twrADC_<<" jakmubaley"<<endl;
-    // 	cout<<d[0].sFGVB()<< " chaparemka"<<endl;
-    //   }
-    // if ((d[0].sFGVB())==1 &&  tE.twrADC_>0)
-    //   {
+    if (tE.twrADC_>6)
+      {
+	cout<<tE.twrADC_<<" jakmubaley"<<endl;
+	cout<<d[0].sFGVB()<< " chaparemka"<<endl;
+      }
+    if ((d[0].sFGVB())==1 &&  tE.twrADC_>0)
+      {
 	
-    // 	cout<<" yesfgv "<<tE.sFGVB_<<endl;
-    // 	cout<<" taver adc"<<(d[0].raw()&0xff)<<endl;
-    //   }
+	cout<<" yesfgv "<<tE.sFGVB_<<endl;
+	cout<<" taver adc"<<(d[0].raw()&0xff)<<endl;
+      }
     
 
     mapTower[TPtowid] = tE ;
@@ -1143,11 +1107,9 @@ void SimpleNtpleCustom_mc::FillTrigger (const edm::Event& iEvent, const edm::Eve
 	(itTT->second).tpgEmulFlag_[j] = d[j].ttFlag();
 	(itTT->second).tpgEmulsFGVB_[j] = d[j].sFGVB();
       }
-    // if(( d[2].raw()&0xff)>6 )
-    // {
-    //   cout<<(d[2].raw()&0xff)<<" jhauwa"<<endl;
-    //   cout<<d[2].sFGVB()<<" jhauwo"<<endl;
-    // }
+    if(( d[2].raw()&0xff)>6 )
+    {
+    }
 
   }
 
@@ -1171,134 +1133,46 @@ void SimpleNtpleCustom_mc::FillTrigger (const edm::Event& iEvent, const edm::Eve
     //  const EcalChannelStatus *chStatus = pChannelStatus.product();
     //const EcalRecHit * rh; 
     // Get EB rechits
-
     edm::Handle<EcalRecHitCollection> rechitsEB; 
     iEvent.getByLabel(EcalRecHitCollectionEB_, rechitsEB) ;
-
-    int num_bad_crystals=0;
-    int num_all_rechits=0;
-    int num_intime_rechits=0;
-    int num_intime_rechits_sevlv3_4=0;
-
+    //std::cout << " rechitsEB size " << rechitsEB.product()->size() << std::endl;
+    //    float maxRecHitEnergy = 0. ;
+    //    std::cout <<"iTT eta =2 and iTT phi =25"<< std::endl;
+    //    std::cout<<"Zombie"<<std::endl ;
     if (rechitsEB.product()->size()!=0) {
       for ( EcalRecHitCollection::const_iterator rechitItr = rechitsEB->begin(); rechitItr != rechitsEB->end(); ++rechitItr ) {   
-
             EBDetId id = rechitItr->id(); 
             const EcalTrigTowerDetId towid = id.tower();
             itTT = mapTower.find(towid) ;
 
-
-	    double theta = theBarrelGeometry_->getGeometry(id)->getPosition().theta() ;  
-	    double erec_eta=theBarrelGeometry_->getGeometry(id)->getPosition().eta();
-	    double erec_phi=theBarrelGeometry_->getGeometry(id)->getPosition().phi();
-
-	    double rechit_energy=rechitItr->energy()*sin(theta);
-	    float rechit_time=rechitItr->time();
-
-	    int severity_level=sevlv->severityLevel(id, *rechitsEB);
-
-
-	    // if (rechit_energy>4)
-	    //   {
-	    // 	cout<<"rechit time looks like : "<<rechit_time<<endl; 
-	    // 	cout<<"rechit energy looks like : "<<rechit_energy<<endl; 
-	    // 	cout<<"rechit sevlv is :"<<severity_level<<endl;
-	    	
-
-	    //   }
-	    //cleaning cut, set to 1 when highest rechit transverse Et  >4 has time <15ns, otherwise zero
-
-	    if (rechit_energy>1) 
-	      {
-	      _all_rechits_Et[num_all_rechits]=rechit_energy;
-	      _all_rechits_theta[num_all_rechits]=theta;
-	      _all_rechits_eta[num_all_rechits]=erec_eta;
-	      _all_rechits_phi[num_all_rechits]=erec_phi;
-	      _all_rechits_time[num_all_rechits]=rechit_time;
-	      num_all_rechits++;
-	      }
-
-
-	    if (rechit_energy>1 && abs(rechit_time)<16)
-	      {  
-	    	_intime_rechits_Et[num_intime_rechits]=rechit_energy;
-	    	_intime_rechits_theta[num_intime_rechits]=theta;
-	    	_intime_rechits_eta[num_intime_rechits]=erec_eta;
-	    	_intime_rechits_phi[num_intime_rechits]=erec_phi;
-	    	num_intime_rechits++;
-		
-	    	if (severity_level==3 ||severity_level==4)
-	    	  {
-	    	    _intime_rechits_sevlv3_4_Et[num_intime_rechits_sevlv3_4]=rechit_energy;
-	    	    _intime_rechits_sevlv3_4_theta[num_intime_rechits_sevlv3_4]=theta;
-	    	    _intime_rechits_sevlv3_4_eta[num_intime_rechits_sevlv3_4]=erec_eta;
-	    	    _intime_rechits_sevlv3_4_phi[num_intime_rechits_sevlv3_4]=erec_phi;
-	    	    num_intime_rechits_sevlv3_4++;
-	    	  }
-	      }
-
-
-	    if (rechit_energy>4 && rechit_energy>(itTT->second).maxRechit_)
-	      {
-		(itTT->second).maxRechit_ = rechit_energy;
-		if (abs(rechit_time)<16)
-		  {
-		    (itTT->second).rechit_cleaning_cut_=1;
-
-		  }
-		else
-		  { 
-		    (itTT->second).rechit_cleaning_cut_=0;
-		  }
-	      
-		//		cout<<"cleaning cut looks like : "<<(itTT->second).rechit_cleaning_cut_<<endl; 
-			
-	      }
-
-      	    if (severity_level==3 ||severity_level==4)
-	      { 
-		_erec_eta_sevlv3_4[num_bad_crystals]=erec_eta;
-	    	_erec_Et_sevlv3_4[num_bad_crystals]=rechit_energy;
-	    	_erec_phi_sevlv3_4[num_bad_crystals]=erec_phi;
-	    	_erec_theta_sevlv3_4[num_bad_crystals]=theta;
-
-		num_bad_crystals+=1;
-	      }
-
-
-
             if (itTT != mapTower.end()) {
-	      
-	    
-                (itTT->second).eRec_ += rechit_energy ;
-		if ( ((itTT->second).maxRechit_) < (rechit_energy)) 
+	      double theta = theBarrelGeometry_->getGeometry(id)->getPosition().theta() ;
+                (itTT->second).eRec_ += rechitItr->energy()*sin(theta) ;
+		if ( ((itTT->second).maxRechit_) < (rechitItr->energy()*sin(theta))) 
 		     {
-		       if((rechit_energy) > 1.)
+		       if((rechitItr->energy()*sin(theta)) > 1.)
 		      {
-			(itTT->second).sevlv_ = severity_level; 
-			(itTT->second).maxRechit_ = rechit_energy;
+			(itTT->second).sevlv_ = sevlv->severityLevel(id, *rechitsEB); 
+			(itTT->second).maxRechit_ = rechitItr->energy()*sin(theta);
 		      }
 		     }     
 		if ( (itTT->second).sevlv2_ !=3) 
 		  {
 		    if ((itTT->second).sevlv2_ !=4)
 		      {
-			if((rechit_energy) > 1.)
+			if((rechitItr->energy()*sin(theta)) > 1.)
 			  {
-			    (itTT->second).sevlv2_ = severity_level; 
+			    (itTT->second).sevlv2_ = sevlv->severityLevel(id, *rechitsEB); 
 			  }
 		      }
 		  }     
 	      
 		(itTT->second).crystNb_++;
 	    }
-
       }
     }
-    _n_bad_crystals=num_bad_crystals;
-    _num_all_rechits=num_all_rechits;
-    _num_intime_rechits=num_intime_rechits;
-    _num_intime_rechits_sevlv3_4=num_intime_rechits_sevlv3_4;
+
+
     // Get EE rechits
     edm::Handle<EcalRecHitCollection> rechitsEE; 
     if (iEvent.getByLabel(EcalRecHitCollectionEE_, rechitsEE) ) {
@@ -1329,102 +1203,102 @@ void SimpleNtpleCustom_mc::FillTrigger (const edm::Event& iEvent, const edm::Eve
 
 
 
-    // // ORIGINAL TP
-    // if( nadGetTP_ ) {
-    //   if(PrintDebug_) cout << "create new ecal_tp pointer" << endl;
-    //   //edm::Handle<EcalTrigPrimDigiCollection> tp;
-    //   edm::Handle<EcalTrigPrimDigiCollection>* ecal_tp_ = new edm::Handle<EcalTrigPrimDigiCollection> ;
+    // ORIGINAL TP
+    if( nadGetTP_ ) {
+      if(PrintDebug_) cout << "create new ecal_tp pointer" << endl;
+      //edm::Handle<EcalTrigPrimDigiCollection> tp;
+      edm::Handle<EcalTrigPrimDigiCollection>* ecal_tp_ = new edm::Handle<EcalTrigPrimDigiCollection> ;
 
-    //   if(PrintDebug_) cout << "..created. get by label the tp collection" << endl;
+      if(PrintDebug_) cout << "..created. get by label the tp collection" << endl;
 
-    //   iEvent.getByLabel(tpCollectionNormal_,*ecal_tp_);
-    //   if(PrintDebug_) cout << "got it" << endl;
+      iEvent.getByLabel(tpCollectionNormal_,*ecal_tp_);
+      if(PrintDebug_) cout << "got it" << endl;
 
-    //   _trig_tower_N = ecal_tp_->product()->size();
-    //   if(PrintDebug_) {
-    // 	cout << "TP Normal collection size=" << ecal_tp_->product()->size() << endl ;
-    // 	cout << "is gonna get the TP data" << endl;
-    //   }
+      _trig_tower_N = ecal_tp_->product()->size();
+      if(PrintDebug_) {
+	cout << "TP Normal collection size=" << ecal_tp_->product()->size() << endl ;
+	cout << "is gonna get the TP data" << endl;
+      }
   
-    //   for (int i=0 ; i<_trig_tower_N ; i++) {
-    // 	if(PrintDebug_) cout << "loop iteration #" << i << endl;
-    // 	EcalTriggerPrimitiveDigi d_ = (*(ecal_tp_->product()))[i]; // EcalTriggerPrimitiveDigi 
-    // 	if(PrintDebug_) cout << "got the trigger primitive" << endl;
-    // 	EcalTrigTowerDetId TPtowid_ = d_.id(); // const EcalTrigTowerDetId TPtowid
-    // 	if(PrintDebug_) cout << "got the tower id" << endl;
-    // 	_trig_tower_iphi[i] = TPtowid_.iphi() ;
-    // 	_trig_tower_ieta[i] = TPtowid_.ieta() ;
-    // 	if(PrintDebug_) cout << "got the ieta and iphi : " << TPtowid_.ieta() << TPtowid_.iphi() << endl;
-    // 	//_trig_tower_adc[i]  = (d[0].raw()&0xfff) ;  0xfff <-> TTF(3bits)+FG(1bit)+Et(8bits)
-    // 	_trig_tower_adc[i]  = (d_[0].raw()&0xff) ;  // 0xff  <-> Et(8bits)
-    // 	if(PrintDebug_) cout << "got the adc : " << (int)(d_[0].raw()&0xff) << endl;
-    // 	//if(_trig_tower_adc[i]>0)
-    // 	//cout << _trig_tower_adc[i] << "   " ;
-    // 	_trig_tower_sFGVB[i] = d_[0].sFGVB();       // 0=spike-like / 1=EM-like
-    // 	if(PrintDebug_) cout << "got the sFGVB : " << d_[0].sFGVB() << endl;
-    // 	//_trig_tower_sFGVB[i] = d[0].l1aSpike();
-    // 	//if(d[0].l1aSpike()!=0) cout << "sFGVB=" << d[0].l1aSpike() << endl;
-    //   }
-    //   if(PrintDebug_) cout << "finished looping" << endl;
-    // }
+      for (int i=0 ; i<_trig_tower_N ; i++) {
+	if(PrintDebug_) cout << "loop iteration #" << i << endl;
+	EcalTriggerPrimitiveDigi d_ = (*(ecal_tp_->product()))[i]; // EcalTriggerPrimitiveDigi 
+	if(PrintDebug_) cout << "got the trigger primitive" << endl;
+	EcalTrigTowerDetId TPtowid_ = d_.id(); // const EcalTrigTowerDetId TPtowid
+	if(PrintDebug_) cout << "got the tower id" << endl;
+	_trig_tower_iphi[i] = TPtowid_.iphi() ;
+	_trig_tower_ieta[i] = TPtowid_.ieta() ;
+	if(PrintDebug_) cout << "got the ieta and iphi : " << TPtowid_.ieta() << TPtowid_.iphi() << endl;
+	//_trig_tower_adc[i]  = (d[0].raw()&0xfff) ;  0xfff <-> TTF(3bits)+FG(1bit)+Et(8bits)
+	_trig_tower_adc[i]  = (d_[0].raw()&0xff) ;  // 0xff  <-> Et(8bits)
+	if(PrintDebug_) cout << "got the adc : " << (int)(d_[0].raw()&0xff) << endl;
+	//if(_trig_tower_adc[i]>0)
+	//cout << _trig_tower_adc[i] << "   " ;
+	_trig_tower_sFGVB[i] = d_[0].sFGVB();       // 0=spike-like / 1=EM-like
+	if(PrintDebug_) cout << "got the sFGVB : " << d_[0].sFGVB() << endl;
+	//_trig_tower_sFGVB[i] = d[0].l1aSpike();
+	//if(d[0].l1aSpike()!=0) cout << "sFGVB=" << d[0].l1aSpike() << endl;
+      }
+      if(PrintDebug_) cout << "finished looping" << endl;
+    }
 
-    // // ZEROING-BY-HAND TP
-    // if( nadGetTP_Modif_ ) {
-    //   edm::Handle<EcalTrigPrimDigiCollection>* ecal_tpM_ = new edm::Handle<EcalTrigPrimDigiCollection> ;
-    //   iEvent.getByLabel(tpCollectionModif_,*ecal_tpM_);
-    //   //std::cout << "TP Modifu collection size=" << tpM.product()->size() << std::endl ;
+    // ZEROING-BY-HAND TP
+    if( nadGetTP_Modif_ ) {
+      edm::Handle<EcalTrigPrimDigiCollection>* ecal_tpM_ = new edm::Handle<EcalTrigPrimDigiCollection> ;
+      iEvent.getByLabel(tpCollectionModif_,*ecal_tpM_);
+      //std::cout << "TP Modifu collection size=" << tpM.product()->size() << std::endl ;
 
-    //   _trig_tower_N_modif = ecal_tpM_->product()->size(); 
+      _trig_tower_N_modif = ecal_tpM_->product()->size(); 
 
-    //   for (int i=0 ; i<_trig_tower_N_modif ; i++) {
-    // 	EcalTriggerPrimitiveDigi dM_ = (*(ecal_tpM_->product()))[i]; // EcalTriggerPrimitiveDigi dM
-    // 	EcalTrigTowerDetId TPtowidM_ = dM_.id(); // EcalTrigTowerDetId
-    // 	_trig_tower_iphi_modif[i] = TPtowidM_.iphi() ;
-    // 	_trig_tower_ieta_modif[i] = TPtowidM_.ieta() ;
-    // 	//_trig_tower_adc_modif[i]  = (dM[0].raw()&0xfff) ;
-    // 	_trig_tower_adc_modif[i]  = (dM_[0].raw()&0xff) ;
-    // 	//if(_trig_tower_adc_modif[i]>0)
-    // 	//cout << _trig_tower_adc_modif[i] << "   " ;
-    // 	_trig_tower_sFGVB_modif[i] = dM_[0].sFGVB(); // 0=spike-like / 1=EM-like
-    // 	//_trig_tower_sFGVB_modif[i] = dM[0].l1aSpike();
-    //   }
-    // }
+      for (int i=0 ; i<_trig_tower_N_modif ; i++) {
+	EcalTriggerPrimitiveDigi dM_ = (*(ecal_tpM_->product()))[i]; // EcalTriggerPrimitiveDigi dM
+	EcalTrigTowerDetId TPtowidM_ = dM_.id(); // EcalTrigTowerDetId
+	_trig_tower_iphi_modif[i] = TPtowidM_.iphi() ;
+	_trig_tower_ieta_modif[i] = TPtowidM_.ieta() ;
+	//_trig_tower_adc_modif[i]  = (dM[0].raw()&0xfff) ;
+	_trig_tower_adc_modif[i]  = (dM_[0].raw()&0xff) ;
+	//if(_trig_tower_adc_modif[i]>0)
+	//cout << _trig_tower_adc_modif[i] << "   " ;
+	_trig_tower_sFGVB_modif[i] = dM_[0].sFGVB(); // 0=spike-like / 1=EM-like
+	//_trig_tower_sFGVB_modif[i] = dM[0].l1aSpike();
+      }
+    }
 
-    // // EMULATOR TPs
-    // if( nadGetTP_Emul_ ) {
+    // EMULATOR TPs
+    if( nadGetTP_Emul_ ) {
     
-    //   edm::Handle<EcalTrigPrimDigiCollection>* ecal_tpM_ = new edm::Handle<EcalTrigPrimDigiCollection> ;
-    //   iEvent.getByLabel(tpEmulatorCollection_, *ecal_tpM_);
-    //   //if (print_) std::cout<<"TPEmulator collection size="<<tpEmul.product()->size()<<std::endl ;
+      edm::Handle<EcalTrigPrimDigiCollection>* ecal_tpM_ = new edm::Handle<EcalTrigPrimDigiCollection> ;
+      iEvent.getByLabel(tpEmulatorCollection_, *ecal_tpM_);
+      //if (print_) std::cout<<"TPEmulator collection size="<<tpEmul.product()->size()<<std::endl ;
   
-    //   _trig_tower_N_emul = ecal_tpM_->product()->size();
+      _trig_tower_N_emul = ecal_tpM_->product()->size();
 
-    //   for (int i=0 ; i<_trig_tower_N_emul ; i++) {
-    // 	EcalTriggerPrimitiveDigi dM_ = (*(ecal_tpM_->product()))[i]; //EcalTriggerPrimitiveDigi
-    // 	EcalTrigTowerDetId TPtowidM_ = dM_.id();
-    // 	_trig_tower_iphi_emul[i] = TPtowidM_.iphi() ;
-    // 	_trig_tower_ieta_emul[i] = TPtowidM_.ieta() ;
+      for (int i=0 ; i<_trig_tower_N_emul ; i++) {
+	EcalTriggerPrimitiveDigi dM_ = (*(ecal_tpM_->product()))[i]; //EcalTriggerPrimitiveDigi
+	EcalTrigTowerDetId TPtowidM_ = dM_.id();
+	_trig_tower_iphi_emul[i] = TPtowidM_.iphi() ;
+	_trig_tower_ieta_emul[i] = TPtowidM_.ieta() ;
     
-    // 	bool showit = false;
-    // 	for(int j=0 ; j<5 ; j++)
-    // 	  if( (dM_[j].raw()&0xff) > 0 ) showit = true ;
-    // 	showit = false;
+	bool showit = false;
+	for(int j=0 ; j<5 ; j++)
+	  if( (dM_[j].raw()&0xff) > 0 ) showit = true ;
+	showit = false;
 
-    // 	if(showit)
-    // 	  cout << "TTieta=" << TPtowidM_.ieta() << " TTiphi=" << TPtowidM_.iphi() << " adcEm=" ;
+	if(showit)
+	  cout << "TTieta=" << TPtowidM_.ieta() << " TTiphi=" << TPtowidM_.iphi() << " adcEm=" ;
 
-    // 	for (int j=0 ; j<5 ; j++) {
-    // 	  _trig_tower_adc_emul[i][j] = (dM_[j].raw()&0xff) ;
-    // 	  //_trig_tower_sFGVB_emul[i][j] = d[j].l1aSpike(); 
-    // 	  _trig_tower_sFGVB_emul[i][j] = dM_[j].sFGVB(); 
-    // 	  if(showit)
-    // 	    cout << (dM_[j].raw()&0xff) << " " ;
-    // 	}
-    // 	if(showit)
-    // 	  cout << endl;
-    //   }
+	for (int j=0 ; j<5 ; j++) {
+	  _trig_tower_adc_emul[i][j] = (dM_[j].raw()&0xff) ;
+	  //_trig_tower_sFGVB_emul[i][j] = d[j].l1aSpike(); 
+	  _trig_tower_sFGVB_emul[i][j] = dM_[j].sFGVB(); 
+	  if(showit)
+	    cout << (dM_[j].raw()&0xff) << " " ;
+	}
+	if(showit)
+	  cout << endl;
+      }
     
-    // }
+    }
 
     int towerNb = 0 ;
     for (itTT = mapTower.begin() ; itTT != mapTower.end() ; ++itTT) {
@@ -1432,10 +1306,10 @@ void SimpleNtpleCustom_mc::FillTrigger (const edm::Event& iEvent, const edm::Eve
       // select only non zero towers                                                                                                                                             
       bool fill(true) ;
       bool nonZeroEmul(false) ;
-      // if ((itTT->second).sFGVB_==1 && ((itTT->second).tpgADC_&0xff)>0 )
-      // 	{
-      // 	  cout<<" ee mal taver "<<((itTT->second).tpgEmul_[2]&0xff)<<endl;
-      // 	}
+      if ((itTT->second).sFGVB_==1 && ((itTT->second).tpgADC_&0xff)>0 )
+	{
+	  cout<<" ee mal taver "<<((itTT->second).tpgEmul_[2]&0xff)<<endl;
+	}
 
       for (int i=0 ; i<5 ; i++) if (((itTT->second).tpgEmul_[i]&0xff) > 0) nonZeroEmul = true ;
       if (((itTT->second).tpgADC_&0xff) <= 0 && (!nonZeroEmul) ) fill = false ;
@@ -1471,8 +1345,7 @@ void SimpleNtpleCustom_mc::FillTrigger (const edm::Event& iEvent, const edm::Eve
 	_sevlv[towerNb] = (itTT->second).sevlv_ ;
 	_sevlv2[towerNb] = (itTT->second).sevlv2_ ;
 	_ttFlag[towerNb] = (itTT->second).ttFlag_ ;
-	_rechit_cleaning_cut[towerNb] = (itTT->second).rechit_cleaning_cut_ ;
- 
+   
 	_spike[towerNb] = (itTT->second).spike_ ;
 	_twrADC[towerNb] =  (itTT->second).twrADC_;
 	_sFGVB[towerNb] =  (itTT->second).sFGVB_;
@@ -4518,31 +4391,28 @@ void SimpleNtpleCustom_mc::Init()
 	
   // Trigger towers
   
-  // _trig_tower_N = 0;
-  // _trig_tower_N_modif = 0;
-  // _trig_tower_N_emul = 0;
+  _trig_tower_N = 0;
+  _trig_tower_N_modif = 0;
+  _trig_tower_N_emul = 0;
 
-  // for(int i=0 ; i<4032 ; i++) 
-  //   {
-  //     _trig_tower_ieta[i]=-999;
-  //     _trig_tower_iphi[i]=-999;
-  //     _trig_tower_adc[i]=-999;
-  //     _trig_tower_sFGVB[i]=-999;
+  for(int i=0 ; i<4032 ; i++) {
+    _trig_tower_ieta[i]=-999;
+    _trig_tower_iphi[i]=-999;
+    _trig_tower_adc[i]=-999;
+    _trig_tower_sFGVB[i]=-999;
 
-  //     _trig_tower_ieta_modif[i]=-999;
-  //     _trig_tower_iphi_modif[i]=-999;
-  //     _trig_tower_adc_modif[i]=-999;
-  //     _trig_tower_sFGVB_modif[i]=-999;
+    _trig_tower_ieta_modif[i]=-999;
+    _trig_tower_iphi_modif[i]=-999;
+    _trig_tower_adc_modif[i]=-999;
+    _trig_tower_sFGVB_modif[i]=-999;
 
-  //     _trig_tower_ieta_emul[i]=-999;
-  //     _trig_tower_iphi_emul[i]=-999;
-   
-  //     for(int j=0 ; j<5 ; j++) 
-  // 	{
-  // 	  _trig_tower_adc_emul[i][j]=-999;
-  // 	  _trig_tower_sFGVB_emul[i][j]=-999;
-  // 	}
-  //   }
+    _trig_tower_ieta_emul[i]=-999;
+    _trig_tower_iphi_emul[i]=-999;
+    for(int j=0 ; j<5 ; j++) {
+      _trig_tower_adc_emul[i][j]=-999;
+      _trig_tower_sFGVB_emul[i][j]=-999;
+    }
+  }
   //nab
   
   

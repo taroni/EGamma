@@ -1,5 +1,3 @@
-
-
 // C++
 #include <memory>
 #include <iostream>
@@ -42,7 +40,6 @@
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
@@ -68,10 +65,6 @@
 #include "DataFormats/L1Trigger/interface/L1ParticleMapFwd.h"
 #include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
 #include "L1Trigger/L1ExtraFromDigis/interface/L1ExtraParticleMapProd.h"
-//rechit
-#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-
 // RCT
 #include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
 #include "CondFormats/DataRecord/interface/L1RCTChannelMaskRcd.h"
@@ -131,6 +124,7 @@
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 //#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
 //#include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
+#include "SimTracker/TrackAssociatorProducers/plugins/TrackAssociatorByHitsImpl.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
@@ -205,40 +199,21 @@
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexSorter.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
-//nab
 
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
-class CaloSubdetectorGeometry ;
+// Stage 2 Level 1
+#include "DataFormats/L1Trigger/interface/EGamma.h"
+#include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
+#include "DataFormats/L1TCalorimeter/interface/CaloCluster.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
+
+
+
+
 /// among the includes ///
 class MultiTrajectoryStateMode ;
 // for H/E
 class EgammaTowerIsolation ;
-// Auxiliary class                                                                                                                                                                   
-class towerEner {
- public:
-  float eRec_ ;
-  float maxRechit_;
-  int crystNb_ ;
-  int tpgEmul_[5] ;
-  int tpgEmulFlag_[5] ;
-  int tpgEmulsFGVB_[5] ;
-  int tpgADC_;
-  int iphi_, ieta_, nbXtal_, spike_ ;
-  int twrADC_, sFGVB_, sevlv_, ttFlag_, sevlv2_,rechit_cleaning_cut_;
-  towerEner()
-    : eRec_(0), maxRechit_(0), crystNb_(0), tpgADC_(0),
-    iphi_(-999), ieta_(-999), nbXtal_(0), spike_(0), twrADC_(0), sFGVB_(999), sevlv_(0) , ttFlag_(0),sevlv2_(0),rechit_cleaning_cut_(0)
-    {
-      for (int i=0 ; i<5 ; i ++) {
-	tpgEmul_[i] = 0 ;
-	tpgEmulFlag_[i]=0;
-	tpgEmulsFGVB_[i]=0;
-      }
-    }
-};
 
 //
 // class declaration
@@ -274,6 +249,8 @@ class SimpleNtpleCustom : public edm::EDAnalyzer {
   // For Trigger
   int getGCTRegionPhi(int ttphi) ; //modif-alex
   int getGCTRegionEta(int tteta) ; //modif-alex
+  int getCaloEta_fromGTEta(int GTEta) ;
+  int getCaloPhi_fromGTPhi(int GTPhi) ;
   edm::ESHandle<CaloGeometry> theCaloGeom_;
   // e2overe9 new anti-spike variable steph
   float E2overE9( const DetId , const EcalRecHitCollection & , float , float ,  bool , bool);
@@ -287,40 +264,9 @@ class SimpleNtpleCustom : public edm::EDAnalyzer {
 	
   TTree *mytree_;
 	
-  int nEvent, nRun, nLumi;
+  //int nEvent, nRun, nLumi;
+  long nEvent, nRun, nLumi;
 
-  //nab
-  // tower variables                                                                                                                                                             
-  uint _nbOfTowers ; //max 4032 EB+EE                                                                                                                                             
-  int _ieta[4032] ;
-  int _iphi[4032] ;
-  int _nbOfXtals[4032] ;
-  int _rawTPData[4032] ;
-  int _rawTPEmul1[4032] ;
-  int _rawTPEmul2[4032] ;
-  int _rawTPEmul3[4032] ;
-  int _rawTPEmul4[4032] ;
-  int _rawTPEmul5[4032] ;
-  int _rawTPEmulttFlag1[4032] ;
-  int _rawTPEmulttFlag2[4032] ;
-  int _rawTPEmulttFlag3[4032] ;
-  int _rawTPEmulttFlag4[4032] ;
-  int _rawTPEmulttFlag5[4032] ;
-  int _rawTPEmulsFGVB1[4032] ;
-  int _rawTPEmulsFGVB2[4032] ;
-  int _rawTPEmulsFGVB3[4032] ;
-  int _rawTPEmulsFGVB4[4032] ;
-  int _rawTPEmulsFGVB5[4032] ;
-  float _eRec[4032] ;
-  float _maxRechit[4032];
-  int _crystNb[4032];
-  int _sevlv[4032];
-  int _sevlv2[4032];
-  int _spike[4032] ;
-  int _ttFlag[4032];
-  int _sFGVB[4032];
-  int _twrADC[4032];
-  int _rechit_cleaning_cut[4032];
   // Vertices
   int _vtx_N;
   double _vtx_x[50], _vtx_y[50], _vtx_z[50];
@@ -338,24 +284,6 @@ class SimpleNtpleCustom : public edm::EDAnalyzer {
   // original TP
   int _trig_tower_N, _trig_tower_ieta[4032],_trig_tower_iphi[4032],_trig_tower_adc[4032], _trig_tower_sFGVB[4032]; 
 
-  //rechits with bad crystals (sevlv 3 or 4 crystals)
-  int _n_bad_crystals,_erec_Et_sevlv3_4[4032];
-  double _erec_eta_sevlv3_4[4032],_erec_phi_sevlv3_4[4032],_erec_theta_sevlv3_4[4032];
- 
- //all rechits
-  float  _all_rechits_time[8064]; 
-  int  _num_all_rechits,_all_rechits_Et[8064];
-  double _all_rechits_eta[8064],_all_rechits_phi[8064],_all_rechits_theta[8064];
-
-   //all intime rechits abs(time)<15
-  int  _num_intime_rechits,_intime_rechits_Et[4032];
-  double _intime_rechits_eta[4032],_intime_rechits_phi[4032],_intime_rechits_theta[4032];
-
-  //all intime rechits abs(time)<15 with severity level 3 or 4
-  int  _num_intime_rechits_sevlv3_4,_intime_rechits_sevlv3_4_Et[4032];
-  double _intime_rechits_sevlv3_4_eta[4032],_intime_rechits_sevlv3_4_phi[4032],_intime_rechits_sevlv3_4_theta[4032];
-
-
   // cleaned TP
   int _trig_tower_N_modif, _trig_tower_ieta_modif[4032],_trig_tower_iphi_modif[4032],
     _trig_tower_adc_modif[4032], _trig_tower_sFGVB_modif[4032]; 
@@ -365,8 +293,9 @@ class SimpleNtpleCustom : public edm::EDAnalyzer {
     _trig_tower_adc_emul[4032][5], _trig_tower_sFGVB_emul[4032][5]; 
 
   // Trigger Paths
-  int trig_hltInfo[250];
+  int trig_hltInfo[600];
   int trig_isPhoton10, trig_isPhoton15, trig_isL1SingleEG2, trig_isL1SingleEG5, trig_isL1SingleEG8, trig_isEle10_LW, trig_isEle15_LW;
+  int trig_isHLT_Ele30WP60_Ele8_Mass55_v2, trig_isHLT_Ele30WP60_SC4_Mass55_v3, trig_isHLT_Ele27_WPLoose_Gsf_v1;
   int _trig_isEleHLTpath, _trig_isMuonHLTpath;
   int trig_isUnbiased;
   char trig_fired_names[5000];
@@ -425,6 +354,7 @@ class SimpleNtpleCustom : public edm::EDAnalyzer {
   // Electrons
   //electrons;
   int ele_N, ele_nSeed;
+  double ele_pT[10];
   int ele_echarge[10];
   double ele_he[10] , 
     ele_eseedpout[10] , ele_ep[10] , ele_eseedp[10] , ele_eelepout[10] ,       
@@ -515,6 +445,10 @@ class SimpleNtpleCustom : public edm::EDAnalyzer {
   // For L1 Trigger (Clemy's stuff)
   int _ele_TTetaVect[10][50], _ele_TTphiVect[10][50];
   double _ele_TTetVect[10][50];
+  //Seed = TT with max energy
+  int _ele_TTetaSeed[10], _ele_TTphiSeed[10];
+  double _ele_TTetSeed[10];
+
   int _ele_RCTetaVect[10][10], _ele_RCTphiVect[10][10];
   int _ele_RCTL1isoVect[10][10], _ele_RCTL1nonisoVect[10][10];
   int _ele_RCTL1isoVect_M[10][10], _ele_RCTL1nonisoVect_M[10][10];
@@ -523,6 +457,50 @@ class SimpleNtpleCustom : public edm::EDAnalyzer {
   int _ele_RCTeta[10], _ele_RCTphi[10];
   int _ele_RCTL1noniso[10], _ele_RCTL1iso[10];
   int _ele_RCTL1noniso_M[10], _ele_RCTL1iso_M[10];
+
+  int _ele_L1Stage1_emul_isoVect[10][10];
+  int _ele_L1Stage1_emul_nonisoVect[10][10];
+  int _ele_L1Stage1_emul[10];
+  int _ele_L1Stage1_emul_isoflag[10];
+  double _ele_L1Stage1_emul_eta[10];
+  double _ele_L1Stage1_emul_phi[10];
+
+
+  /////////////////////////////////////////////////////////
+  ///                 Stage 2 Level 1                   ///
+  /////////////////////////////////////////////////////////
+  
+  //Closest EG candidate in DeltaR from cluster
+  double _ele_dR_closest_L1Stage2[10];
+  double _ele_closestdR_L1Stage2_eta[10];
+  double _ele_closestdR_L1Stage2_phi[10];
+  double _ele_closestdR_L1Stage2_et[10];
+
+  double _ele_dR_closest_L1Stage2_emul[10];
+  double _ele_closestdR_L1Stage2_emul_eta[10];
+  double _ele_closestdR_L1Stage2_emul_phi[10];
+  double _ele_closestdR_L1Stage2_mp_emul_eta[10];
+  double _ele_closestdR_L1Stage2_mp_emul_phi[10];
+  double _ele_closestdR_L1Stage2_emul_et[10];
+
+  //Candidate with same ieta, iphi (up to 1) as seed tower of cluster
+  int _ele_L1Stage2[10];
+  int _ele_L1Stage2_isoflag[10];
+
+  int _ele_L1Stage2_emul[10];
+
+  int _ele_L1Stage2_emul_event[10];
+  int _ele_L1Stage2_emul_ieta[10];
+  int _ele_L1Stage2_emul_hwPt[10];
+  int _ele_L1Stage2_emul_shape[10];
+  int _ele_L1Stage2_emul_shapeID[10];
+  double _ele_L1Stage2_emul_target[10];
+  int _ele_L1Stage2_emul_hwIsoSum[10];
+  int _ele_L1Stage2_emul_nTT[10];
+  int _ele_L1Stage2_emul_hOverERatio[10];
+  int _ele_L1Stage2_emul_isoflag[10];
+
+  
 		
   const CaloSubdetectorGeometry * theEndcapGeometry_ ;
   const CaloSubdetectorGeometry * theBarrelGeometry_ ;
@@ -594,7 +572,7 @@ class SimpleNtpleCustom : public edm::EDAnalyzer {
   // SuperClusters
   //converter::SuperClusterToCandidate * sc_struct;
   // SC EB
-  int _sc_hybrid_N; 
+  /*int _sc_hybrid_N; 
   double _sc_hybrid_E[25], _sc_hybrid_Et[25], _sc_hybrid_Eta[25], _sc_hybrid_Phi[25]; 
   int _sc_hybrid_outOfTimeSeed[25],_sc_hybrid_severityLevelSeed[25];
   double _sc_hybrid_e1[25], _sc_hybrid_e33[25];
@@ -627,7 +605,7 @@ class SimpleNtpleCustom : public edm::EDAnalyzer {
   int _sc_multi55_TTetaVect[25][50], _sc_multi55_TTphiVect[25][50];
   double _sc_multi55_TTetVect[25][50];
   int _sc_multi55_RCTetaVect[25][10], _sc_multi55_RCTphiVect[25][10], _sc_multi55_RCTL1isoVect[25][10], _sc_multi55_RCTL1nonisoVect[25][10];
-  double _sc_multi55_RCTetVect[25][10];
+  double _sc_multi55_RCTetVect[25][10];*/
 
   //add TIP/LIP/IP variables
   double muons_Tip[20],muons_Lip[20],muons_STip[20],muons_SLip[20],muons_TipSignif[20],muons_LipSignif[20],muons_Significance3D[20],muons_Value3D[20],muons_Error3D[20] ;
@@ -656,16 +634,18 @@ class SimpleNtpleCustom : public edm::EDAnalyzer {
   bool nadGetTP_Modif_ ; // true => get the modified collection of trigger primitives (zeroing by hand)
   bool nadGetTP_Emul_ ; // true => get the emulated collection of trigger primitives (Jackson-Zabi's sFGVB+zeroing emulator)
   bool PrintDebug_ ;
-  bool keeptrigger_;
+
 
   // tags
+  edm::InputTag EcalRecHitCollectionEB_ ;
   edm::InputTag tpCollectionNormal_ ;
   edm::InputTag tpCollectionModif_ ;
   edm::InputTag tpEmulatorCollection_ ;
-  std::string chumba_ ;
-  std::string hidimba_ ;
-  edm::InputTag EcalRecHitCollectionEB_ ;
-  edm::InputTag EcalRecHitCollectionEE_ ;
+
+  edm::EDGetToken tpCollectionNormalToken_;
+  edm::EDGetToken tpCollectionModifToken_;
+  edm::EDGetToken tpEmulatorCollectionToken_;
+
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   edm::InputTag EleIso_TdrHzzTkMapTag_, EleIso_TdrHzzHcalMapTag_ ;
@@ -675,8 +655,16 @@ class SimpleNtpleCustom : public edm::EDAnalyzer {
   edm::InputTag eleLooseIdMapTag_ ;
   edm::InputTag eleMediumIdMapTag_ ;
   edm::InputTag eleTightIdMapTag_ ;	
+  edm::EDGetToken eleVetoIdMapToken_;
+  edm::EDGetToken eleLooseIdMapToken_;
+  edm::EDGetToken eleMediumIdMapToken_;
+  edm::EDGetToken eleTightIdMapToken_;
 
   edm::InputTag EleTag_;
+  edm::InputTag PfEleTag_;
+  edm::EDGetToken EleToken_;
+  edm::EDGetToken PfEleToken_;
+
   edm::InputTag MuonTag_;
   edm::InputTag MuonIso_HzzMapTag_ ;
   edm::InputTag MuonIsoTk_HzzMapTag_ ;
@@ -690,18 +678,31 @@ class SimpleNtpleCustom : public edm::EDAnalyzer {
   edm::InputTag JPTJetTag_;
   edm::InputTag PFJetTag_;
   edm::InputTag VerticesTag_;
+  edm::EDGetToken VerticesToken_;
   edm::InputTag dcsTag_;
+  edm::EDGetToken dcsToken_;
+
+  edm::InputTag tracksTag_;
+  edm::EDGetToken tracksToken_;
+
 	
   // Trigger Stuff
   edm::InputTag HLTTag_; 
+  edm::EDGetToken HLTToken_;
+
   edm::InputTag triggerEventTag_;
+  edm::EDGetToken triggerEventToken_;
+
   std::vector<std::string > HLT_ElePaths_;
   std::vector<std::string > HLT_MuonPaths_;
   std::vector<edm::InputTag > HLT_Filters_;
 
   //Pile-up
   edm::InputTag PileupSrc_;
+  edm::EDGetToken PileupSrcToken_;
   edm::InputTag RhoCorrection_, SigmaRhoCorrection_, BetaCorrection_;
+  edm::EDGetToken RhoCorrectionToken_, SigmaRhoCorrectionToken_, BetaCorrectionToken_;
+
 
   std::string type_;	
   bool aod_;	
@@ -714,4 +715,119 @@ class SimpleNtpleCustom : public edm::EDAnalyzer {
   EcalClusterFunctionBaseClass* funcbase_;
   std::string funcname_;
   bool useBeamSpot_ ;
+  edm::InputTag beamSpotTag_;
+  edm::EDGetToken beamSpotToken_;
+
+  edm::InputTag reducedEBRecHitsTag_;
+  edm::InputTag reducedEERecHitsTag_;
+  edm::EDGetToken reducedEBRecHitsToken_;
+  edm::EDGetToken reducedEERecHitsToken_;
+
+  /////////////////////////////////////////////////////////
+  ///                 Stage 1 Level 1                   ///
+  /////////////////////////////////////////////////////////
+
+  edm::InputTag emNonisolCollTag_;
+  edm::InputTag emIsolCollTag_;
+  edm::InputTag emNonisolColl_M_Tag_;
+  edm::InputTag emIsolColl_M_Tag_;
+ 
+  edm::EDGetToken emNonisolCollToken_;
+  edm::EDGetToken emIsolCollToken_;
+  edm::EDGetToken emNonisolColl_M_Token_;
+  edm::EDGetToken emIsolColl_M_Token_;
+
+
+  std::string trigger_version_emul_;
+
+  /////////////////////////////////////////////////////////
+  ///                 Stage 2 Level 1                   ///
+  /////////////////////////////////////////////////////////
+
+  edm::EDGetToken m_towerToken_;
+  edm::EDGetToken m_mpEGToken_;
+  edm::EDGetToken m_egToken_;
+  edm::InputTag towerTag_;
+  edm::InputTag mpEGTag_;
+  edm::InputTag egTag_;
+
+  int _Stage2_tower_n;
+  int _Stage2_tower_hwPt[5760];
+  int _Stage2_tower_hwEta[5760];
+  int _Stage2_tower_hwPhi[5760];
+
+  int _Stage2_mpeg_n;
+  int _Stage2_mpeg_hwPt[12];
+  int _Stage2_mpeg_hwEta[12];
+  int _Stage2_mpeg_hwPhi[12];
+
+  int _Stage2_eg_n;
+  //Hardware units
+  int _Stage2_eg_hwPt[12];
+  int _Stage2_eg_hwEta[12];
+  int _Stage2_eg_hwPhi[12];
+  //Physical units
+  double _Stage2_eg_et[12];
+  double _Stage2_eg_eta[12];
+  double _Stage2_eg_phi[12];
+  int _Stage2_eg_isoflag[12];
+
+  //Stage 2 emulator stuff
+  edm::EDGetToken m_towerToken_emul_;
+  edm::EDGetToken m_clusterToken_emul_;
+  edm::EDGetToken m_mpEGToken_emul_;
+  edm::EDGetToken m_egToken_emul_;  
+  edm::InputTag towerTag_emul_;
+  edm::InputTag clusterTag_emul_;
+  edm::InputTag mpEGTag_emul_;
+  edm::InputTag egTag_emul_;
+
+  int _Stage2_tower_emul_n;
+  int _Stage2_tower_emul_hwPt[5760];
+  int _Stage2_tower_emul_hwEta[5760];
+  int _Stage2_tower_emul_hwPhi[5760];
+  int _Stage2_tower_emul_hwEtEm[5760];
+  int _Stage2_tower_emul_hwEtHad[5760];
+
+  int _Stage2_mpeg_emul_n;	
+  int _Stage2_mpeg_emul_hwPt[12];
+  int _Stage2_mpeg_emul_hwEta[12];
+  int _Stage2_mpeg_emul_hwPhi[12];
+  double _Stage2_mpeg_emul_et[12];
+  double _Stage2_mpeg_emul_eta[12];
+  double _Stage2_mpeg_emul_phi[12];
+  int _Stage2_mpeg_emul_shape[12];
+  int _Stage2_mpeg_emul_shapeID[12];
+  int _Stage2_mpeg_emul_hwIsoSum[12];
+  int _Stage2_mpeg_emul_nTT[12];
+  int _Stage2_mpeg_emul_hOverERatio[12];
+  int _Stage2_mpeg_emul_isoflag[12];
+  
+
+  int _Stage2_eg_emul_n;
+  //Hardware units
+  int _Stage2_eg_emul_hwPt[12];
+  int _Stage2_eg_emul_hwEta[12];
+  int _Stage2_eg_emul_hwPhi[12];
+  //Physical units
+  double _Stage2_eg_emul_et[12];
+  double _Stage2_eg_emul_eta[12];
+  double _Stage2_eg_emul_phi[12];
+
+
+  //Stage 1 emulator stuff
+  edm::EDGetToken m_egToken_Stage1_emul_;  
+  edm::InputTag egTag_Stage1_emul_;
+
+  int _Stage1_eg_emul_n;
+  //Hardware units
+  int _Stage1_eg_emul_hwPt[12];
+  int _Stage1_eg_emul_hwEta[12];
+  int _Stage1_eg_emul_hwPhi[12];
+  int _Stage1_eg_emul_isoflag[12];  
+  //Physical units
+  double _Stage1_eg_emul_et[12];
+  double _Stage1_eg_emul_eta[12];
+  double _Stage1_eg_emul_phi[12];
+
 };

@@ -44,7 +44,7 @@ case "$mode" in
    
     queue="cmscaf1nd"   # LXBATCH jobs queue
 #    queue="8nh"
-    batchdir="$(pwd)/log_and_results/${runnb}-${datasetpath}-batch"
+    batchdir="$(pwd)/log_and_results2/${runnb}-${datasetpath}-batch"
     mkdir -p $batchdir
     mkdir -p $batchdir/logs
     mkdir -p $batchdir/results
@@ -66,7 +66,7 @@ case "$mode" in
       s=$[$s+1]
 
 #      cp -r configuration/configTPGtemplate.py $batchdir/runTPG_cfg_${s}.py
-      cp -r mk_tpgtree2.py $batchdir/runTPG_cfg_${s}.py
+      cp -r mk_tpgtree.py $batchdir/runTPG_cfg_${s}.py
       cp -r batch_template_AAA.sh $batchdir/batch_job_${s}.sh
 
       cd $batchdir/
@@ -84,7 +84,7 @@ case "$mode" in
           -i batch_job_${s}.sh
       
       chmod +x batch_job_${s}.sh
-#      bsub -q ${queue} batch_job_${s}.sh -o /dev/null -e /dev/null
+      bsub -q ${queue} batch_job_${s}.sh -o /dev/null -e /dev/null
 #      source batch_job_${s}.sh
       cd -
     done

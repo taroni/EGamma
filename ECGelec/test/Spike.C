@@ -14,7 +14,7 @@
 #include <TH2.h>
 #include <TH3.h>
 #include <TProfile2D.h>
-#include <TF1.h>
+
 ///#define DEBUG 1
 
 using namespace std; 
@@ -201,7 +201,7 @@ void Spike(TString run,TString campaign,TString sfgvb,TString etkill){
 
   
   //  TString filestart="/afs/cern.ch/work/n/ndev/Spikes/CMSSW_7_4_15/src/EGamma/ECGelec/test/ECALTPGtree_"+sfgvb+"_"+etkill+"_";
-  TString filestart="/afs/cern.ch/work/n/ndev/CMSSW_7_4_15/src/EGamma/ECGelec/test/ECALTPGtree_";
+  TString filestart="/afs/cern.ch/work/n/ndev/CMSSW_7_6_3/src/EGamma/ECGelec/test/ECALTPGtree_testing_";
   TString runnum=run;
   filestart+=runnum;
   TString ext=".root";
@@ -209,8 +209,6 @@ void Spike(TString run,TString campaign,TString sfgvb,TString etkill){
   // TString filestart="/afs/cern.ch/work/n/ndev/CMSSW_7_4_15/src/EGamma/ECGelec/test/ECALTPGtree_testing_tree11.root";  
   
   // TString filestart="/afs/cern.ch/work/n/ndev/CMSSW_7_4_15/src/EGamma/ECGelec/test/tree.root";
-  
-  filestart="/afs/cern.ch/user/n/ndev/eos/cms/store/user/ndev/TPG/ECALTPG_tree/ECALTPGtree_12_12_ON_257822.root";
   TFile *inf = TFile::Open(filestart);
 
   TTree *tr_ECAL = (TTree*)inf->Get("produceNtuple/eIDSimpleTree");
@@ -264,7 +262,7 @@ void Spike(TString run,TString campaign,TString sfgvb,TString etkill){
   int sevlv2[4032];
   int ttFlag[4032];
   int trig_tower_adc[4032], sFGVB[4032]; 
-  int rechit_cleaning_cut[4032];
+   
   
   Int_t nbOfL1IsoCands ;
   Int_t L1IsoIeta[4] ;
@@ -335,7 +333,6 @@ void Spike(TString run,TString campaign,TString sfgvb,TString etkill){
   tr_ECAL->SetBranchAddress ("spike",spike) ;
   tr_ECAL->SetBranchAddress ("sevlv", sevlv);
   tr_ECAL->SetBranchAddress ("sevlv2", sevlv2);
-  tr_ECAL->SetBranchAddress ("rechit_cleaning_cut", rechit_cleaning_cut);
   tr_ECAL->SetBranchAddress ("ttFlag", ttFlag);
   tr_ECAL->SetBranchAddress ("trig_tower_adc",trig_tower_adc) ; 
   tr_ECAL->SetBranchAddress ("sFGVB",sFGVB) ; 
@@ -808,9 +805,6 @@ void Spike(TString run,TString campaign,TString sfgvb,TString etkill){
 
    TH1F * TPEmulEB_realTP = new TH1F("TPEmulEB_realTP", "Emulated TPs, real TP > 0: Barrel", 256, 0., 256.) ;
    TPEmulEB_realTP->GetXaxis()->SetTitle("TP (ADC)") ;
-   TH1F * TPEmulEB_cleaned = new TH1F("TPEmulEB_cleaned", "Emulated TPs, real TP > 0: Barrel", 256, 0., 256.) ;
-   TPEmulEB_cleaned->GetXaxis()->SetTitle("TP (ADC)") ;
-
    TH1F * TPEmulEB_realTP_Spike = new TH1F("TPEmulEB_realTP_Spike", "TP: Barrel (sevlv3 or 4)", 256, 0., 256.) ;
    TPEmulEB->GetXaxis()->SetTitle("Emulated TP (ADC)") ;
    TH1F * TPEmulEB_realTP_Spike2 = new TH1F("TPEmulEB_realTP_Spike2", "TP: Barrel (sevlv3 or 4)", 256, 0., 256.) ;
@@ -881,7 +875,7 @@ void Spike(TString run,TString campaign,TString sfgvb,TString etkill){
    cout << "Total number of events == " << lastEntry <<endl; 
      //   lastEntry = 1000;
    for (int entry = firstEntry ; entry < lastEntry ; ++entry)
-	//for (int entry = firstEntry ; entry < 450000 ; ++entry)
+     //for (int entry = firstEntry ; entry < 1000 ; ++entry)
      {
      tr_ECAL->GetEntry (entry) ;
      //     cout<<"event "<< entry<<endl;
@@ -1174,6 +1168,7 @@ void Spike(TString run,TString campaign,TString sfgvb,TString etkill){
 	   }
          int ieta_tp = ieta[tower] ;
          int iphi_tp = iphi[tower] ;
+	
 	 if (abs(ieta_tp)==27 || abs(ieta_tp) ==28 ) {
 	   //cout << __LINE__ << " " <<  tp << endl; 
 	   tp = 2*tp; 
@@ -1208,25 +1203,25 @@ void Spike(TString run,TString campaign,TString sfgvb,TString etkill){
 		 }
 	     }
 	   }
-	 // else if (ieta_tp>=18){
-	 //   if (tp > occupancyCut) {
-	 //     // if (raw_spike ==0) {
-	 //     //   for (uint i=0; i !=geometry[hashedIndex].size();++i){
-	 //     // 	 spikesEEPlus2D ->Fill (geometry[hashedIndex][i].first,geometry[hashedIndex][i].second); 
-	 //     // 	 spikesEEPlus2DADC->Fill (geometry[hashedIndex][i].first,geometry[hashedIndex][i].second, tp ) ; 
-	 //     //   }
-	 //   }
-	 // }
-	 // }else if (ieta_tp <= -18) {
-	 //   if (tp > occupancyCut) {
-	 //     // if (raw_spike ==0 ) {
-	 //     //   for (uint i=0; i !=geometry[hashedIndex].size();++i){
-	 //     // 	 spikesEEMinus2D ->Fill (geometry[hashedIndex][i].first,geometry[hashedIndex][i].second); 
-	 //     // 	 spikesEEMinus2DADC->Fill (geometry[hashedIndex][i].first,geometry[hashedIndex][i].second, tp) ; 
-	 //     //   }
-	 //     }
-	 //   }
-	 // }
+	 else if (ieta_tp>=18){
+	   if (tp > occupancyCut) {
+	     if (raw_spike ==0) {
+	       for (uint i=0; i !=geometry[hashedIndex].size();++i){
+		 spikesEEPlus2D ->Fill (geometry[hashedIndex][i].first,geometry[hashedIndex][i].second); 
+		 spikesEEPlus2DADC->Fill (geometry[hashedIndex][i].first,geometry[hashedIndex][i].second, tp ) ; 
+	       }
+	     }
+	   }
+	 }else if (ieta_tp <= -18) {
+	   if (tp > occupancyCut) {
+	     if (raw_spike ==0 ) {
+	       for (uint i=0; i !=geometry[hashedIndex].size();++i){
+		 spikesEEMinus2D ->Fill (geometry[hashedIndex][i].first,geometry[hashedIndex][i].second); 
+		 spikesEEMinus2DADC->Fill (geometry[hashedIndex][i].first,geometry[hashedIndex][i].second, tp) ; 
+	       }
+	     }
+	   }
+	 }
 
 
          //apply hashedIndex filter
@@ -1336,25 +1331,21 @@ void Spike(TString run,TString campaign,TString sfgvb,TString etkill){
 		      }
 		  }
 		
-		if (emul[ref]>occupancyCut)// && tp>occupancyCut)
+		if (emul[ref]>occupancyCut && tp>occupancyCut)
 		  {
-		    
 		    for (int i=1;i<num_pu_bins;i++)
 		      {
-			if (rechit_cleaning_cut[tower]>0)
+			if(nVertices>pu_binning[i-1] && nVertices<pu_binning[i])
 			  {
-			    if(nVertices>pu_binning[i-1] && nVertices<pu_binning[i])
+			    events_by_bin[i-1]+=1;
+			    ALL_TPEMUL[i-1]->Fill(emul[ref]);
+			    if (sFGVB_bit==0)
 			      {
-				events_by_bin[i-1]+=1;
-				ALL_TPEMUL[i-1]->Fill(emul[ref]);
-				if (sFGVB_emulbit==0)
-				  {
-				    TPEMUL_sFGVB0[i-1]->Fill(emul[ref]);
+				TPEMUL_sFGVB0[i-1]->Fill(emul[ref]);
 							      }	    	    
-				if (severity_level==3 || severity_level==4)
-				  {
-				    TPEMUL_sevlv3_4[i-1]->Fill(emul[ref]);
-				  }
+			    if (severity_level==3 || severity_level==4)
+			      {
+				TPEMUL_sevlv3_4[i-1]->Fill(emul[ref]);
 			      }
 			  }
 		      }
@@ -1368,13 +1359,13 @@ void Spike(TString run,TString campaign,TString sfgvb,TString etkill){
 		  TPEB->Fill(tp) ;
 		  
 		  if (tp>46)
-		    {
-		      vertices_num_tpEBeg23_->Fill(nVertices);
-		    }
-		  if (tp>60)
-		    {
-		      vertices_num_tpEBeg30_->Fill(nVertices);
-		    }	
+		     {
+		       vertices_num_tpEBeg23_->Fill(nVertices);
+		     }
+		   if (tp>60)
+		     {
+		       vertices_num_tpEBeg30_->Fill(nVertices);
+		     }	
 		  TP_5x5Energy_ratio_spikesIn_EB->Fill(tp/(2.*eRec[tower])) ;
 		  TP_vs_5x5Energy_spikesIn_EB->Fill((2.*eRec[tower]),tp) ;
 		  if (tp > 24 ){
@@ -1438,30 +1429,24 @@ void Spike(TString run,TString campaign,TString sfgvb,TString etkill){
 		  }
 		}
 		if (tp>occupancyCut) TPspectrumMap3DEB->Fill(iphi_tp, ieta_tp, tp) ;
-
 		if (emul[ref]>occupancyCut){
 		  TPEmulEB->Fill(emul[ref]) ;		  
-		  // 		  if (tp>occupancyCut)
-		  //		    {
-		  vertices_num_tpEBemul->Fill(nVertices);
-		  if (tp>46)
-		    {
-		      vertices_num_tpEBeg23_emul->Fill(nVertices);
-		    }
-		  if (tp>60)
-		    {
-		      vertices_num_tpEBeg30_emul->Fill(nVertices);
-		    }
-		  if (rechit_cleaning_cut[tower]>0)
-		    {
-		      //		      cout<<" ekta peyechi re .."<<endl;
-		      TPEmulEB_cleaned->Fill(emul[ref]); 
-
+		  //		  if (tp>occupancyCut)
+		  // {
 		      if (sFGVB_emulbit==0) 
 			{
 			  TPEmulEB_sFGVB0->Fill(emul[ref]) ;
 			}
-		    		      
+		      vertices_num_tpEBemul->Fill(nVertices);
+		      if (tp>46)
+			{
+			  vertices_num_tpEBeg23_emul->Fill(nVertices);
+			}
+		      if (tp>60)
+			{
+			  vertices_num_tpEBeg30_emul->Fill(nVertices);
+			}	
+		      TPEmulEB_realTP->Fill(emul[ref]+20); 
 		      if (sevlv[tower] == 3 || sevlv[tower] == 4)
 			{ 
 			  TPEmulEB_realTP_Spike2->Fill(emul[ref]);
@@ -1478,10 +1463,9 @@ void Spike(TString run,TString campaign,TString sfgvb,TString etkill){
 			{
 			  vertices_num_tpEBeg30_emul_spike->Fill(nVertices);
 			}	
-			  
+		      
 			}
-		    }
-		  // }
+		      //  }
 		}
 		if (maxOfTPEmul>occupancyCut){
 		  TPEmulMaxEB->Fill(maxOfTPEmul) ;
@@ -1519,11 +1503,11 @@ void Spike(TString run,TString campaign,TString sfgvb,TString etkill){
 		      TPEmulMaxEEPlus->Fill(maxOfTPEmul) ;
 		      if (tp>0) TPEmulMaxEEPlus_realTP->Fill(maxOfTPEmul) ;
 		    }
-		    // if (tp>occupancyCut)
-		    //   {
-		    // 	for (uint i=0; i !=geometry[hashedIndex].size();++i)
-		    // 	  TPspectrumMap3DEEPlus->Fill(geometry[hashedIndex][i].first,geometry[hashedIndex][i].second,tp) ;
-		    //   }
+		    if (tp>occupancyCut)
+		      {
+			for (uint i=0; i !=geometry[hashedIndex].size();++i)
+			  TPspectrumMap3DEEPlus->Fill(geometry[hashedIndex][i].first,geometry[hashedIndex][i].second,tp) ;
+		      }
 
 		  }
          
@@ -1555,10 +1539,10 @@ void Spike(TString run,TString campaign,TString sfgvb,TString etkill){
 		      TPEmulMaxEEMinus->Fill(maxOfTPEmul) ;
 		      if (tp>0) TPEmulMaxEEMinus_realTP->Fill(maxOfTPEmul) ;
 		    }
-		    // if (tp>occupancyCut){   
-		    //   for (uint i=0; i !=geometry[hashedIndex].size();++i)
-		    // 	TPspectrumMap3DEEMinus->Fill(geometry[hashedIndex][i].first,geometry[hashedIndex][i].second,tp) ;
-		    // }
+		    if (tp>occupancyCut){   
+		      for (uint i=0; i !=geometry[hashedIndex].size();++i)
+			TPspectrumMap3DEEMinus->Fill(geometry[hashedIndex][i].first,geometry[hashedIndex][i].second,tp) ;
+		    }
 	    		    
 		  }
 	      }	  
@@ -1896,9 +1880,6 @@ void Spike(TString run,TString campaign,TString sfgvb,TString etkill){
    vertices_num_tpEB->Rebin(2);
    vertices_num_tpEBspike->Rebin(2);
 
-   TF1* lin = new TF1("lin","[0]*x+[1]",5,40);
-   lin->SetParameter(0,0.2);
-   lin->SetParameter(1,0.2);
 
    TEfficiency* pEff = 0;
 
@@ -1907,13 +1888,10 @@ void Spike(TString run,TString campaign,TString sfgvb,TString etkill){
        pEff = new TEfficiency(*vertices_num_tpEBspike,*vertices_num_tpEB);
        pEff->SetMarkerStyle(3);
        pEff->SetLineColor(kBlue);
-       // pEff->Fit(lin,"R");
-      
+       pEff->Draw();
      }
-    pEff->Draw();
-    gPad->Update();
-    pEff->GetPaintedGraph()->GetYaxis()->SetRangeUser(0.0,1.0);
-    pEff->GetPaintedGraph()->GetXaxis()->SetRangeUser(5,40);
+   gPad->Update();
+   pEff->GetPaintedGraph()->GetYaxis()->SetRangeUser(0.0,1.0);
 
    
    vertices_num_tpEBeg23_->Rebin(2);
@@ -1925,14 +1903,12 @@ void Spike(TString run,TString campaign,TString sfgvb,TString etkill){
      {
        pEff_eg23 = new TEfficiency(*vertices_num_tpEBeg23_spike,*vertices_num_tpEBeg23_);
        pEff_eg23->SetMarkerStyle(3);
-       pEff_eg23->SetLineColor(kRed);
-       pEff_eg23->Fit(lin,"R");
+       pEff_eg23->SetLineColor(kBlack);
        pEff_eg23->Draw("same");
-
      }
-    gPad->Update();
-    pEff_eg23->GetPaintedGraph()->GetYaxis()->SetRangeUser(0.0,1.0);
-    pEff_eg23->GetPaintedGraph()->GetXaxis()->SetRangeUser(5,40);
+   gPad->Update();
+   pEff_eg23->GetPaintedGraph()->GetYaxis()->SetRangeUser(0.0,1.0);
+
 
 
    vertices_num_tpEBeg30_->Rebin(2);
@@ -1946,7 +1922,7 @@ void Spike(TString run,TString campaign,TString sfgvb,TString etkill){
        pEff_eg30->SetLineColor(kRed);
        //       pEff_eg30->Draw("same");
      }
-   TLegend *leg9001 = new TLegend(0.1,0.65,0.4,0.80,"", "brNDC");
+   TLegend *leg9001 = new TLegend(0.52,0.65,0.92,0.88,"", "brNDC");
    leg9001->SetTextFont(62); //22, 62
    leg9001->SetTextSize(0.032); // 0.03, 0.048
    leg9001->SetLineColor(1);
@@ -1956,7 +1932,7 @@ void Spike(TString run,TString campaign,TString sfgvb,TString etkill){
    leg9001->SetFillColor(10);
    leg9001->AddEntry(pEff,"#bf{ALL TP}","l");
    leg9001->AddEntry(pEff_eg23,"#bf{Above 20 GeV}","l");
-   //   leg9001->AddEntry(pEff_eg30,"#bf{Above 30 GeV}","l");
+   leg9001->AddEntry(pEff_eg30,"#bf{Above 30 GeV}","l");
 
    leg9001->Draw();
 
@@ -1972,11 +1948,6 @@ void Spike(TString run,TString campaign,TString sfgvb,TString etkill){
    vertices_num_tpEBemul->Rebin(2);
    vertices_num_tpEBemul_spike->Rebin(2);
 
-
-   TF1* lin2 = new TF1("lin2","[0]*x+[1]",5,40);
-   lin2->SetParameter(0,0);
-   lin2->SetParameter(1,0.1);
-
    TEfficiency* pEff2 = 0;
 
    if(TEfficiency::CheckConsistency(*vertices_num_tpEBemul_spike,*vertices_num_tpEBemul))
@@ -1989,7 +1960,7 @@ void Spike(TString run,TString campaign,TString sfgvb,TString etkill){
    pEff2->Draw();
    gPad->Update();
    pEff2->GetPaintedGraph()->GetYaxis()->SetRangeUser(0.0,1.0);
-   pEff2->GetPaintedGraph()->GetXaxis()->SetRangeUser(5,40);
+   
 
    vertices_num_tpEBeg23_emul->Rebin(2);
    vertices_num_tpEBeg23_emul_spike->Rebin(2);
@@ -2001,13 +1972,12 @@ void Spike(TString run,TString campaign,TString sfgvb,TString etkill){
      {
        pEff_eg23_2 = new TEfficiency(*vertices_num_tpEBeg23_emul_spike,*vertices_num_tpEBeg23_emul);
        pEff_eg23_2->SetMarkerStyle(3);
-       pEff_eg23_2->SetLineColor(kRed);
-       pEff_eg23_2->Fit(lin2,"R");
+       pEff_eg23_2->SetLineColor(kBlack);
        pEff_eg23_2->Draw("same");
      }
    gPad->Update();
    pEff_eg23_2->GetPaintedGraph()->GetYaxis()->SetRangeUser(0.0,1.0);
-   pEff_eg23_2->GetPaintedGraph()->GetXaxis()->SetRangeUser(5,40);
+
    vertices_num_tpEBeg30_emul->Rebin(2);
    vertices_num_tpEBeg30_emul_spike->Rebin(2);
 
@@ -2021,7 +1991,7 @@ void Spike(TString run,TString campaign,TString sfgvb,TString etkill){
        //       pEff_eg30_2->Draw("same");
      }
 
-   TLegend *leg9101 = new TLegend(0.1,0.65,0.45,0.80,"", "brNDC");
+   TLegend *leg9101 = new TLegend(0.57,0.65,0.95,0.88,"", "brNDC");
    leg9101->SetTextFont(62); //22, 62
    leg9101->SetTextSize(0.032); // 0.03, 0.048
    leg9101->SetLineColor(1);
@@ -2031,7 +2001,7 @@ void Spike(TString run,TString campaign,TString sfgvb,TString etkill){
    leg9101->SetFillColor(10);
    leg9101->AddEntry(pEff2,"#bf{ALL TP}","l");
    leg9101->AddEntry(pEff_eg23_2,"#bf{Above 20 GeV}","l");
-   //   leg9101->AddEntry(pEff_eg30_2,"#bf{Above 30 GeV}","l");
+   leg9101->AddEntry(pEff_eg30_2,"#bf{Above 30 GeV}","l");
 
    leg9101->Draw();
 
@@ -2091,9 +2061,9 @@ void Spike(TString run,TString campaign,TString sfgvb,TString etkill){
    // TPEB_Spike2->Draw("hist same");
    
    cout << "number of good VS bad TP " << TPEB->Integral() <<  " : " <<  TPEB_Spike->Integral() << " : " << TPEB_Spike->Integral()/TPEB->Integral() <<  endl;
-   cout << "number of good VS bad TP above 23 GeV " << TPEB->Integral(46, 255) <<  " : " <<  TPEB_Spike->Integral(46, 255) << " : " <<  TPEB_Spike->Integral(46, 255)/TPEB->Integral(46, 255) << endl;
-   cout << "number of good VS bad TP above 30 GeV " << TPEB->Integral(60, 255) <<  " : " <<  TPEB_Spike->Integral(60, 255) << " : " <<  TPEB_Spike->Integral(60, 255)/TPEB->Integral(60, 255) << endl;
-   cout << "number of good VS bad TP >= 255 " << TPEB->GetBinContent(255) <<  " : " <<  TPEB_Spike->GetBinContent(255) << " : "  <<   TPEB_Spike->GetBinContent(255)/TPEB->GetBinContent(255)  <<endl;
+   cout << "number of good VS bad TP above 23 GeV " << TPEB->Integral(46, 256) <<  " : " <<  TPEB_Spike->Integral(46, 256) << " : " <<  TPEB_Spike->Integral(46, 256)/TPEB->Integral(46, 256) << endl;
+   cout << "number of good VS bad TP above 30 GeV " << TPEB->Integral(60, 256) <<  " : " <<  TPEB_Spike->Integral(60, 256) << " : " <<  TPEB_Spike->Integral(60, 256)/TPEB->Integral(60, 256) << endl;
+   cout << "number of good VS bad TP >= 256 " << TPEB->GetBinContent(256) <<  " : " <<  TPEB_Spike->GetBinContent(256) << " : "  <<   TPEB_Spike->GetBinContent(256)/TPEB->GetBinContent(256)  <<endl;
 
    TLatex *   tex11 = new TLatex(0.6,0.30,"sFGVB_{th} = 12 ");
    tex11->SetNDC();
@@ -2119,8 +2089,8 @@ void Spike(TString run,TString campaign,TString sfgvb,TString etkill){
    tex->SetLineWidth(2);
    tex->Draw();                                                                                                                                                                                            
    float Rp=TPEB_Spike->Integral()/TPEB->Integral();
-   float Rp20=TPEB_Spike->Integral(40,255)/TPEB->Integral(40,255);
-   float Rp30=TPEB_Spike->Integral(60,255)/TPEB->Integral(60,255);
+   float Rp20=TPEB_Spike->Integral(40,256)/TPEB->Integral(40,256);
+   float Rp30=TPEB_Spike->Integral(60,256)/TPEB->Integral(60,256);
    char Rper[100];
    char Rper20[100];
    char Rper30[100];
@@ -2197,24 +2167,23 @@ void Spike(TString run,TString campaign,TString sfgvb,TString etkill){
    c18->cd();
    c18->SetTicks();
    c18->SetLogy();
-   //   TPEmulEB_cleaned->Draw("hist");
-   TPEmulEB_cleaned->SetYTitle("#bf{Number of TP}");
-   TPEmulEB_cleaned->SetXTitle("#bf{TP (ADC)}");
-   TPEmulEB_cleaned->GetXaxis()->SetLabelFont(42);
-   TPEmulEB_cleaned->GetYaxis()->SetLabelFont(42);
-   TPEmulEB_cleaned->SetLineColor(kViolet);
-   TPEmulEB->Draw("hist same");
-   TPEmulEB->SetLineColor(kBlack);
+   TPEmulEB_realTP->Draw("hist");
+   TPEmulEB_realTP->SetYTitle("#bf{Number of TP}");
+   TPEmulEB_realTP->SetXTitle("#bf{TP (ADC)}");
+   TPEmulEB_realTP->GetXaxis()->SetLabelFont(42);
+   TPEmulEB_realTP->GetYaxis()->SetLabelFont(42);
+   TPEmulEB_realTP->SetLineColor(kBlack);
    TPEmulEB_realTP_Spike->SetLineColor(kBlue);
-   //TPEmulEB_realTP_Spike->Draw("hist same");
-   TPEmulEB_sFGVB0->SetLineColor(kRed);
+   //   TPEmulEB_realTP_Spike->SetFillColor(kYellow-10);
+   TPEmulEB_realTP_Spike->Draw("hist same");
+   TPEmulEB_sFGVB0->SetLineColor(kGreen);
    //   TPEmulEB_sFGVB0->SetFillColor(kRed);
-   //TPEmulEB_sFGVB0->Draw("hist same");
+   TPEmulEB_sFGVB0->Draw("hist same");
 
-   cout << "number of good VS bad TP " << TPEmulEB_cleaned->Integral() <<  " : " <<  TPEmulEB_realTP_Spike->Integral() << " : " << TPEmulEB_realTP_Spike->Integral()/TPEmulEB_cleaned->Integral() <<  endl;
-   cout << "number of good VS bad TP above 23 GeV " << TPEmulEB_cleaned->Integral(46, 255) <<  " : " <<  TPEmulEB_realTP_Spike->Integral(46, 255) << " : " <<  TPEmulEB_realTP_Spike->Integral(46, 255)/TPEmulEB_cleaned->Integral(46, 255) << endl;
-   cout << "number of good VS bad TP above 30 GeV " << TPEmulEB_cleaned->Integral(60, 255) <<  " : " <<  TPEmulEB_realTP_Spike->Integral(60, 255) << " : " <<  TPEmulEB_realTP_Spike->Integral(60, 255)/TPEmulEB_cleaned->Integral(60, 255) << endl;
-   cout << "number of good VS bad TP >= 255 " << TPEmulEB_cleaned->GetBinContent(255) <<  " : " <<  TPEmulEB_realTP_Spike->GetBinContent(255) << " : "  <<   TPEmulEB_realTP_Spike->GetBinContent(255)/TPEmulEB_cleaned->GetBinContent(255)  <<endl;
+   cout << "number of good VS bad TP " << TPEmulEB_realTP->Integral() <<  " : " <<  TPEmulEB_realTP_Spike->Integral() << " : " << TPEmulEB_realTP_Spike->Integral()/TPEmulEB_realTP->Integral() <<  endl;
+   cout << "number of good VS bad TP above 23 GeV " << TPEmulEB_realTP->Integral(46, 256) <<  " : " <<  TPEmulEB_realTP_Spike->Integral(46, 256) << " : " <<  TPEmulEB_realTP_Spike->Integral(46, 256)/TPEmulEB_realTP->Integral(46, 256) << endl;
+   cout << "number of good VS bad TP above 30 GeV " << TPEmulEB_realTP->Integral(60, 256) <<  " : " <<  TPEmulEB_realTP_Spike->Integral(60, 256) << " : " <<  TPEmulEB_realTP_Spike->Integral(60, 256)/TPEmulEB_realTP->Integral(60, 256) << endl;
+   cout << "number of good VS bad TP >= 256 " << TPEmulEB_realTP->GetBinContent(256) <<  " : " <<  TPEmulEB_realTP_Spike->GetBinContent(256) << " : "  <<   TPEmulEB_realTP_Spike->GetBinContent(256)/TPEmulEB_realTP->GetBinContent(256)  <<endl;
 
    TLatex *   tex3 = new TLatex(0.13,0.88,"#bf{CMS Preliminary}");
    tex3->SetNDC();
@@ -2260,8 +2229,8 @@ void Spike(TString run,TString campaign,TString sfgvb,TString etkill){
    tex22->Draw();                                                                                                                            
    
    float p=TPEmulEB_realTP_Spike->Integral()/TPEmulEB_realTP->Integral();
-   float p20=TPEmulEB_realTP_Spike->Integral(40,255)/TPEmulEB_realTP->Integral(40,255);
-   float p30=TPEmulEB_realTP_Spike->Integral(60,255)/TPEmulEB_realTP->Integral(60,255);
+   float p20=TPEmulEB_realTP_Spike->Integral(40,256)/TPEmulEB_realTP->Integral(40,256);
+   float p30=TPEmulEB_realTP_Spike->Integral(60,256)/TPEmulEB_realTP->Integral(60,256);
    char per[100];
    char per20[100];
    char per30[100];
@@ -2311,14 +2280,12 @@ void Spike(TString run,TString campaign,TString sfgvb,TString etkill){
    leg2->SetLineWidth(1);
    leg2->SetFillStyle(1001);
    leg2->SetFillColor(10);
-   leg2->AddEntry(TPEmulEB,"#bf{All Emulated TP in EB}","l");
-   leg2->AddEntry(TPEmulEB_cleaned,"#bf{Emulated TP cleaned}","l");
+   leg2->AddEntry(TPEmulEB_realTP,"#bf{All Emulated TP in EB}","l");
    leg2->AddEntry(TPEmulEB_realTP_Spike,"#bf{Emulated TP with Severity Level 3 or 4 (Spikes)}","l");
    leg2->AddEntry(TPEmulEB_sFGVB0,"#bf{Emulated TP with sFGVB =0}","l");
 
-   //   leg2->Draw();
+   leg2->Draw();
    c18->Print("plots/"+runnum+"-SpikeComparison-Emul"+sfgvb+"_"+etkill+".png");
-   c18->Print("plots/"+runnum+"-SpikeComparison-Emul"+sfgvb+"_"+etkill+".root");
 
 
    cout << "number of good VS bad L1 " << L1IsoCandRank->Integral() <<  " : " <<  L1IsoCandRank_spikes->Integral() << " : " << L1IsoCandRank_spikes->Integral()/L1IsoCandRank->Integral() <<  endl;
